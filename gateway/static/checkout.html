@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razor402 — Checkout</title>
+    <meta name="description" content="Purchase API resources via Razorpay Standard Checkout">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card: #12121a;
+            --card-hover: #1a1a28;
+            --border: #1e1e2e;
+            --text: #e2e2f0;
+            --muted: #8888a0;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #eab308;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        header {
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16162a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        header h1 { font-size: 1.5rem; font-weight: 700; }
+        header h1 span { color: var(--accent); }
+        header p { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+
+        .container {
+            max-width: 900px; width: 100%; padding: 2rem;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem; margin-top: 1.5rem;
+        }
+        .item-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .item-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            opacity: 0; transition: opacity 0.25s ease;
+        }
+        .item-card:hover {
+            border-color: var(--accent);
+            background: var(--card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.1);
+        }
+        .item-card:hover::before { opacity: 1; }
+
+        .item-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; }
+        .item-category {
+            display: inline-block;
+            background: rgba(99,102,241,0.15);
+            color: var(--accent-light);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .item-specs {
+            color: var(--muted); font-size: 0.8rem;
+            margin-top: 0.5rem; line-height: 1.4;
+        }
+        .item-price {
+            font-size: 1.25rem; font-weight: 700;
+            color: var(--accent);
+            margin-top: 0.75rem;
+        }
+        .item-price small {
+            font-size: 0.7rem; color: var(--muted);
+            font-weight: 400;
+        }
+
+        .pay-btn {
+            display: block; width: 100%;
+            margin-top: 0.75rem; padding: 0.6rem;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff; border: none; border-radius: 0.5rem;
+            font-family: inherit; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .pay-btn:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+        }
+        .pay-btn:disabled {
+            opacity: 0.5; cursor: not-allowed; filter: none;
+            box-shadow: none;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed; bottom: 2rem; right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem; font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0; transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { background: rgba(34,197,94,0.15); border: 1px solid var(--green); color: var(--green); }
+        #toast.error { background: rgba(239,68,68,0.15); border: 1px solid var(--red); color: var(--red); }
+        #toast.info { background: rgba(99,102,241,0.15); border: 1px solid var(--accent); color: var(--accent-light); }
+
+        /* Receipt modal */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 480px; width: 90%;
+            text-align: center;
+        }
+        .modal h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .modal .receipt-row {
+            display: flex; justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .modal .receipt-row:last-child { border-bottom: none; }
+        .modal .receipt-label { color: var(--muted); }
+        .modal .receipt-value { font-weight: 600; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+        .modal .close-btn {
+            margin-top: 1.5rem; padding: 0.6rem 2rem;
+            background: var(--accent); color: #fff;
+            border: none; border-radius: 0.5rem;
+            font-family: inherit; font-weight: 600; cursor: pointer;
+        }
+
+        .section-title {
+            font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--muted);
+            margin-top: 2rem; margin-bottom: 0.5rem;
+        }
+
+        /* Verified badge */
+        .verified-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: rgba(34,197,94,0.15);
+            color: var(--green);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span>Razor402</span> — Standard Checkout</h1>
+        <p>Purchase API resources via Razorpay test mode</p>
+    </header>
+
+    <div class="container">
+        <p class="section-title">Available Resources</p>
+        <div id="catalog" class="catalog-grid">
+            <div class="item-card" style="opacity:0.5;pointer-events:none">
+                <div class="item-title">Loading catalog…</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <div id="receipt-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="verified-badge">✓ Payment Verified</div>
+            <h2>Payment Receipt</h2>
+            <div id="receipt-body"></div>
+            <button class="close-btn" onclick="closeReceipt()">Close</button>
+        </div>
+    </div>
+
+    <script>
+    const BASE = window.location.origin;
+    let checkoutConfig = {};
+
+    function paise(p) {
+        return '₹' + (Math.abs(p) / 100).toFixed(2);
+    }
+
+    function toast(msg, type = 'info', duration = 4000) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = type + ' show';
+        setTimeout(() => el.className = '', duration);
+    }
+
+    async function loadCatalog() {
+        try {
+            const [catResp, cfgResp] = await Promise.all([
+                fetch(BASE + '/.well-known/agent-catalog'),
+                fetch(BASE + '/api/checkout-config'),
+            ]);
+            const catalog = await catResp.json();
+            checkoutConfig = await cfgResp.json();
+
+            const el = document.getElementById('catalog');
+            el.innerHTML = catalog.items.map(item => `
+                <div class="item-card" id="card-${item.id}">
+                    <span class="item-category">${item.category}</span>
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-specs">${formatSpecs(item.specs)}</div>
+                    <div class="item-price">${paise(item.pricePaise)} <small>per call</small></div>
+                    <button class="pay-btn" onclick="pay('${item.id}', ${item.pricePaise}, '${item.title}')">
+                        Pay ${paise(item.pricePaise)}
+                    </button>
+                </div>
+            `).join('');
+        } catch (e) {
+            toast('Failed to load catalog: ' + e.message, 'error');
+        }
+    }
+
+    function formatSpecs(specs) {
+        if (!specs) return '';
+        return Object.entries(specs)
+            .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+            .join(' · ');
+    }
+
+    async function pay(itemId, amountPaise, title) {
+        // Disable button
+        const card = document.getElementById('card-' + itemId);
+        const btn = card?.querySelector('.pay-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Creating order…'; }
+
+        try {
+            // STEP 1: Create order
+            const orderResp = await fetch(BASE + '/api/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: amountPaise,
+                    currency: 'INR',
+                    receipt: 'checkout_' + itemId + '_' + Date.now(),
+                    item_id: itemId,
+                }),
+            });
+
+            if (!orderResp.ok) {
+                const err = await orderResp.json();
+                throw new Error(err.detail || 'Order creation failed');
+            }
+
+            const order = await orderResp.json();
+
+            // STEP 2: Open Razorpay modal
+            const options = {
+                key: order.key_id || checkoutConfig.key_id,
+                amount: order.amount,
+                currency: order.currency,
+                name: checkoutConfig.merchant_name || 'BuildBroker',
+                description: title || checkoutConfig.description,
+                order_id: order.order_id,
+                handler: async function (response) {
+                    // STEP 3: Verify payment
+                    await verifyPayment(response, itemId, amountPaise);
+                },
+                modal: {
+                    ondismiss: function () {
+                        toast('Payment cancelled', 'info');
+                        if (btn) { btn.disabled = false; btn.textContent = 'Pay ' + paise(amountPaise); }
+                    },
+                    escape: true,
+                    confirm_close: true,
+                },
+                prefill: {
+                    name: 'AI Agent Demo',
+                    email: 'agent@buildbroker.dev',
+                },
+                notes: {
+                    item_id: itemId,
+                    source: 'razor402-checkout',
+                },
+                theme: { color: checkoutConfig.theme_color || '#6366f1' },
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', function (response) {
+                toast('Payment failed: ' + (response.error?.description || 'Unknown error'), 'error');
+                if (btn) { btn.disabled = false; btn.textContent = 'Pay ' + paise(amountPaise); }
+            });
+
+            rzp.open();
+            if (btn) { btn.textContent = 'Awaiting payment…'; }
+
+        } catch (e) {
+            toast('Error: ' + e.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = 'Pay ' + paise(amountPaise); }
+        }
+    }
+
+    async function verifyPayment(response, itemId, amountPaise) {
+        toast('Verifying payment…', 'info');
+
+        try {
+            const verifyResp = await fetch(BASE + '/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                }),
+            });
+
+            const result = await verifyResp.json();
+
+            if (result.verified) {
+                toast('Payment verified successfully!', 'success', 5000);
+                showReceipt(response, itemId, amountPaise);
+            } else {
+                toast('Signature verification FAILED — do NOT treat as paid', 'error', 8000);
+            }
+        } catch (e) {
+            toast('Verification error: ' + e.message, 'error');
+        }
+
+        // Re-enable button
+        const card = document.getElementById('card-' + itemId);
+        const btn = card?.querySelector('.pay-btn');
+        if (btn) { btn.disabled = false; btn.textContent = 'Pay ' + paise(amountPaise); }
+    }
+
+    function showReceipt(response, itemId, amountPaise) {
+        const body = document.getElementById('receipt-body');
+        body.innerHTML = `
+            <div class="receipt-row">
+                <span class="receipt-label">Item</span>
+                <span class="receipt-value">${itemId}</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Amount</span>
+                <span class="receipt-value">${paise(amountPaise)}</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Payment ID</span>
+                <span class="receipt-value">${response.razorpay_payment_id}</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Order ID</span>
+                <span class="receipt-value">${response.razorpay_order_id}</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Signature</span>
+                <span class="receipt-value" style="font-size:0.65rem;word-break:break-all">${response.razorpay_signature}</span>
+            </div>
+        `;
+        document.getElementById('receipt-modal').classList.add('show');
+    }
+
+    function closeReceipt() {
+        document.getElementById('receipt-modal').classList.remove('show');
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('receipt-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeReceipt();
+    });
+
+    loadCatalog();
+    </script>
+</body>
+</html>

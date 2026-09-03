@@ -1,0 +1,89 @@
+{
+  "recorded_at": "2026-09-03T14:22:11Z",
+  "provider": "fixture",
+  "model": "default-replay",
+  "mission": "Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150. The vector workload is approximately 20 queries. Buy only what the task needs. For every purchase, state your reasoning — it is signed and permanently audit-logged.",
+  "turns": [
+    {"tool": "discover_catalog", "args": {}, "result_digest": "sha256:catalog"},
+    {"tool": "check_budget", "args": {}},
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "deepseek-v3-tokens",
+        "rationale": "LLM inference needed to process and embed document corpus for RAG pipeline. 100k token quota sufficient for initial document processing and question-answer generation."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "First vector search query to validate document retrieval after embedding corpus into vector store."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Second vector query to test retrieval quality across different document sections and query types."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Testing vector search with varied query embeddings to measure accuracy and recall."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Vector query to benchmark recall and precision metrics for the RAG pipeline retrieval component."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Additional vector search for edge case and negative-match document retrieval testing."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Cross-reference verification query to validate consistency across related document chunks."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Seventh vector query for comprehensive coverage testing across the full document corpus."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "qdrant-vector-query",
+        "rationale": "Eighth vector query completing threshold for day pass evaluation. Cost-efficiency analysis follows."
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "day-pass",
+        "rationale": "Day pass is cost-effective: 8 paid queries already done (₹40), remaining ~12 queries at ₹5 each = ₹60 vs pass at ₹49. Pass saves ₹11 and removes per-call friction for remaining work.",
+        "select_index": 1
+      }
+    },
+    {
+      "tool": "procure",
+      "args": {
+        "item_id": "market-snapshot",
+        "rationale": "Market data snapshot provides the real-time financial data anchor required by the RAG pipeline specification."
+      }
+    },
+    {"tool": "check_budget", "args": {}}
+  ]
+}
