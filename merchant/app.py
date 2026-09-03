@@ -56,31 +56,54 @@ async def provision(item_id: str, request: Request):
 
 
 def _get_quota(item_id: str, item: dict) -> dict:
-    if "tokens" in item_id or "flash" in item_id:
-        return {"tokens": 100_000}
-    elif "query" in item_id:
+    cat = item.get("category", "")
+    if cat == "llm_inference":
+        return {"tokens": item.get("specs", {}).get("context", 100_000)}
+    elif "embedding" in item_id:
+        return {"tokens": 500_000}
+    elif cat == "vector_db":
         return {"queries": 1}
-    elif item_id == "market-snapshot":
-        return {"snapshots": 1}
+    elif cat == "search_and_data":
+        if "search" in item_id:
+            return {"queries": 10}
+        elif "scrape" in item_id:
+            return {"pages": 5}
+        elif "browser" in item_id:
+            return {"minutes": 5}
+        return {"requests": 10}
+    elif cat == "financial_data":
+        return {"reports": 1}
     elif item_id == "day-pass":
         return {"queries": "unlimited", "valid_hours": 24}
     elif item_id == "enterprise-gpu-node":
         return {"hours": 1, "gpus": 8}
-    elif item.get("category") == "compute":
+    elif cat == "compute":
+        if "interpreter" in item_id:
+            return {"minutes": 15, "isolated": True}
+        elif "tts" in item_id or "voice" in item_id:
+            return {"chars": 5000}
+        elif "sdxl" in item_id or "image" in item_id:
+            return {"images": 4}
         return {"hours": 1, "vcpus": item.get("specs", {}).get("vcpus", 2)}
     return {"units": 1}
 
 
 def _get_endpoint_path(item_id: str) -> str:
-    if "tokens" in item_id or "flash" in item_id:
+    cat = CATALOG.get(item_id, {}).get("category", "")
+    if cat == "llm_inference":
         return "inference/generate"
-    elif "query" in item_id or item_id == "day-pass":
+    elif "embedding" in item_id:
+        return "embeddings/create"
+    elif cat == "vector_db" or item_id == "day-pass":
         return "vectors/search"
-    elif item_id == "market-snapshot":
-        return "market/snapshot"
-    elif item.get("category") == "compute" or item_id == "enterprise-gpu-node":
+    elif cat == "search_and_data":
+        return "search/query"
+    elif cat == "financial_data":
+        return "market/feed"
+    elif cat == "compute" or item_id == "enterprise-gpu-node":
         return "compute/provision"
     return "provision"
+
 
 
 

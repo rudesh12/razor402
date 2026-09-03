@@ -91,8 +91,10 @@ async def agent_catalog():
             "title": item["title"],
             "pricePaise": item["price_paise"],
             "category": item["category"],
+            "seller": item.get("seller", "BuildBroker"),
             "specs": item["specs"],
             "purchaseUrl": f"/provision/{item_id}",
+
         }
         if "description" in item:
             entry["description"] = item["description"]

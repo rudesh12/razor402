@@ -162,14 +162,18 @@
             const el = document.getElementById('catalog');
             el.innerHTML = Object.entries(data).map(([id, item]) => `
                 <div class="card">
-                    <div class="card-title">${item.title || id}</div>
-                    <div style="display:flex;justify-content:space-between;margin-top:0.25rem">
-                        <span class="card-meta">${item.category}</span>
+                    <div style="display:flex;justify-content:space-between;align-items:baseline">
+                        <span class="card-title">${item.title || id}</span>
                         <span class="card-price">${paise(item.price_paise)}</span>
                     </div>
-                    ${item.description ? `<div class="card-meta" style="margin-top:0.25rem;font-style:italic">${item.description.slice(0,80)}…</div>` : ''}
+                    <div style="display:flex;justify-content:space-between;margin-top:0.35rem">
+                        <span class="card-meta" style="color:var(--accent-light);font-weight:600;">${item.seller || 'BuildBroker'}</span>
+                        <span class="card-meta">${item.category}</span>
+                    </div>
+                    ${item.description ? `<div class="card-meta" style="margin-top:0.35rem;font-style:italic">${item.description.slice(0,85)}…</div>` : ''}
                 </div>
             `).join('');
+
         }
 
         async function refreshTxns() {
