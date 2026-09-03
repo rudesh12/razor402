@@ -411,7 +411,7 @@ def test_no_price_literals_outside_catalog():
                      "test_handshake.py", "test_policy.py", "test_idempotency.py",
                      "test_compensation.py", "test_integration.py", "conftest.py",
                      "test_checkout.py", "checkout.html", "checkout.py", "dashboard.html",
-                     "console.html", "console_api.py",
+                     "console.html", "console_api.py", "index.html",
                      "demo_policy.py", "demo_replay.py", "demo_chaos.py", "demo_indoubt.py", "demo_upsell.py",
                      "reset_db.py",
                      "Plan.md", "context.md", "procurement_run.json", "batch_metrics.py"}

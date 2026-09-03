@@ -106,3 +106,75 @@ def test_verify_payment_missing_fields(checkout_client):
         "razorpay_order_id": "order_test_12345",
     })
     assert resp.status_code == 400
+
+
+def test_spa_served_on_entry_routes(checkout_client):
+    """GET /, /dashboard, /checkout, /console all serve the unified SPA."""
+    for path in ("/", "/dashboard", "/checkout", "/console"):
+        resp = checkout_client.get(path)
+        assert resp.status_code == 200
+        assert "Razor402" in resp.text
+        assert "AI Agent Commerce" in resp.text or "Standard Checkout" in resp.text
+
+
+def test_budget_adjust_endpoint(checkout_client):
+    """POST /api/v1/budget/adjust updates in-memory agent policy."""
+    resp = checkout_client.post("/api/v1/budget/adjust", json={
+        "agent": "agt_coding_01",
+        "daily_pool_paise": 25000,
+        "per_call_cap_paise": 4000,
+    })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["policy"]["daily_pool_paise"] == 25000
+    assert data["policy"]["per_call_cap_paise"] == 4000
+
+    # Reset back to original
+    checkout_client.post("/api/v1/budget/adjust", json={
+        "agent": "agt_coding_01",
+        "daily_pool_paise": 15000,
+        "per_call_cap_paise": 5000,
+    })
+
+
+def test_budget_adjust_validation(checkout_client):
+    """Budget adjust validates bounds and agent existence."""
+    # Unknown agent
+    resp = checkout_client.post("/api/v1/budget/adjust", json={"agent": "agt_unknown"})
+    assert resp.status_code == 404
+
+    # Out of bounds pool
+    resp = checkout_client.post("/api/v1/budget/adjust", json={
+        "agent": "agt_coding_01",
+        "daily_pool_paise": 500,  # below min 1000
+    })
+    assert resp.status_code == 400
+
+    # Out of bounds cap
+    resp = checkout_client.post("/api/v1/budget/adjust", json={
+        "agent": "agt_coding_01",
+        "per_call_cap_paise": 50000,  # above max 10000
+    })
+    assert resp.status_code == 400
+
+
+def test_stats_endpoint(checkout_client):
+    """GET /api/v1/stats returns aggregate metrics."""
+    resp = checkout_client.get("/api/v1/stats")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "total_txns" in data
+    assert "total_captured_paise" in data
+    assert "chaos_mode" in data
+    assert "envelope_status" in data
+
+
+def test_reset_db_endpoint(checkout_client):
+    """POST /api/v1/reset-db clears tables safely."""
+    resp = checkout_client.post("/api/v1/reset-db")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["cleared"] is True
+    assert "txn" in data["tables"]
+    assert "audit" in data["tables"]
+

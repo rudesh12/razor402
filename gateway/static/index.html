@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razor402 — Razorpay Standard Checkout & AI Agent Commerce Platform</title>
+    <meta name="description" content="HTTP 402 payment protocol for autonomous AI agent commerce with Razorpay Standard Checkout on test rails">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root {
+            --bg:           #06060b;
+            --bg-card:      #0d0d16;
+            --bg-elevated:  #131322;
+            --bg-hover:     #1a1a2e;
+            --border:       #1a1a30;
+            --border-hover: #2a2a48;
+            --text:         #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --text-muted:   #6a6a82;
+            --accent:       #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow:  rgba(99,102,241,0.12);
+            --green:        #22c55e;
+            --green-dim:    rgba(34,197,94,0.12);
+            --red:          #ef4444;
+            --red-dim:      rgba(239,68,68,0.12);
+            --amber:        #f59e0b;
+            --amber-dim:    rgba(245,158,11,0.12);
+            --blue:         #3b82f6;
+            --blue-dim:     rgba(59,130,246,0.12);
+            --cyan:         #06b6d4;
+            --purple:       #a855f7;
+            --radius:       0.75rem;
+            --radius-sm:    0.5rem;
+            --radius-lg:    1rem;
+            --shadow:       0 4px 24px rgba(0,0,0,0.4);
+            --shadow-lg:    0 8px 40px rgba(0,0,0,0.5);
+            --transition:   all 0.2s ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; overflow-x: hidden;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+        /* NAV */
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(6,6,11,0.85);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem; display: flex; align-items: center;
+            justify-content: space-between; height: 56px;
+        }
+        .topnav-brand {
+            font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--text);
+        }
+        .topnav-brand span { color: var(--accent); }
+        .protocol-badge {
+            font-size: 0.6rem; font-weight: 600;
+            background: var(--accent-glow); color: var(--accent-light);
+            padding: 2px 8px; border-radius: 999px;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .topnav-links { display: flex; gap: 0; align-items: center; }
+        .topnav-link {
+            padding: 0 1rem; height: 56px;
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-muted); text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition); cursor: pointer;
+        }
+        .topnav-link:hover { color: var(--text-secondary); }
+        .topnav-link.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+        .topnav-right { display: flex; align-items: center; gap: 1rem; }
+        .live-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-muted); }
+        .live-dot {
+            width: 7px; height: 7px; background: var(--green);
+            border-radius: 50%; animation: pulse 2s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(34,197,94,0.4);
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+        /* LAYOUT */
+        .app-container { max-width: 1320px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
+        }
+        .card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); }
+        .section-title {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-muted);
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
+        }
+        .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .stat-card .stat-icon {
+            width: 36px; height: 36px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; margin-bottom: 0.75rem;
+        }
+        .stat-card .stat-value {
+            font-size: 1.5rem; font-weight: 800; font-family: 'Fira Code', monospace;
+            letter-spacing: -0.02em;
+        }
+        .stat-card .stat-label {
+            font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;
+            text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex; align-items: center; padding: 0.15rem 0.6rem;
+            border-radius: 999px; font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .badge-green  { background: var(--green-dim); color: var(--green); }
+        .badge-red    { background: var(--red-dim); color: var(--red); }
+        .badge-amber  { background: var(--amber-dim); color: var(--amber); }
+        .badge-blue   { background: var(--blue-dim); color: var(--blue); }
+        .badge-accent { background: var(--accent-glow); color: var(--accent-light); }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.55rem 1.1rem; border-radius: var(--radius-sm);
+            font-size: 0.82rem; font-weight: 600; border: 1px solid transparent;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
+        }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { background: #5558e6; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+        .btn-danger { background: transparent; color: var(--red); border-color: var(--red); }
+        .btn-danger:hover { background: var(--red-dim); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); border-color: var(--border); }
+        .btn-ghost:hover { background: var(--bg-hover); border-color: var(--border-hover); }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        /* INPUTS */
+        .input {
+            width: 100%; padding: 0.6rem 0.9rem; background: var(--bg);
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--text); font-size: 0.85rem; font-family: inherit;
+            outline: none; transition: var(--transition);
+        }
+        .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .input::placeholder { color: var(--text-muted); }
+        select.input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a82' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2.25rem;
+        }
+
+        /* SLIDERS */
+        .slider-group { margin-bottom: 1rem; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+        .slider-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+        .slider-value { font-size: 0.82rem; font-weight: 700; font-family: 'Fira Code', monospace; color: var(--accent-light); }
+        input[type="range"] {
+            width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+            background: var(--border); border-radius: 3px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            background: var(--accent); border-radius: 50%; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.4); transition: var(--transition);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        .slider-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        /* BUDGET BAR */
+        .budget-bar-container { margin-top: 1rem; }
+        .budget-bar { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; display: flex; }
+        .budget-seg { height: 100%; transition: width 0.5s ease; }
+        .budget-seg-captured { background: var(--green); }
+        .budget-seg-held { background: var(--amber); }
+        .budget-seg-remaining { background: var(--border); }
+        .budget-legend { display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.68rem; color: var(--text-muted); }
+        .budget-legend span { display: flex; align-items: center; gap: 0.3rem; }
+        .budget-legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* TXN FEED */
+        .txn-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 0; border-bottom: 1px solid rgba(26,26,48,0.5); font-size: 0.82rem;
+        }
+        .txn-row:last-child { border-bottom: none; }
+        .txn-item { font-weight: 600; min-width: 180px; }
+        .txn-agent { color: var(--text-muted); font-size: 0.75rem; }
+        .txn-amount { font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.82rem; }
+
+        /* MARKETPLACE */
+        .market-banner {
+            background: linear-gradient(135deg, var(--accent-glow) 0%, rgba(13,13,22,0.8) 100%);
+            border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 1.5rem 2rem; margin-bottom: 1.5rem;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+        }
+        .market-stat-value { font-size: 1.1rem; font-weight: 800; }
+        .market-stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .filter-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .filter-pill {
+            padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text-muted); cursor: pointer; transition: var(--transition);
+        }
+        .filter-pill:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+        .filter-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-light); }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .catalog-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
+            display: flex; flex-direction: column;
+        }
+        .catalog-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .catalog-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+        .catalog-card-title { font-size: 0.85rem; font-weight: 600; line-height: 1.3; flex: 1; }
+        .catalog-card-price { font-family: 'Fira Code', monospace; font-size: 0.92rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+        .catalog-card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+        .catalog-card-seller { font-size: 0.72rem; font-weight: 600; color: var(--accent-light); }
+        .catalog-card-category { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .catalog-card-specs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
+        .spec-chip {
+            font-size: 0.62rem; font-weight: 500; padding: 0.15rem 0.5rem;
+            background: var(--bg-elevated); border-radius: 999px;
+            color: var(--text-muted); font-family: 'Fira Code', monospace;
+        }
+        .catalog-card-actions { margin-top: auto; padding-top: 0.85rem; }
+        .btn-pay {
+            width: 100%; padding: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #5548e0); color: #fff;
+            border: none; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
+        }
+        .btn-pay:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+
+        /* CONSOLE */
+        .console-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .console-grid { grid-template-columns: 1fr; } }
+        .mission-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .mission-chip {
+            padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            color: var(--text-secondary); cursor: pointer; transition: var(--transition);
+        }
+        .mission-chip:hover { border-color: var(--accent); color: var(--accent-light); }
+        .mission-chip.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-light); }
+        textarea.input { min-height: 80px; resize: vertical; font-size: 0.82rem; line-height: 1.5; }
+        .bom-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 0.75rem; }
+        .bom-table th {
+            text-align: left; padding: 0.5rem 0.75rem; font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .bom-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(26,26,48,0.3); }
+        .bom-table tr:last-child td { border-bottom: none; }
+        .bom-total {
+            display: flex; justify-content: space-between; align-items: center; padding: 0.75rem;
+            margin-top: 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); font-weight: 700;
+        }
+        .exec-step {
+            display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(26,26,48,0.4); font-size: 0.78rem;
+        }
+        .exec-step:last-child { border-bottom: none; }
+        .exec-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
+        .exec-detail { flex: 1; }
+        .exec-item { font-weight: 600; }
+        .exec-rationale { color: var(--text-muted); font-size: 0.72rem; margin-top: 0.15rem; }
+
+        /* AUDIT */
+        .chain-banner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); margin-bottom: 1.5rem;
+        }
+        .chain-status { display: flex; align-items: center; gap: 0.75rem; }
+        .chain-actions { display: flex; gap: 0.5rem; }
+        .audit-row {
+            display: grid; grid-template-columns: 48px 1fr auto auto; gap: 0.75rem;
+            align-items: center; padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid rgba(26,26,48,0.3); font-size: 0.78rem; transition: background 0.15s;
+        }
+        .audit-row:hover { background: var(--bg-hover); border-radius: var(--radius-sm); }
+        .audit-seq { font-family: 'Fira Code', monospace; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+        .audit-event { font-weight: 600; }
+        .audit-hash { font-family: 'Fira Code', monospace; font-size: 0.62rem; color: var(--text-muted); }
+        .audit-time { font-size: 0.68rem; color: var(--text-muted); text-align: right; }
+
+        /* SETTINGS */
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+        .radio-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .radio-option {
+            display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.85rem;
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            cursor: pointer; transition: var(--transition); font-size: 0.82rem;
+        }
+        .radio-option:hover { border-color: var(--border-hover); background: var(--bg-hover); }
+        .radio-option.active { border-color: var(--accent); background: var(--accent-glow); }
+        .radio-option input { display: none; }
+        .radio-dot {
+            width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        .radio-option.active .radio-dot { border-color: var(--accent); }
+        .radio-option.active .radio-dot::after { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(26,26,48,0.3); font-size: 0.82rem;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--text-muted); }
+        .info-value { font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.78rem; }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; padding: 0.75rem 1.25rem;
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius); font-size: 0.82rem; font-weight: 600;
+            box-shadow: var(--shadow-lg); transform: translateY(100px); opacity: 0;
+            transition: all 0.3s ease; z-index: 1000;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { border-color: var(--green); color: var(--green); }
+        .toast-error   { border-color: var(--red); color: var(--red); }
+        .toast-info    { border-color: var(--accent); color: var(--accent-light); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px); display: none; align-items: center;
+            justify-content: center; z-index: 500;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 2rem; max-width: 420px; width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal h3 { font-size: 1rem; margin-bottom: 0.75rem; }
+        .modal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .topnav { padding: 0 1rem; }
+            .app-container { padding: 1rem; }
+            .catalog-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="#overview" class="topnav-brand">
+        <span>Razor</span>402
+        <span class="protocol-badge">HTTP 402</span>
+    </a>
+    <div class="topnav-links">
+        <a class="topnav-link active" data-view="overview" href="#overview">📊 Overview</a>
+        <a class="topnav-link" data-view="marketplace" href="#marketplace">🛒 Marketplace</a>
+        <a class="topnav-link" data-view="console" href="#console">🤖 Console</a>
+        <a class="topnav-link" data-view="audit" href="#audit">🔗 Audit</a>
+        <a class="topnav-link" data-view="settings" href="#settings">⚙️</a>
+    </div>
+    <div class="topnav-right">
+        <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
+    </div>
+</nav>
+
+<div class="app-container">
+
+<!-- VIEW 1: OVERVIEW -->
+<div id="view-overview" class="view active">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:var(--blue-dim);color:var(--blue)">💳</div>
+            <div class="stat-value" id="stat-txns">0</div>
+            <div class="stat-label">Transactions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:var(--green-dim);color:var(--green)">💰</div>
+            <div class="stat-value" id="stat-revenue">₹0.00</div>
+            <div class="stat-label">Revenue Captured</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:var(--accent-glow);color:var(--accent-light)">🛡</div>
+            <div class="stat-value" id="stat-chain">—</div>
+            <div class="stat-label">Audit Chain</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:var(--amber-dim);color:var(--amber)">📦</div>
+            <div class="stat-value" id="stat-passes">0</div>
+            <div class="stat-label">Active Passes</div>
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div class="card">
+            <div class="section-title">🎛️ AI Agent Budget Control</div>
+            <div style="margin-bottom:1rem;">
+                <label class="slider-label" style="display:block;margin-bottom:0.35rem;">Agent Identity</label>
+                <select class="input" id="budget-agent" style="max-width:260px;">
+                    <option value="agt_coding_01">agt_coding_01 (Primary)</option>
+                    <option value="agt_coding_02">agt_coding_02 (Deputy)</option>
+                </select>
+            </div>
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Daily Pool</span>
+                    <span class="slider-value" id="pool-display">₹150.00</span>
+                </div>
+                <input type="range" id="pool-slider" min="1000" max="50000" value="15000" step="500">
+                <div class="slider-range"><span>₹10</span><span>₹500</span></div>
+            </div>
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Per-Call Cap</span>
+                    <span class="slider-value" id="cap-display">₹50.00</span>
+                </div>
+                <input type="range" id="cap-slider" min="100" max="10000" value="5000" step="100">
+                <div class="slider-range"><span>₹1</span><span>₹100</span></div>
+            </div>
+            <button class="btn btn-primary" id="apply-budget" style="width:100%;margin-top:0.5rem;">Apply Budget</button>
+            <div class="budget-bar-container">
+                <div class="budget-bar">
+                    <div class="budget-seg budget-seg-captured" id="seg-captured" style="width:0%"></div>
+                    <div class="budget-seg budget-seg-held" id="seg-held" style="width:0%"></div>
+                    <div class="budget-seg budget-seg-remaining" id="seg-remaining" style="width:100%"></div>
+                </div>
+                <div class="budget-legend">
+                    <span><span class="dot" style="background:var(--green)"></span> Captured: <b id="lbl-captured">₹0</b></span>
+                    <span><span class="dot" style="background:var(--amber)"></span> Held: <b id="lbl-held">₹0</b></span>
+                    <span><span class="dot" style="background:var(--border)"></span> Free: <b id="lbl-free">₹150</b></span>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="section-title">📋 Recent Transactions</div>
+            <div id="txn-feed" style="max-height:380px;overflow-y:auto;">
+                <div style="color:var(--text-muted);font-size:0.82rem;">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 2: MARKETPLACE -->
+<div id="view-marketplace" class="view">
+    <div class="market-banner">
+        <div><div class="market-stat-value" id="market-count">0</div><div class="market-stat-label">API Resources</div></div>
+        <div><div class="market-stat-value" id="market-sellers">0</div><div class="market-stat-label">Sellers</div></div>
+        <div><div class="market-stat-value" id="market-cheapest">—</div><div class="market-stat-label">From</div></div>
+        <div style="flex:1;max-width:320px;">
+            <input type="text" class="input" id="market-search" placeholder="Search resources...">
+        </div>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+    <div class="catalog-grid" id="catalog-grid"></div>
+</div>
+
+<!-- VIEW 3: CONSOLE -->
+<div id="view-console" class="view">
+    <div class="console-grid">
+        <div>
+            <div class="card" style="margin-bottom:1rem;">
+                <div class="section-title">🎯 Mission Planner</div>
+                <div class="mission-chips" id="mission-chips">
+                    <span class="mission-chip active" data-mission="rag">🔍 RAG Pipeline</span>
+                    <span class="mission-chip" data-mission="music">🎵 Music Streaming</span>
+                    <span class="mission-chip" data-mission="copilot">💻 AI Copilot</span>
+                    <span class="mission-chip" data-mission="compare">⚖️ Compare Providers</span>
+                    <span class="mission-chip" data-mission="scaling">📈 Scale Infra</span>
+                </div>
+                <textarea class="input" id="mission-text" placeholder="Describe your mission goal...">Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.</textarea>
+                <button class="btn btn-primary" id="btn-analyze" style="width:100%;margin-top:0.75rem;">🔍 Analyze Goal</button>
+            </div>
+            <div class="card" id="bom-card" style="display:none;">
+                <div class="section-title">📋 Bill of Materials</div>
+                <div id="bom-rationale" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.75rem;font-style:italic;"></div>
+                <table class="bom-table">
+                    <thead><tr><th>Resource</th><th>Seller</th><th>Qty</th><th style="text-align:right">Cost</th></tr></thead>
+                    <tbody id="bom-body"></tbody>
+                </table>
+                <div class="bom-total">
+                    <span>Envelope Total</span>
+                    <span id="bom-total" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span>
+                </div>
+                <button class="btn btn-primary" id="btn-execute" style="width:100%;margin-top:0.75rem;">▶ Approve &amp; Execute</button>
+            </div>
+        </div>
+        <div>
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                    <div class="section-title" style="margin-bottom:0;">⚡ Execution Log</div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button class="btn btn-danger btn-sm" id="btn-revoke">🛑 Revoke</button>
+                        <button class="btn btn-ghost btn-sm" id="btn-reset-envelope">↺ Reset</button>
+                    </div>
+                </div>
+                <div id="exec-log" style="max-height:500px;overflow-y:auto;">
+                    <div style="color:var(--text-muted);font-size:0.82rem;">Execute a mission to see steps here.</div>
+                </div>
+                <div id="exec-summary" style="display:none;margin-top:0.75rem;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:600;">
+                        <span>Budget Spent</span>
+                        <span id="exec-spent" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:600;margin-top:0.25rem;">
+                        <span>Remaining</span>
+                        <span id="exec-remaining" style="font-family:'Fira Code',monospace;">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 4: AUDIT -->
+<div id="view-audit" class="view">
+    <div class="chain-banner">
+        <div class="chain-status">
+            <span id="chain-badge" class="badge badge-amber">checking...</span>
+            <span style="font-size:0.82rem;font-weight:600;">Hash Chain</span>
+            <span id="chain-head" style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--text-muted);"></span>
+        </div>
+        <div class="chain-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-tamper">🔨 Tamper</button>
+            <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Verify</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="section-title">📜 Audit Entries</div>
+        <div id="audit-log" style="max-height:calc(100vh - 260px);overflow-y:auto;">
+            <div style="color:var(--text-muted);font-size:0.82rem;">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 5: SETTINGS -->
+<div id="view-settings" class="view">
+    <div class="settings-grid">
+        <div class="card">
+            <div class="section-title">⚡ Chaos Mode</div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">
+                Inject payment gateway faults to test compensation sagas and in-doubt settlement recovery.
+            </p>
+            <div class="radio-group" id="chaos-group">
+                <label class="radio-option active" data-mode="ok">
+                    <input type="radio" name="chaos" value="ok" checked>
+                    <span class="radio-dot"></span>
+                    <span>✅ Normal — All payments succeed</span>
+                </label>
+                <label class="radio-option" data-mode="rzp_timeout">
+                    <input type="radio" name="chaos" value="rzp_timeout">
+                    <span class="radio-dot"></span>
+                    <span>⏱️ Timeout — Payment hangs (SETTLEMENT_UNKNOWN)</span>
+                </label>
+                <label class="radio-option" data-mode="rzp_refund_timeout">
+                    <input type="radio" name="chaos" value="rzp_refund_timeout">
+                    <span class="radio-dot"></span>
+                    <span>💥 Refund Timeout — Compensation saga fires</span>
+                </label>
+            </div>
+        </div>
+        <div class="card">
+            <div class="section-title">🗄️ Database</div>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">
+                Clear all transactions, audit entries, budget reservations, and passes.
+            </p>
+            <button class="btn btn-danger" id="btn-reset-db" style="width:100%;">🗑️ Reset Database</button>
+            <div style="margin-top:1.5rem;">
+                <div class="section-title">📡 Envelope Status</div>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <span id="envelope-badge" class="badge badge-green">ACTIVE</span>
+                    <button class="btn btn-ghost btn-sm" id="btn-settings-reset-env">Reset Envelope</button>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="grid-column:1/-1;">
+            <div class="section-title">ℹ️ System Information</div>
+            <div>
+                <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">razor402/0.1</span></div>
+                <div class="info-row"><span class="info-label">Merchant</span><span class="info-value">acc_buildbroker_test</span></div>
+                <div class="info-row"><span class="info-label">Policy Version</span><span class="info-value">policy-v1</span></div>
+                <div class="info-row"><span class="info-label">Reconciler Tick</span><span class="info-value">15s</span></div>
+                <div class="info-row"><span class="info-label">Challenge TTL</span><span class="info-value">300s</span></div>
+                <div class="info-row"><span class="info-label">Fulfil Deadline</span><span class="info-value">8.0s</span></div>
+                <div class="info-row"><span class="info-label">Max Attempts</span><span class="info-value">6</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="reset-modal">
+    <div class="modal">
+        <h3>⚠️ Reset Database</h3>
+        <p>This will permanently delete all transactions, audit entries, budget reservations, and passes. This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" id="reset-cancel">Cancel</button>
+            <button class="btn btn-danger" id="reset-confirm">Reset Everything</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="receipt-modal">
+    <div class="modal">
+        <h3 style="color:var(--green)">✅ Payment Successful</h3>
+        <div id="receipt-body" style="font-size:0.82rem;"></div>
+        <div class="modal-actions" style="margin-top:1rem;">
+            <button class="btn btn-primary" onclick="document.getElementById('receipt-modal').classList.remove('show')">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const BASE = window.location.origin;
+let catalogData = {};
+let checkoutConfig = {};
+let refreshTimer = null;
+
+function paise(p) {
+    const r = Math.abs(p) / 100;
+    return (p < 0 ? '-' : '') + '\u20B9' + r.toFixed(2);
+}
+function timeAgo(ts) {
+    const diff = Math.floor(Date.now() / 1000) - ts;
+    if (diff < 0) return 'just now';
+    if (diff < 60) return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    return Math.floor(diff / 3600) + 'h ago';
+}
+function truncHash(h) { return h ? h.slice(0, 10) + '\u2026' : '\u2014'; }
+function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast toast-' + (type || 'info') + ' show';
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+async function api(url, opts) {
+    try { const r = await fetch(BASE + url, opts); return await r.json(); }
+    catch (e) { console.error('API error:', url, e); return null; }
+}
+function stateColor(s) {
+    const m = { SETTLED:'green', PAYING:'amber', FAILED:'red', REFUNDED:'blue', SETTLEMENT_UNKNOWN:'amber', CHALLENGE_ISSUED:'accent' };
+    return m[s] || 'accent';
+}
+
+// Router
+function navigate(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.topnav-link').forEach(l => l.classList.remove('active'));
+    const el = document.getElementById('view-' + viewId);
+    if (el) el.classList.add('active');
+    const link = document.querySelector('.topnav-link[data-view="' + viewId + '"]');
+    if (link) link.classList.add('active');
+}
+function handleHash() {
+    var target = window.location.hash.replace('#', '');
+    if (!target) {
+        if (window.location.pathname.indexOf('checkout') !== -1) target = 'marketplace';
+        else if (window.location.pathname.indexOf('console') !== -1) target = 'console';
+        else if (window.location.pathname.indexOf('dashboard') !== -1) target = 'overview';
+        else target = 'overview';
+    }
+    navigate(target);
+}
+window.addEventListener('hashchange', handleHash);
+
+// === OVERVIEW ===
+async function refreshOverview() {
+    const stats = await api('/api/v1/stats');
+    if (stats) {
+        document.getElementById('stat-txns').textContent = stats.total_txns;
+        document.getElementById('stat-revenue').textContent = paise(stats.total_captured_paise);
+        document.getElementById('stat-passes').textContent = stats.active_passes;
+    }
+    const audit = await api('/api/v1/audit?limit=1');
+    if (audit) {
+        const el = document.getElementById('stat-chain');
+        el.textContent = audit.chain_valid ? 'VALID \u2713' : 'BROKEN \u2717';
+        el.style.color = audit.chain_valid ? 'var(--green)' : 'var(--red)';
+    }
+    const agent = document.getElementById('budget-agent').value;
+    const budget = await api('/api/v1/budget?agent=' + agent);
+    if (budget) {
+        const pool = budget.daily_pool_paise, cap = budget.captured_paise, held = budget.held_paise, rem = budget.remaining_paise;
+        const capPct = pool > 0 ? (cap / pool * 100) : 0;
+        const heldPct = pool > 0 ? (held / pool * 100) : 0;
+        document.getElementById('seg-captured').style.width = capPct + '%';
+        document.getElementById('seg-held').style.width = heldPct + '%';
+        document.getElementById('seg-remaining').style.width = Math.max(0, 100 - capPct - heldPct) + '%';
+        document.getElementById('lbl-captured').textContent = paise(cap);
+        document.getElementById('lbl-held').textContent = paise(held);
+        document.getElementById('lbl-free').textContent = paise(rem);
+    }
+    const txns = await api('/api/v1/txns?limit=12');
+    if (txns && txns.transactions) {
+        const el = document.getElementById('txn-feed');
+        if (txns.transactions.length === 0) {
+            el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:1rem 0;">No transactions yet.</div>';
+        } else {
+            el.innerHTML = txns.transactions.map(t => '<div class="txn-row"><div><div class="txn-item">' + t.item_id + '</div><div class="txn-agent">' + t.agent_kid + ' \u00B7 ' + timeAgo(t.created_at) + '</div></div><div style="display:flex;align-items:center;gap:0.75rem;"><span class="badge badge-' + stateColor(t.state) + '">' + t.state + '</span><span class="txn-amount">' + paise(t.amount_paise) + '</span></div></div>').join('');
+        }
+    }
+}
+
+document.getElementById('pool-slider').addEventListener('input', function(e) { document.getElementById('pool-display').textContent = paise(parseInt(e.target.value)); });
+document.getElementById('cap-slider').addEventListener('input', function(e) { document.getElementById('cap-display').textContent = paise(parseInt(e.target.value)); });
+document.getElementById('budget-agent').addEventListener('change', async function() {
+    const budget = await api('/api/v1/budget?agent=' + this.value);
+    if (budget) {
+        document.getElementById('pool-slider').value = budget.daily_pool_paise;
+        document.getElementById('pool-display').textContent = paise(budget.daily_pool_paise);
+    }
+});
+document.getElementById('apply-budget').addEventListener('click', async function() {
+    const agent = document.getElementById('budget-agent').value;
+    const pool = parseInt(document.getElementById('pool-slider').value);
+    const cap = parseInt(document.getElementById('cap-slider').value);
+    const result = await api('/api/v1/budget/adjust', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ agent: agent, daily_pool_paise: pool, per_call_cap_paise: cap })
+    });
+    if (result && result.policy) { toast('Budget updated for ' + agent + ': Pool ' + paise(pool) + ', Cap ' + paise(cap), 'success'); refreshOverview(); }
+    else { toast('Failed to update budget: ' + (result ? result.error : 'unknown'), 'error'); }
+});
+
+// === MARKETPLACE ===
+let activeFilter = 'all';
+async function loadMarketplace() {
+    catalogData = await api('/api/v1/catalog') || {};
+    checkoutConfig = await api('/api/checkout-config') || {};
+    const entries = Object.entries(catalogData);
+    const sellers = new Set(entries.map(function(e) { return e[1].seller || 'BuildBroker'; }));
+    const cats = new Set(entries.map(function(e) { return e[1].category; }));
+    const prices = entries.map(function(e) { return e[1].price_paise; });
+    document.getElementById('market-count').textContent = entries.length;
+    document.getElementById('market-sellers').textContent = sellers.size;
+    document.getElementById('market-cheapest').textContent = prices.length ? paise(Math.min.apply(null, prices)) : '\u2014';
+    const filterRow = document.getElementById('filter-row');
+    var allCats = ['all'].concat(Array.from(cats).sort());
+    filterRow.innerHTML = allCats.map(function(c) {
+        var label = c === 'all' ? 'All' : c.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+        var count = c === 'all' ? entries.length : entries.filter(function(e) { return e[1].category === c; }).length;
+        return '<span class="filter-pill ' + (c === 'all' ? 'active' : '') + '" data-cat="' + c + '">' + label + ' (' + count + ')</span>';
+    }).join('');
+    filterRow.querySelectorAll('.filter-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            activeFilter = pill.dataset.cat;
+            filterRow.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+            pill.classList.add('active');
+            renderCatalog();
+        });
+    });
+    renderCatalog();
+}
+function renderCatalog() {
+    var search = (document.getElementById('market-search').value || '').toLowerCase();
+    var grid = document.getElementById('catalog-grid');
+    var entries = Object.entries(catalogData).filter(function(e) {
+        if (activeFilter !== 'all' && e[1].category !== activeFilter) return false;
+        if (search) {
+            var hay = (e[1].title + ' ' + (e[1].seller || '') + ' ' + e[0] + ' ' + e[1].category).toLowerCase();
+            if (hay.indexOf(search) === -1) return false;
+        }
+        return true;
+    });
+    grid.innerHTML = entries.map(function(e) {
+        var id = e[0], item = e[1];
+        var specs = item.specs ? Object.entries(item.specs).map(function(s) {
+            return '<span class="spec-chip">' + s[0] + ': ' + s[1] + '</span>';
+        }).join('') : '';
+        var desc = item.description ? '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;font-style:italic;">' + item.description.slice(0, 100) + (item.description.length > 100 ? '\u2026' : '') + '</div>' : '';
+        return '<div class="catalog-card"><div class="catalog-card-header"><span class="catalog-card-title">' + item.title + '</span><span class="catalog-card-price">' + paise(item.price_paise) + '</span></div><div class="catalog-card-meta"><span class="catalog-card-seller">' + (item.seller || 'BuildBroker') + '</span><span class="catalog-card-category">' + item.category.replace(/_/g, ' ') + '</span></div>' + desc + '<div class="catalog-card-specs">' + specs + '</div><div class="catalog-card-actions"><button class="btn-pay" onclick="openCheckout(\'' + id + '\',' + item.price_paise + ')">Pay ' + paise(item.price_paise) + '</button></div></div>';
+    }).join('');
+}
+document.getElementById('market-search').addEventListener('input', renderCatalog);
+
+function openCheckout(itemId, amountPaise) {
+    api('/api/create-order', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount: amountPaise, currency: 'INR', item_id: itemId })
+    }).then(function(order) {
+        if (!order || !order.order_id) { toast('Failed to create order', 'error'); return; }
+        var options = {
+            key: checkoutConfig.key_id || order.key_id,
+            amount: order.amount, currency: order.currency,
+            name: 'BuildBroker', description: (catalogData[itemId] || {}).title || itemId,
+            order_id: order.order_id, theme: { color: '#6366f1' },
+            handler: function(response) {
+                api('/api/verify-payment', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(response)
+                }).then(function(verify) {
+                    if (verify && verify.verified) {
+                        document.getElementById('receipt-body').innerHTML = '<div class="info-row"><span class="info-label">Order ID</span><span class="info-value">' + response.razorpay_order_id + '</span></div><div class="info-row"><span class="info-label">Payment ID</span><span class="info-value">' + response.razorpay_payment_id + '</span></div><div class="info-row"><span class="info-label">Amount</span><span class="info-value" style="color:var(--green)">' + paise(amountPaise) + '</span></div><div class="info-row"><span class="info-label">Resource</span><span class="info-value">' + itemId + '</span></div>';
+                        document.getElementById('receipt-modal').classList.add('show');
+                        toast('Payment verified \u2713', 'success');
+                    } else { toast('Signature verification failed!', 'error'); }
+                });
+            },
+            modal: { ondismiss: function() { toast('Payment cancelled', 'info'); } }
+        };
+        new Razorpay(options).open();
+    });
+}
+
+// === CONSOLE ===
+var missionTexts = {
+    rag: 'Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is \u20B9150.',
+    music: 'Build a music streaming app with fingerprint identification, synchronized lyrics, stem separation, and CDN delivery.',
+    copilot: 'Build an AI code copilot with semantic code search, AST indexing, inline completion, and containerized test execution.',
+    compare: 'Compare multiple LLM and vector DB providers to find the most cost-effective combination for a retrieval pipeline.',
+    scaling: 'Scale the existing infrastructure: add GPU compute, upgrade to enterprise LLM tier, and expand vector capacity.'
+};
+document.querySelectorAll('.mission-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+        document.querySelectorAll('.mission-chip').forEach(function(c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        document.getElementById('mission-text').value = missionTexts[chip.dataset.mission] || '';
+    });
+});
+document.getElementById('btn-analyze').addEventListener('click', async function() {
+    var btn = this; btn.disabled = true; btn.textContent = '\u23F3 Analyzing...';
+    var plan = await api('/api/console/plan', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mission: document.getElementById('mission-text').value }) });
+    btn.disabled = false; btn.textContent = '\uD83D\uDD0D Analyze Goal';
+    if (!plan) { toast('Failed to generate plan', 'error'); return; }
+    document.getElementById('bom-rationale').textContent = plan.rationale || '';
+    document.getElementById('bom-body').innerHTML = plan.items.map(function(item) {
+        return '<tr><td style="font-weight:600;">' + item.title + '</td><td style="color:var(--accent-light);font-size:0.72rem;">' + item.seller + '</td><td style="text-align:center;">' + item.qty + '</td><td style="text-align:right;font-family:\'Fira Code\',monospace;color:var(--green);">' + paise(item.total_paise) + '</td></tr>';
+    }).join('');
+    document.getElementById('bom-total').textContent = paise(plan.total_paise);
+    document.getElementById('bom-card').style.display = 'block';
+});
+document.getElementById('btn-execute').addEventListener('click', async function() {
+    var btn = this; btn.disabled = true; btn.textContent = '\u23F3 Executing...';
+    var execLog = document.getElementById('exec-log');
+    execLog.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;">\uD83D\uDD04 Procurement in progress...</div>';
+    var result = await api('/api/console/execute', { method: 'POST', headers: {'Content-Type': 'application/json'} });
+    btn.disabled = false; btn.textContent = '\u25B6 Approve & Execute';
+    if (!result) { toast('Execution failed', 'error'); return; }
+    execLog.innerHTML = result.steps.map(function(step) {
+        var icon = step.status === 'fulfilled' ? '\u2705' : step.status === 'denied' ? '\uD83D\uDEAB' : '\u26A0\uFE0F';
+        return '<div class="exec-step"><span class="exec-icon">' + icon + '</span><div class="exec-detail"><div class="exec-item">' + (step.item_id || step.tool) + '</div><div class="exec-rationale">' + step.rationale + '</div></div></div>';
+    }).join('');
+    document.getElementById('exec-summary').style.display = 'block';
+    document.getElementById('exec-spent').textContent = paise(result.captured_paise || 0);
+    document.getElementById('exec-remaining').textContent = paise(result.remaining_paise || 0);
+    toast('Mission executed: ' + result.steps.length + ' steps', 'success');
+    refreshOverview();
+});
+document.getElementById('btn-revoke').addEventListener('click', async function() {
+    await api('/api/console/revoke', { method: 'POST' });
+    toast('Envelope REVOKED', 'error'); updateEnvelopeStatus();
+});
+document.getElementById('btn-reset-envelope').addEventListener('click', async function() {
+    await api('/api/console/reset-envelope', { method: 'POST' });
+    toast('Envelope reset to active', 'success'); updateEnvelopeStatus();
+});
+
+// === AUDIT ===
+async function refreshAudit() {
+    var data = await api('/api/v1/audit?limit=50');
+    if (!data) return;
+    var badge = document.getElementById('chain-badge');
+    if (data.chain_valid) { badge.className = 'badge badge-green'; badge.textContent = 'VALID \u2713'; }
+    else { badge.className = 'badge badge-red'; badge.textContent = 'BROKEN \u2717'; }
+    document.getElementById('chain-head').textContent = data.head_hash ? 'Head: ' + truncHash(data.head_hash) : '';
+    var el = document.getElementById('audit-log');
+    if (data.entries.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:1rem 0;">No audit entries.</div>';
+        return;
+    }
+    el.innerHTML = data.entries.map(function(a) {
+        return '<div class="audit-row"><span class="audit-seq">#' + a.seq + '</span><div><span class="audit-event">' + a.event + '</span>' + (a.to_state ? ' <span class="badge badge-' + stateColor(a.to_state) + '" style="margin-left:0.4rem;">' + a.to_state + '</span>' : '') + '<div style="margin-top:0.15rem;"><span class="audit-hash">prev: ' + truncHash(a.prev_hash) + ' \u2192 ' + truncHash(a.entry_hash) + '</span></div></div><span style="font-size:0.72rem;color:var(--text-muted);">' + a.actor + '</span><span class="audit-time">' + timeAgo(a.ts) + '</span></div>';
+    }).join('');
+}
+document.getElementById('btn-tamper').addEventListener('click', async function() {
+    var result = await api('/api/v1/demo/tamper', { method: 'POST' });
+    if (result && result.tampered_seq) { toast('Tampered entry #' + result.tampered_seq, 'error'); refreshAudit(); }
+    else { toast(result ? result.error : 'No entries to tamper', 'info'); }
+});
+document.getElementById('btn-verify').addEventListener('click', async function() {
+    toast('Verifying chain...', 'info');
+    await refreshAudit();
+    var badge = document.getElementById('chain-badge');
+    toast(badge.textContent.indexOf('VALID') >= 0 ? 'Hash chain integrity verified \u2713' : 'Hash chain BROKEN \u2014 tampering detected!', badge.textContent.indexOf('VALID') >= 0 ? 'success' : 'error');
+});
+
+// === SETTINGS ===
+document.querySelectorAll('#chaos-group .radio-option').forEach(function(opt) {
+    opt.addEventListener('click', async function() {
+        await api('/chaos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mode: opt.dataset.mode }) });
+        document.querySelectorAll('#chaos-group .radio-option').forEach(function(o) { o.classList.remove('active'); });
+        opt.classList.add('active');
+        toast('Chaos mode: ' + opt.dataset.mode, 'info');
+    });
+});
+document.getElementById('btn-reset-db').addEventListener('click', function() { document.getElementById('reset-modal').classList.add('show'); });
+document.getElementById('reset-cancel').addEventListener('click', function() { document.getElementById('reset-modal').classList.remove('show'); });
+document.getElementById('reset-confirm').addEventListener('click', async function() {
+    document.getElementById('reset-modal').classList.remove('show');
+    var result = await api('/api/v1/reset-db', { method: 'POST' });
+    if (result && result.cleared) { toast('Database cleared: ' + result.tables.length + ' tables', 'success'); refreshOverview(); refreshAudit(); }
+    else { toast('Database reset failed', 'error'); }
+});
+document.getElementById('btn-settings-reset-env').addEventListener('click', async function() {
+    await api('/api/console/reset-envelope', { method: 'POST' });
+    toast('Envelope reset to active', 'success'); updateEnvelopeStatus();
+});
+async function updateEnvelopeStatus() {
+    var stats = await api('/api/v1/stats');
+    if (stats) {
+        var badge = document.getElementById('envelope-badge');
+        if (stats.envelope_status === 'revoked') { badge.className = 'badge badge-red'; badge.textContent = 'REVOKED'; }
+        else { badge.className = 'badge badge-green'; badge.textContent = 'ACTIVE'; }
+    }
+}
+async function loadChaosMode() {
+    var data = await api('/chaos');
+    if (data) {
+        document.querySelectorAll('#chaos-group .radio-option').forEach(function(opt) {
+            opt.classList.toggle('active', opt.dataset.mode === data.chaos);
+        });
+    }
+}
+
+// === INIT ===
+async function init() {
+    handleHash();
+    await Promise.all([refreshOverview(), loadMarketplace(), refreshAudit(), loadChaosMode(), updateEnvelopeStatus()]);
+    refreshTimer = setInterval(async function() {
+        var hash = window.location.hash.replace('#', '') || 'overview';
+        if (hash === 'overview') await refreshOverview();
+        else if (hash === 'audit') await refreshAudit();
+    }, 2500);
+}
+init();
+</script>
+
+</body>
+</html>

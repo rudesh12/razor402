@@ -236,6 +236,129 @@ async def api_budget(agent: str = "agt_coding_01"):
     }
 
 
+@app.post("/api/v1/budget/adjust")
+async def api_budget_adjust(request: Request):
+    """Adjust agent budget at runtime (demo-appropriate, not persisted to disk)."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
+
+    agent = body.get("agent", "agt_coding_01")
+    pool = body.get("daily_pool_paise")
+    cap = body.get("per_call_cap_paise")
+
+    from core.catalog import AGENT_POLICY
+    if agent not in AGENT_POLICY:
+        return JSONResponse(status_code=404,
+                            content={"error": f"Unknown agent: {agent}"})
+
+    if pool is not None:
+        pool = int(pool)
+        if pool < 1000 or pool > 50000:
+            return JSONResponse(status_code=400,
+                                content={"error": "daily_pool_paise must be 1000-50000 (₹10-₹500)"})
+        AGENT_POLICY[agent]["daily_pool_paise"] = pool
+
+    if cap is not None:
+        cap = int(cap)
+        if cap < 100 or cap > 10000:
+            return JSONResponse(status_code=400,
+                                content={"error": "per_call_cap_paise must be 100-10000 (₹1-₹100)"})
+        AGENT_POLICY[agent]["per_call_cap_paise"] = cap
+
+    return {"agent": agent, "policy": AGENT_POLICY[agent]}
+
+
+@app.get("/api/v1/stats")
+async def api_stats():
+    """Aggregate dashboard statistics in a single call."""
+    conn = get_connection()
+
+    txn_counts = conn.execute(
+        "SELECT state, COUNT(*) as cnt FROM txn GROUP BY state"
+    ).fetchall()
+    state_map = {r["state"]: r["cnt"] for r in txn_counts}
+    total_txns = sum(state_map.values())
+
+    captured_row = conn.execute(
+        "SELECT COALESCE(SUM(amount_paise), 0) as total FROM budget_reservations "
+        "WHERE status='CAPTURED'"
+    ).fetchone()
+
+    pass_count = conn.execute(
+        "SELECT COUNT(*) as cnt FROM passes"
+    ).fetchone()
+
+    from core.clock import now
+    now_ts = now()
+    active_passes = conn.execute(
+        "SELECT COUNT(*) as cnt FROM passes WHERE expires_at > ?", (now_ts,)
+    ).fetchone()
+
+    audit_count = conn.execute(
+        "SELECT COUNT(*) as cnt FROM audit"
+    ).fetchone()
+
+    from gateway.console_api import is_envelope_revoked
+
+    return {
+        "total_txns": total_txns,
+        "settled_count": state_map.get("SETTLED", 0),
+        "failed_count": state_map.get("FAILED", 0),
+        "refunded_count": state_map.get("REFUNDED", 0),
+        "paying_count": state_map.get("PAYING", 0),
+        "total_captured_paise": captured_row["total"],
+        "total_passes": pass_count["cnt"],
+        "active_passes": active_passes["cnt"],
+        "audit_entries": audit_count["cnt"],
+        "chaos_mode": _chaos_mode,
+        "envelope_status": "revoked" if is_envelope_revoked() else "active",
+    }
+
+
+@app.post("/api/v1/reset-db")
+async def api_reset_db():
+    """Reset the database — clear all transactions, audit, reservations."""
+    import sqlite3 as _sqlite3
+    db_path = os.environ.get("DB_PATH", "razor402.db")
+    raw_conn = _sqlite3.connect(db_path)
+    raw_conn.execute("PRAGMA journal_mode=WAL")
+
+    cleared = []
+    # Drop triggers first
+    for trigger in ["audit_no_update", "audit_no_delete"]:
+        try:
+            raw_conn.execute(f"DROP TRIGGER IF EXISTS {trigger}")
+        except Exception:
+            pass
+
+    # Clear tables
+    for table in ["txn", "audit", "budget_reservations", "jti_seen",
+                   "passes", "webhook_events", "mandates", "checkpoints"]:
+        try:
+            raw_conn.execute(f"DELETE FROM {table}")
+            cleared.append(table)
+        except Exception:
+            pass
+
+    raw_conn.commit()
+
+    # Recreate triggers
+    raw_conn.execute(
+        "CREATE TRIGGER IF NOT EXISTS audit_no_update BEFORE UPDATE ON audit "
+        "BEGIN SELECT RAISE(ABORT, 'audit is append-only'); END"
+    )
+    raw_conn.execute(
+        "CREATE TRIGGER IF NOT EXISTS audit_no_delete BEFORE DELETE ON audit "
+        "BEGIN SELECT RAISE(ABORT, 'audit is append-only'); END"
+    )
+    raw_conn.commit()
+    raw_conn.close()
+
+    return {"cleared": True, "tables": cleared}
+
+
 @app.post("/api/v1/demo/tamper")
 async def api_tamper():
     """Demo-only: tamper with the last audit entry."""
@@ -274,34 +397,21 @@ async def api_tamper():
     return {"demo_only": True, "tampered_seq": seq}
 
 
-# Serve dashboard
+# ---------------------------------------------------------------------------
+# Static files & route handlers
+# ---------------------------------------------------------------------------
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
+@app.get("/")
 @app.get("/dashboard")
-async def dashboard():
-    from fastapi.responses import FileResponse
-    html_path = os.path.join(static_dir, "dashboard.html")
-    if os.path.exists(html_path):
-        return FileResponse(html_path)
-    return JSONResponse(status_code=404, content={"error": "Dashboard not built"})
-
-
 @app.get("/checkout")
-async def checkout():
-    from fastapi.responses import FileResponse
-    html_path = os.path.join(static_dir, "checkout.html")
-    if os.path.exists(html_path):
-        return FileResponse(html_path)
-    return JSONResponse(status_code=404, content={"error": "Checkout page not found"})
-
-
 @app.get("/console")
-async def console():
+async def serve_spa():
     from fastapi.responses import FileResponse
-    html_path = os.path.join(static_dir, "console.html")
+    html_path = os.path.join(static_dir, "index.html")
     if os.path.exists(html_path):
         return FileResponse(html_path)
-    return JSONResponse(status_code=404, content={"error": "Console page not found"})
+    return JSONResponse(content={"status": "Razor402 Gateway", "docs": "/docs"})
