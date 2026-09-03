@@ -71,10 +71,8 @@ tamper:
 verify-reset: reset-db
 
 reset-db:
-	@del /f /q $(DB_PATH) 2>NUL || rm -f $(DB_PATH) 2>/dev/null || true
-	@del /f /q $(DB_PATH)-wal 2>NUL || rm -f $(DB_PATH)-wal 2>/dev/null || true
-	@del /f /q $(DB_PATH)-shm 2>NUL || rm -f $(DB_PATH)-shm 2>/dev/null || true
-	python scripts/seed.py
+	python scripts/reset_db.py
+
 
 test:
 	pytest tests/ -q
