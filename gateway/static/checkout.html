@@ -187,9 +187,19 @@
 </head>
 <body>
     <header>
-        <h1><span>Razor402</span> — Standard Checkout</h1>
-        <p>Purchase API resources via Razorpay test mode</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; max-width:960px; margin:0 auto; width:100%;">
+            <div>
+                <h1><span>Razor402</span> — Standard Checkout</h1>
+                <p>Purchase API resources via Razorpay test mode</p>
+            </div>
+            <nav style="display:flex; gap:1rem; align-items:center;">
+                <a href="/checkout" style="color:var(--text); text-decoration:none; font-size:0.85rem; font-weight:600;">Checkout</a>
+                <a href="/dashboard" style="color:var(--muted); text-decoration:none; font-size:0.85rem;">Dashboard</a>
+                <a href="/console" style="color:var(--muted); text-decoration:none; font-size:0.85rem;">Console</a>
+            </nav>
+        </div>
     </header>
+
 
     <div class="container">
         <p class="section-title">Available Resources</p>

@@ -56,9 +56,9 @@ async def provision(item_id: str, request: Request):
 
 
 def _get_quota(item_id: str, item: dict) -> dict:
-    if item_id == "deepseek-v3-tokens":
+    if "tokens" in item_id or "flash" in item_id:
         return {"tokens": 100_000}
-    elif item_id == "qdrant-vector-query":
+    elif "query" in item_id:
         return {"queries": 1}
     elif item_id == "market-snapshot":
         return {"snapshots": 1}
@@ -66,18 +66,22 @@ def _get_quota(item_id: str, item: dict) -> dict:
         return {"queries": "unlimited", "valid_hours": 24}
     elif item_id == "enterprise-gpu-node":
         return {"hours": 1, "gpus": 8}
+    elif item.get("category") == "compute":
+        return {"hours": 1, "vcpus": item.get("specs", {}).get("vcpus", 2)}
     return {"units": 1}
 
 
 def _get_endpoint_path(item_id: str) -> str:
-    paths = {
-        "deepseek-v3-tokens": "inference/generate",
-        "qdrant-vector-query": "vectors/search",
-        "market-snapshot": "market/snapshot",
-        "day-pass": "vectors/search",
-        "enterprise-gpu-node": "compute/provision",
-    }
-    return paths.get(item_id, "provision")
+    if "tokens" in item_id or "flash" in item_id:
+        return "inference/generate"
+    elif "query" in item_id or item_id == "day-pass":
+        return "vectors/search"
+    elif item_id == "market-snapshot":
+        return "market/snapshot"
+    elif item.get("category") == "compute" or item_id == "enterprise-gpu-node":
+        return "compute/provision"
+    return "provision"
+
 
 
 @app.post("/chaos")

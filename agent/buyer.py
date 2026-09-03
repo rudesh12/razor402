@@ -30,7 +30,7 @@ MISSIONS = {
 
 def run_replay(transport: Razor402Transport, fixture_path: str):
     """Execute a recorded fixture against the live gateway."""
-    with open(fixture_path) as f:
+    with open(fixture_path, encoding="utf-8") as f:
         fixture = json.load(f)
 
     print(f"[agent] Replaying fixture: {fixture_path}")
@@ -83,6 +83,129 @@ def run_replay(transport: Razor402Transport, fixture_path: str):
     return results
 
 
+def run_live(transport: Razor402Transport, mission: str):
+    """Execute live autonomous procurement using Google Gemini."""
+    from google import genai
+    from agent.llm import SYSTEM_PROMPT
+    from datetime import datetime, timezone
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        print("[agent] Error: GEMINI_API_KEY not set in .env")
+        sys.exit(1)
+
+    client = genai.Client(api_key=api_key)
+    recorded_turns = []
+    step_num = [0]
+
+    import time
+
+    def _pace():
+        # Respect Gemini free-tier 5 RPM limit (1 request every 12s)
+        time.sleep(12.5)
+
+    def discover_catalog() -> dict:
+        """Discover available API resources and their pricing, specs, and sellers."""
+        step_num[0] += 1
+        print(f"[agent] Step {step_num[0]}: discover_catalog()")
+        catalog = transport.discover()
+        items = catalog.get("items", [])
+        print(f"  → {len(items)} items available in catalog")
+        recorded_turns.append({"tool": "discover_catalog", "args": {}})
+        _pace()
+        return catalog
+
+    def check_budget() -> dict:
+        """Check agent wallet and remaining spending budget in paise and rupees."""
+        step_num[0] += 1
+        print(f"[agent] Step {step_num[0]}: check_budget()")
+        summary = transport.wallet.summary()
+        print(f"  → Remaining: {summary['remaining_display']}")
+        recorded_turns.append({"tool": "check_budget", "args": {}})
+        _pace()
+        return summary
+
+    def procure(item_id: str, rationale: str, select_index: int = 0) -> dict:
+        """Procure an API resource. You MUST provide an economic rationale comparing providers."""
+        step_num[0] += 1
+        print(f"[agent] Step {step_num[0]}: procure({item_id})")
+        print(f"  Rationale: {rationale[:80]}...")
+        result = transport.procure(item_id, rationale, select_index)
+        status = result.get("status", "unknown")
+        print(f"  → Status: {status}")
+        if status == "fulfilled":
+            print(f"  → Payment: {result.get('payment', {}).get('paymentId', 'N/A')}")
+        elif status in ("denied", "advisory_denied"):
+            print(f"  → Denied: {result.get('code', '')} {result.get('detail', '')}")
+        recorded_turns.append({
+            "tool": "procure",
+            "args": {"item_id": item_id, "rationale": rationale, "select_index": select_index}
+        })
+        _pace()
+        return {
+            "status": status,
+            "item_id": item_id,
+            "paymentId": result.get("payment", {}).get("paymentId"),
+            "amountPaise": result.get("amountPaise"),
+        }
+
+
+    print("[agent] Connecting to Google Gemini (gemini-2.5-flash)...")
+    chat = client.chats.create(
+        model="gemini-2.5-flash",
+        config={
+            "system_instruction": SYSTEM_PROMPT,
+            "tools": [discover_catalog, check_budget, procure],
+        }
+    )
+
+    prompt = (
+        f"Mission: {mission}\n\n"
+        f"Instructions:\n"
+        f"1. Call discover_catalog() to evaluate available providers for LLM inference, vector search, and market data.\n"
+        f"2. Call check_budget() to verify your funds.\n"
+        f"3. Compare competing providers on price and specs, selecting the most cost-effective option for the RAG task.\n"
+        f"4. Procure LLM tokens (e.g. deepseek-v4-flash or deepseek-v3-tokens).\n"
+        f"5. Procure 8 vector queries, then buy the day-pass bundle to cover remaining queries at a discount.\n"
+        f"6. Procure 1x market-snapshot for real-time data.\n"
+        f"7. In every single procure call, provide an explicit comparison rationale.\n"
+        f"8. Ensure total spend stays strictly under your ₹150 budget."
+    )
+
+    response = chat.send_message(prompt)
+
+    print()
+    print("=" * 60)
+    print(f"[agent] Live execution complete. {len(recorded_turns)} steps executed.")
+    budget = transport.wallet.summary()
+    print(f"[agent] Budget: {budget['remaining_display']} remaining "
+          f"({rupees(budget['captured_paise'])} spent)")
+    print("=" * 60)
+    try:
+        text = getattr(response, "text", "")
+        if text:
+            print(f"[agent] Summary:\n{text.strip()}")
+    except Exception:
+        pass
+
+
+    # Save recorded run to fixture
+    if recorded_turns:
+        fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "procurement_run.json")
+        fixture_data = {
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "mission": mission,
+            "turns": recorded_turns,
+        }
+        with open(fixture_path, "w", encoding="utf-8") as f:
+            json.dump(fixture_data, f, indent=2, ensure_ascii=False)
+        print(f"[agent] Recorded run saved to: {fixture_path}")
+
+    return recorded_turns
+
+
 def main():
     parser = argparse.ArgumentParser(description="Razor402 AI Procurement Agent")
     parser.add_argument("--agent", default="agt_coding_01",
@@ -125,8 +248,10 @@ def main():
     print(f"[agent] Mission: {mission[:80]}...")
     print()
 
-    if args.replay or not args.live:
-        # Replay mode
+    if args.live:
+        run_live(transport, mission)
+    else:
+        # Replay mode default
         fixture_path = args.fixture
         if not fixture_path:
             fixture_path = os.path.join(
@@ -139,10 +264,6 @@ def main():
             _create_default_fixture(fixture_path)
 
         run_replay(transport, fixture_path)
-    else:
-        # Live LLM mode
-        print("[agent] Live mode requires LLM_PROVIDER to be set")
-        print("[agent] Use --replay for fixture-based execution")
 
     transport.close()
 
@@ -206,10 +327,11 @@ def _create_default_fixture(path: str):
         ],
     }
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(fixture, f, indent=2)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(fixture, f, indent=2, ensure_ascii=False)
     print(f"  Created: {path}")
 
 
 if __name__ == "__main__":
     main()
+

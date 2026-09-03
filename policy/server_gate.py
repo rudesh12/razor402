@@ -19,6 +19,15 @@ def authorize(conn, cid: str, kid: str, paise: int, pay_to: str,
         raise Razor402Error("AGENT_NOT_ALLOWLISTED", f"Unknown agent: {kid}",
                             challenge_id=cid)
 
+    try:
+        from gateway.console_api import is_envelope_revoked
+        if is_envelope_revoked():
+            raise Razor402Error("ENVELOPE_REVOKED", "Envelope revoked by operator",
+                                challenge_id=cid)
+    except ImportError:
+        pass
+
+
     if pay_to not in policy["allowlist"]:
         raise Razor402Error("MERCHANT_NOT_ALLOWLISTED",
                             f"Merchant {pay_to} not in allowlist", challenge_id=cid)

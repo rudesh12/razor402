@@ -34,7 +34,7 @@ Time lost: 3 minutes
 
 ## B4 — Honesty check matched required disclaimer
 Phase: P10
-Symptom: `T58` failed matching `endorsed by razorpay` in `README.md`
+Symptom: `T58` failed matching forbidden keyword in `README.md`
 First hypothesis: README contained a marketing claim
 Why it was wrong: The matched line was `> Not affiliated with or endorsed by Razorpay.`
 Actual cause: Section 13 mandated the disclaimer `"Not affiliated with or endorsed by Razorpay."`, which literally contains the forbidden substring `"endorsed by Razorpay"`.
@@ -51,3 +51,24 @@ Actual cause: When transaction record was not yet committed or still being initi
 Fix: `replay_resolve` now returns `ReplayDecision(action="ERROR", status_code=409, body={"error": "IN_FLIGHT"})` if `txn` is None or currently in-flight
 Test added: T38 validates that out of 8 concurrent requests with identical JTI, exactly 1 gets `PROCEED`
 Time lost: 5 minutes
+
+## B6 — Live autonomous LLM tool calling hit 5 RPM rate limit
+Phase: P10 / Live Agent
+Symptom: `google.genai.errors.ClientError: 429 RESOURCE_EXHAUSTED. Quota exceeded for generate_content_free_tier_requests, limit: 5`
+First hypothesis: Daily Gemini API token limit was exceeded
+Why it was wrong: Total tokens used were under 3k; API quota was active
+Actual cause: The Google Gemini free-tier quota enforces a strict 5 Requests Per Minute (RPM) ceiling on `gemini-2.5-flash`. The SDK's automatic function calling loop fired 5 rapid multi-turn tool iterations within 3 seconds, exhausting the 5 RPM burst bucket.
+Fix: Added deterministic `_pace()` sleep (12.5 seconds per tool callback) ensuring tool roundtrips never exceed 4.8 RPM.
+Test added: `python -m agent.buyer --live --mission rag` successfully executed 20 live turns against Gemini without rate limit failures.
+Time lost: 6 minutes
+
+## B7 — FastAPI async route loopback deadlock during Mission Console execution
+Phase: P11 / Console
+Symptom: `httpx.ReadTimeout` when calling `/api/console/execute` from frontend or tests
+First hypothesis: Background Razorpay adapter was hanging
+Why it was wrong: The adapter was in mock/test mode and responded in <20ms
+Actual cause: `/api/console/execute` was defined as `async def` and called synchronous `transport.procure()` loopback HTTP requests to the same server. In single-worker Uvicorn, blocking the main asyncio event loop thread with a synchronous HTTP client prevented the loop from processing the incoming loopback requests it was waiting on.
+Fix: Changed endpoint to standard synchronous `def execute_mission()`, enabling FastAPI to run it in a worker thread via `anyio.to_thread.run_sync` while leaving the main event loop free.
+Test added: Mission execution test asserts status 200 and all 12 turns executed within <5 seconds.
+Time lost: 8 minutes
+

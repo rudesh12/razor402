@@ -58,4 +58,22 @@ Mode: `MODE_C` — network/auth error: `'charmap' codec can't encode character '
 Mode: `MODE_C` (harness) — orders are real, s2s payments unavailable.
 Error: `The requested URL was not found on the server.`
 Order creation works (tested: `order_TXMxNx7A10MvDK`).
+
+## D10 — Multi-Provider Comparison Shopping Catalog
+
+Expanded `core/catalog.py` with competing market offerings under BuildBroker:
+- LLM Inference: DeepSeek-V4-Flash (₹4.00), DeepSeek-V3 (₹5.00), GLM-5.3-Flash (₹5.00), Gemini-3.7-Flash (₹7.00)
+- Vector Search: Weaviate (₹3.00), Qdrant (₹5.00), Pinecone (₹8.00)
+- Cloud Compute: GCP e2-small (₹20.00), Azure B2s (₹22.00), AWS t3.micro (₹25.00)
+- System prompt instructs agent to compare providers on price/specs and record rationale.
+
+## D11 — Mission Console & Human-in-the-Loop Operator Gate
+
+Implemented split-pane UI (`GET /console`) and API (`/api/console/*`):
+- Goal definition & solutions architect planner
+- Real-time Bill of Materials (BOM) with cost analysis
+- Human approval button to fund envelope (₹108.00)
+- Live streaming execution showing HTTP 402, settlement, fulfillment, and audit link
+- Mid-flight operator revocation button triggering deterministic server-side gate denial (`403 ENVELOPE_REVOKED`).
+
 MODE_B alternative: save a Checkout-created `pay_` id to `agent/fixtures/real_payment.json`.

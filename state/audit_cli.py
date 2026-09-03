@@ -98,9 +98,30 @@ def cmd_tamper():
     print("Run 'verify' to detect the tampering.")
 
 
+def cmd_repair():
+    """Restore tampered entry to valid state."""
+    db_path = os.environ.get("DB_PATH", "razor402.db")
+    raw_conn = sqlite3.connect(db_path)
+    raw_conn.execute("DROP TRIGGER IF EXISTS audit_no_update")
+    row = raw_conn.execute("SELECT seq, payload FROM audit ORDER BY seq DESC LIMIT 1").fetchone()
+    if row:
+        seq = row[0]
+        payload = json.loads(row[1])
+        payload.pop("tampered", None)
+        raw_conn.execute("UPDATE audit SET payload=? WHERE seq=?", (json.dumps(payload), seq))
+        raw_conn.commit()
+    raw_conn.execute(
+        "CREATE TRIGGER IF NOT EXISTS audit_no_update BEFORE UPDATE ON audit "
+        "BEGIN SELECT RAISE(ABORT, 'audit is append-only'); END"
+    )
+    raw_conn.commit()
+    raw_conn.close()
+    print("✓ Audit entry restored to original state.")
+
+
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python -m state.audit_cli {verify|head|export|tamper}")
+        print("Usage: python -m state.audit_cli {verify|head|export|tamper|repair}")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -112,9 +133,12 @@ def main():
         cmd_export()
     elif cmd == "tamper":
         cmd_tamper()
+    elif cmd == "repair":
+        cmd_repair()
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)
+
 
 
 if __name__ == "__main__":

@@ -18,6 +18,7 @@ from state.ledger import init_db
 from facilitator.rzp import PaymentAdapter
 from gateway.webhooks import router as webhook_router
 from gateway.checkout import router as checkout_router
+from gateway.console_api import router as console_router
 
 # Global adapter
 _adapter: PaymentAdapter | None = None
@@ -69,9 +70,10 @@ async def _reconciler_loop():
 
 app = FastAPI(title="Razor402 Gateway", lifespan=lifespan)
 
-# Include webhook and checkout routers
+# Include webhook, checkout, and console routers
 app.include_router(webhook_router)
 app.include_router(checkout_router)
+app.include_router(console_router)
 
 
 @app.get("/health")
@@ -292,3 +294,12 @@ async def checkout():
     if os.path.exists(html_path):
         return FileResponse(html_path)
     return JSONResponse(status_code=404, content={"error": "Checkout page not found"})
+
+
+@app.get("/console")
+async def console():
+    from fastapi.responses import FileResponse
+    html_path = os.path.join(static_dir, "console.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    return JSONResponse(status_code=404, content={"error": "Console page not found"})
