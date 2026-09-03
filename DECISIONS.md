@@ -77,3 +77,11 @@ Implemented split-pane UI (`GET /console`) and API (`/api/console/*`):
 - Mid-flight operator revocation button triggering deterministic server-side gate denial (`403 ENVELOPE_REVOKED`).
 
 MODE_B alternative: save a Checkout-created `pay_` id to `agent/fixtures/real_payment.json`.
+
+## D12 — Unified Frontend SPA & Dynamic AI Budget Controller
+
+Consolidated the presentation layer into a self-contained Single Page Application (`gateway/static/index.html`) served directly by FastAPI:
+- **Zero external build dependencies**: Runs immediately under `uvicorn gateway.app:app` without requiring Node.js, separate development servers, or CORS.
+- **Dynamic AI Agent Budget Tuning**: Dual sliders + number controls for Daily Pool (₹10–₹500) and Per-Call Cap (₹1–₹100) communicating via `POST /api/v1/budget/adjust`, enabling real-time demonstration of deterministic spending gate enforcement.
+- **5-View Navigation**: Overview dashboard, 40-resource API Marketplace with Razorpay Standard Checkout modal, Mission Console & BOM planner, Cryptographic Audit Trail with tamper demo, and Operator Settings with chaos injection.
+
