@@ -285,6 +285,8 @@
 
             <div class="filter-pills" id="category-pills">
                 <div class="pill active" onclick="setCategory('all')">All Resources (<span id="count-all">0</span>)</div>
+                <div class="pill" onclick="setCategory('code_and_copilot')">💻 Code & Copilot (<span id="count-code">0</span>)</div>
+                <div class="pill" onclick="setCategory('music_and_audio')">🎵 Music & Audio (<span id="count-music">0</span>)</div>
                 <div class="pill" onclick="setCategory('llm_inference')">LLM Inference (<span id="count-llm">0</span>)</div>
                 <div class="pill" onclick="setCategory('vector_db')">Vector Search & Embeddings (<span id="count-vec">0</span>)</div>
                 <div class="pill" onclick="setCategory('search_and_data')">Web Search & Scraping (<span id="count-search">0</span>)</div>
@@ -292,6 +294,7 @@
                 <div class="pill" onclick="setCategory('compute')">Compute & Sandboxes (<span id="count-comp">0</span>)</div>
                 <div class="pill" onclick="setCategory('bundle')">Volume Bundles (<span id="count-bundle">0</span>)</div>
             </div>
+
         </div>
 
         <!-- Catalog Items Grid -->
@@ -380,6 +383,8 @@
 
     function formatCategoryName(cat) {
         const names = {
+            code_and_copilot: 'Code & Copilot',
+            music_and_audio: 'Music & Audio',
             llm_inference: 'LLM Inference',
             vector_db: 'Vector DB',
             search_and_data: 'Web & Scraping',
@@ -411,6 +416,8 @@
             // Update Counts
             document.getElementById('stat-total-skus').textContent = `${allItems.length} Active SKUs`;
             document.getElementById('count-all').textContent = allItems.length;
+            document.getElementById('count-code').textContent = allItems.filter(i => i.category === 'code_and_copilot').length;
+            document.getElementById('count-music').textContent = allItems.filter(i => i.category === 'music_and_audio').length;
             document.getElementById('count-llm').textContent = allItems.filter(i => i.category === 'llm_inference').length;
             document.getElementById('count-vec').textContent = allItems.filter(i => i.category === 'vector_db').length;
             document.getElementById('count-search').textContent = allItems.filter(i => i.category === 'search_and_data').length;
@@ -420,6 +427,7 @@
 
             renderCards(allItems);
         } catch (e) {
+
             toast('Failed to load catalog: ' + e.message, 'error');
         }
     }

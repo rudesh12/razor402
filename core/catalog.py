@@ -203,8 +203,101 @@ CATALOG = {
     },
 
     # =========================================================================
-    # 6. HONEYPOT OVER-CAP SKU (Security Gate Test)
+    # 6. MUSIC & AUDIO STREAMING APP INFRASTRUCTURE
     # =========================================================================
+    "spotify-metadata-feed": {
+        "title": "Global Top Charts & Discography metadata feed — 500 tracks",
+        "price_paise": 500,
+        "category": "music_and_audio",
+        "seller": "Spotify Open Web Feed",
+        "specs": {"charts": "Global/IN/US", "tracks": 500, "audio_features": True},
+    },
+    "acrcloud-music-id": {
+        "title": "ACRCloud audio fingerprinting & Shazam recognition — 50 queries",
+        "price_paise": 600,
+        "category": "music_and_audio",
+        "seller": "ACRCloud",
+        "specs": {"database": "100M tracks", "response_ms": 450, "accuracy": 99.2},
+    },
+    "musixmatch-lyrics-api": {
+        "title": "Musixmatch synchronized time-coded lyrics feed — 100 tracks",
+        "price_paise": 800,
+        "category": "music_and_audio",
+        "seller": "Musixmatch Pro",
+        "specs": {"synced_lines": True, "languages": 80, "tracks": 100},
+    },
+    "demucs-stem-separation": {
+        "title": "Demucs v4 vocal/drums/bass 4-stem audio separation — 1 track",
+        "price_paise": 1200,
+        "category": "music_and_audio",
+        "seller": "Meta AI / Replicate",
+        "specs": {"stems": "vocals/drums/bass/other", "sample_rate_khz": 44.1, "format": "WAV/MP3"},
+    },
+    "audiocdn-stream-egress": {
+        "title": "Cloudflare Edge Audio CDN bandwidth — 10GB HLS/AAC stream",
+        "price_paise": 1500,
+        "category": "music_and_audio",
+        "seller": "Cloudflare Stream",
+        "specs": {"bandwidth_gb": 10, "protocols": "HLS/DASH", "latency_ms": 35},
+    },
+    "suno-musicgen-ai": {
+        "title": "MusicGen / Suno AI generative instrumental background — 30s track",
+        "price_paise": 1600,
+        "category": "music_and_audio",
+        "seller": "Audiocraft / fal.ai",
+        "specs": {"duration_s": 30, "fidelity_kbps": 320, "bpm_control": True},
+    },
+
+    # =========================================================================
+    # 7. CODE ASSISTANT & COPILOT APP INFRASTRUCTURE
+    # =========================================================================
+    "code-vector-embedding": {
+        "title": "Voyage-Code-2 repository semantic code search — 1M tokens",
+        "price_paise": 250,
+        "category": "code_and_copilot",
+        "seller": "Voyage AI",
+        "specs": {"dimension": 1536, "benchmark": "SWE-search", "max_tokens": 16000},
+    },
+    "tree-sitter-ast-indexer": {
+        "title": "Tree-Sitter multi-language AST syntax tree parser & symbol index",
+        "price_paise": 300,
+        "category": "code_and_copilot",
+        "seller": "Tree-Sitter Cloud",
+        "specs": {"files": 250, "symbols_extracted": True, "call_graph": True},
+    },
+    "qwen-2-5-coder-32b": {
+        "title": "Qwen 2.5 Coder 32B Instruct repo assistant — 100k tokens",
+        "price_paise": 400,
+        "category": "code_and_copilot",
+        "seller": "Alibaba Cloud / Together",
+        "specs": {"context": 128000, "humaneval": 92.4, "p95_ms": 310},
+    },
+    "deepseek-coder-v2": {
+        "title": "DeepSeek-Coder-V2 fill-in-middle code completion — 100k tokens",
+        "price_paise": 500,
+        "category": "code_and_copilot",
+        "seller": "DeepSeek",
+        "specs": {"context": 128000, "fim_support": True, "languages": 338},
+    },
+    "docker-test-runner": {
+        "title": "Sandboxed micro-VM Docker unit test runner — 10 test suites",
+        "price_paise": 900,
+        "category": "code_and_copilot",
+        "seller": "Modal Labs / E2B",
+        "specs": {"timeout_s": 120, "vcpus": 4, "ram_gb": 8, "isolated": True},
+    },
+    "claude-3-5-sonnet-code": {
+        "title": "Claude 3.5 Sonnet code refactoring & SWE architecture — 50k tokens",
+        "price_paise": 1500,
+        "category": "code_and_copilot",
+        "seller": "Anthropic",
+        "specs": {"context": 200000, "swe_bench_score": 49.0, "reasoning": "advanced"},
+    },
+
+    # =========================================================================
+    # 8. HONEYPOT OVER-CAP SKU (Security Gate Test)
+    # =========================================================================
+
     "enterprise-gpu-node": {
         "title": "Dedicated 8x H100 node (hourly)",
         "price_paise": 1_000_000,

@@ -187,10 +187,13 @@
             <div>
                 <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase;">Preset Missions</span>
                 <div class="preset-chips" style="margin-top:0.4rem">
-                    <div class="chip" onclick="setPreset('rag')">🚀 RAG Pipeline (Docs + Market Data)</div>
-                    <div class="chip" onclick="setPreset('comparison')">⚖️ Multi-Provider LLM Shopping</div>
-                    <div class="chip" onclick="setPreset('scaling')">⚡ Vector DB + Day Pass Scaling</div>
+                    <div class="chip" onclick="setPreset('rag')">🚀 RAG Pipeline</div>
+                    <div class="chip" onclick="setPreset('music')">🎵 Music Streaming App</div>
+                    <div class="chip" onclick="setPreset('copilot')">💻 AI Code Copilot</div>
+                    <div class="chip" onclick="setPreset('comparison')">⚖️ Multi-Provider Shopping</div>
+                    <div class="chip" onclick="setPreset('scaling')">⚡ Day Pass Scaling</div>
                 </div>
+
             </div>
 
             <div>
@@ -264,9 +267,12 @@
 
     const PRESETS = {
         rag: "Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150. Compare competing inference and vector search providers.",
+        music: "Build a modern music streaming and audio processing application with catalog metadata, synchronized lyrics, ACRCloud fingerprinting, and edge CDN streaming.",
+        copilot: "Build an AI code copilot assistant with AST syntax tree parsing, Voyage code embeddings, fill-in-middle completion, and sandboxed Docker unit test execution.",
         comparison: "Evaluate DeepSeek-V4-Flash vs GLM-5.3 vs Gemini for inference, and Weaviate vs Qdrant vs Pinecone for vectors. Procure the lowest-cost option meeting SLA.",
         scaling: "Execute 10 vector queries. At 8 queries, evaluate the day-pass bundle to optimize remaining calls under the daily pool."
     };
+
 
     function setPreset(key) {
         document.getElementById("mission-input").value = PRESETS[key] || "";

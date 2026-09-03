@@ -77,6 +77,28 @@ def _get_quota(item_id: str, item: dict) -> dict:
         return {"queries": "unlimited", "valid_hours": 24}
     elif item_id == "enterprise-gpu-node":
         return {"hours": 1, "gpus": 8}
+    elif cat == "music_and_audio":
+        if "audiocdn" in item_id:
+            return {"bandwidth_gb": 10}
+        elif "lyrics" in item_id:
+            return {"tracks": 100}
+        elif "music-id" in item_id or "acrcloud" in item_id:
+            return {"queries": 50}
+        elif "demucs" in item_id:
+            return {"tracks": 1, "stems": 4}
+        elif "musicgen" in item_id or "suno" in item_id:
+            return {"tracks": 1, "duration_s": 30}
+        return {"items": 500}
+    elif cat == "code_and_copilot":
+        if "coder" in item_id or "sonnet" in item_id:
+            return {"tokens": item.get("specs", {}).get("context", 100_000)}
+        elif "ast" in item_id or "tree-sitter" in item_id:
+            return {"files": 250}
+        elif "embedding" in item_id:
+            return {"tokens": 1_000_000}
+        elif "docker" in item_id or "runner" in item_id:
+            return {"test_runs": 10}
+        return {"units": 1}
     elif cat == "compute":
         if "interpreter" in item_id:
             return {"minutes": 15, "isolated": True}
@@ -100,9 +122,14 @@ def _get_endpoint_path(item_id: str) -> str:
         return "search/query"
     elif cat == "financial_data":
         return "market/feed"
+    elif cat == "music_and_audio":
+        return "audio/stream"
+    elif cat == "code_and_copilot":
+        return "copilot/code"
     elif cat == "compute" or item_id == "enterprise-gpu-node":
         return "compute/provision"
     return "provision"
+
 
 
 

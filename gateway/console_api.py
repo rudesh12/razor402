@@ -37,58 +37,114 @@ async def plan_mission(request: Request):
         mission = "rag"
 
     items = []
-    # 1. LLM selection: Compare DeepSeek-V4 vs DeepSeek-V3 vs GLM vs Gemini
-    v4_price = CATALOG["deepseek-v4-flash"]["price_paise"]
-    items.append({
-        "item_id": "deepseek-v4-flash",
-        "title": CATALOG["deepseek-v4-flash"]["title"],
-        "seller": CATALOG["deepseek-v4-flash"].get("seller", "DeepSeek"),
-        "qty": 1,
-        "price_paise": v4_price,
-        "total_paise": v4_price,
-    })
+    if "music" in mission or "audio" in mission:
+        # Music Streaming App BOM
+        music_keys = [
+            ("spotify-metadata-feed", 1),
+            ("acrcloud-music-id", 1),
+            ("musixmatch-lyrics-api", 1),
+            ("demucs-stem-separation", 1),
+            ("audiocdn-stream-egress", 1),
+        ]
+        for key, qty in music_keys:
+            cat_item = CATALOG[key]
+            price = cat_item["price_paise"]
+            items.append({
+                "item_id": key,
+                "title": cat_item["title"],
+                "seller": cat_item.get("seller", "BuildBroker"),
+                "qty": qty,
+                "price_paise": price,
+                "total_paise": qty * price,
+            })
+        total_paise = sum(i["total_paise"] for i in items)
+        rationale = (
+            "Solutions Architect Recommendation for Music Streaming App: "
+            "Procuring Spotify catalog metadata (₹5.00), ACRCloud Shazam fingerprinting (₹6.00), "
+            "Musixmatch synchronized lyrics (₹8.00), Demucs AI stem separation (₹12.00), and "
+            "Cloudflare Edge Audio CDN streaming bandwidth (₹15.00). Total envelope: ₹46.00 out of ₹150.00 daily pool."
+        )
+    elif "copilot" in mission or "code" in mission:
+        # AI Code Copilot BOM
+        code_keys = [
+            ("code-vector-embedding", 1),
+            ("tree-sitter-ast-indexer", 1),
+            ("deepseek-coder-v2", 1),
+            ("docker-test-runner", 1),
+            ("claude-3-5-sonnet-code", 1),
+        ]
+        for key, qty in code_keys:
+            cat_item = CATALOG[key]
+            price = cat_item["price_paise"]
+            items.append({
+                "item_id": key,
+                "title": cat_item["title"],
+                "seller": cat_item.get("seller", "BuildBroker"),
+                "qty": qty,
+                "price_paise": price,
+                "total_paise": qty * price,
+            })
+        total_paise = sum(i["total_paise"] for i in items)
+        rationale = (
+            "Solutions Architect Recommendation for AI Code Copilot: "
+            "Selected Voyage-Code-2 for repo search (₹2.50), Tree-Sitter for AST symbol indexing (₹3.00), "
+            "DeepSeek-Coder-V2 for low-latency FIM completion (₹5.00), Docker containerized test sandbox (₹9.00), "
+            "and Claude 3.5 Sonnet for SWE architecture & refactoring (₹15.00). Total envelope: ₹34.50 out of ₹150.00 daily pool."
+        )
+    else:
+        # Standard RAG / Comparison BOM
+        # 1. LLM selection
+        v4_price = CATALOG["deepseek-v4-flash"]["price_paise"]
+        items.append({
+            "item_id": "deepseek-v4-flash",
+            "title": CATALOG["deepseek-v4-flash"]["title"],
+            "seller": CATALOG["deepseek-v4-flash"].get("seller", "DeepSeek"),
+            "qty": 1,
+            "price_paise": v4_price,
+            "total_paise": v4_price,
+        })
 
-    # 2. Vector search: 8 initial queries
-    qdrant_price = CATALOG["qdrant-vector-query"]["price_paise"]
-    items.append({
-        "item_id": "qdrant-vector-query",
-        "title": "Qdrant Cloud vector search (evaluation batch)",
-        "seller": CATALOG["qdrant-vector-query"].get("seller", "Qdrant"),
-        "qty": 8,
-        "price_paise": qdrant_price,
-        "total_paise": 8 * qdrant_price,
-    })
+        # 2. Vector search: 8 initial queries
+        qdrant_price = CATALOG["qdrant-vector-query"]["price_paise"]
+        items.append({
+            "item_id": "qdrant-vector-query",
+            "title": "Qdrant Cloud vector search (evaluation batch)",
+            "seller": CATALOG["qdrant-vector-query"].get("seller", "Qdrant"),
+            "qty": 8,
+            "price_paise": qdrant_price,
+            "total_paise": 8 * qdrant_price,
+        })
 
-    # 3. Day Pass volume bundle (unlimited 24h)
-    pass_price = CATALOG["day-pass"]["price_paise"]
-    items.append({
-        "item_id": "day-pass",
-        "title": CATALOG["day-pass"]["title"],
-        "seller": CATALOG["day-pass"].get("seller", "BuildBroker"),
-        "qty": 1,
-        "price_paise": pass_price,
-        "total_paise": pass_price,
-    })
+        # 3. Day Pass volume bundle
+        pass_price = CATALOG["day-pass"]["price_paise"]
+        items.append({
+            "item_id": "day-pass",
+            "title": CATALOG["day-pass"]["title"],
+            "seller": CATALOG["day-pass"].get("seller", "BuildBroker"),
+            "qty": 1,
+            "price_paise": pass_price,
+            "total_paise": pass_price,
+        })
 
-    # 4. Market snapshot
-    mkt_price = CATALOG["market-snapshot"]["price_paise"]
-    items.append({
-        "item_id": "market-snapshot",
-        "title": CATALOG["market-snapshot"]["title"],
-        "seller": CATALOG["market-snapshot"].get("seller", "NSE/BSE Datafeed"),
-        "qty": 1,
-        "price_paise": mkt_price,
-        "total_paise": mkt_price,
-    })
+        # 4. Market snapshot
+        mkt_price = CATALOG["market-snapshot"]["price_paise"]
+        items.append({
+            "item_id": "market-snapshot",
+            "title": CATALOG["market-snapshot"]["title"],
+            "seller": CATALOG["market-snapshot"].get("seller", "NSE/BSE Datafeed"),
+            "qty": 1,
+            "price_paise": mkt_price,
+            "total_paise": mkt_price,
+        })
 
-    total_paise = sum(i["total_paise"] for i in items)
+        total_paise = sum(i["total_paise"] for i in items)
+        rationale = (
+            "Comparison Shopping Analysis: "
+            "Selected DeepSeek-V4-Flash (₹4.00) over Gemini-3.7-Flash (₹7.00) for lowest cost per token. "
+            "Selected Qdrant (₹5.00/query) with HNSW indexing, and activated the Day Pass (₹49.00) at query 8 "
+            "to cover all remaining queries at fixed cost. Total envelope: ₹108.00 out of ₹150.00 daily pool."
+        )
 
-    rationale = (
-        "Comparison Shopping Analysis: "
-        "Selected DeepSeek-V4-Flash (₹4.00) over Gemini-3.7-Flash (₹7.00) for lowest cost per token. "
-        "Selected Qdrant (₹5.00/query) with HNSW indexing, and activated the Day Pass (₹49.00) at query 8 "
-        "to cover all remaining queries at fixed cost. Total envelope: ₹108.00 out of ₹150.00 daily pool."
-    )
 
     return {
         "items": items,
