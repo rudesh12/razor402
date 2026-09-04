@@ -85,3 +85,12 @@ Consolidated the presentation layer into a self-contained Single Page Applicatio
 - **Dynamic AI Agent Budget Tuning**: Dual sliders + number controls for Daily Pool (₹10–₹500) and Per-Call Cap (₹1–₹100) communicating via `POST /api/v1/budget/adjust`, enabling real-time demonstration of deterministic spending gate enforcement.
 - **5-View Navigation**: Overview dashboard, 40-resource API Marketplace with Razorpay Standard Checkout modal, Mission Console & BOM planner, Cryptographic Audit Trail with tamper demo, and Operator Settings with chaos injection.
 
+## D13 — Protocol Inspector, Attack Simulator & Demonstrable 402 Wire Suite
+
+Integrated wire-level protocol visualization and automated adversarial test suite directly into the frontend and backend:
+- **Protocol Inspector Drawer**: Real-time slide-in wire panel displaying chronological HTTP exchange frames (`req` -> `402 Challenge` -> `req + X-PAYMENT` -> `200 Delivery`) with staged 380ms replay and interactive JWS token inspection.
+- **Dual Buy Paths**: Every marketplace card splits into `🤖 Agent Buy · 402` (autonomous cryptographic handshake) and `💳 Human` (standard Razorpay modal), highlighting the core architectural differentiator.
+- **Automated Adversarial Scorecard**: 5-attack simulation matrix (`prompt_injection`, `confused_deputy`, `replay`, `pool_drain`, `revoked_envelope`) executing against the live gateway with verifiable `DEFENDED ✓` verdicts.
+- **Tamper-to-Verify Narrative Fix**: Removed premature UI mutation on tampering; chain walk animates row-by-row with dynamic border coloring to locate the exact corrupted entry.
+- **Demo Director Bar**: Persistent 8-step presentation controller with keyboard shortcuts `1`–`8` for rehearsed, zero-fumble video recording.
+

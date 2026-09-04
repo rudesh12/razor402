@@ -19,6 +19,7 @@ from facilitator.rzp import PaymentAdapter
 from gateway.webhooks import router as webhook_router
 from gateway.checkout import router as checkout_router
 from gateway.console_api import router as console_router
+from gateway.demo_api import router as demo_router
 
 # Global adapter
 _adapter: PaymentAdapter | None = None
@@ -70,10 +71,11 @@ async def _reconciler_loop():
 
 app = FastAPI(title="Razor402 Gateway", lifespan=lifespan)
 
-# Include webhook, checkout, and console routers
+# Include webhook, checkout, console, and demo routers
 app.include_router(webhook_router)
 app.include_router(checkout_router)
 app.include_router(console_router)
+app.include_router(demo_router)
 
 
 @app.get("/health")
@@ -165,23 +167,80 @@ async def api_catalog():
 
 
 @app.get("/api/v1/audit")
-async def api_audit(limit: int = 50):
+async def api_audit(limit: int = 50, verify: int = 0):
     conn = get_connection()
     rows = conn.execute(
         "SELECT * FROM audit ORDER BY seq DESC LIMIT ?", (limit,)
     ).fetchall()
 
-    from state.ledger import verify_chain
+    from state.ledger import verify_chain, _compute_entry_hash
     valid, head = verify_chain(conn)
 
     head_row = conn.execute(
         "SELECT entry_hash FROM audit ORDER BY seq DESC LIMIT 1"
     ).fetchone()
 
+    chain_height_row = conn.execute(
+        "SELECT COUNT(*) as cnt FROM audit"
+    ).fetchone()
+    chain_height = chain_height_row["cnt"] if chain_height_row else 0
+
+    if verify == 1:
+        # Full sequential verification of each entry
+        asc_rows = conn.execute(
+            "SELECT seq, challenge_id, event, to_state, to_rank, actor, payload, "
+            "prev_hash, entry_hash FROM audit ORDER BY seq ASC"
+        ).fetchall()
+
+        hash_status = {}
+        prev_hash = "0" * 64
+        first_bad_seq = None
+        for r in asc_rows:
+            payload = json.loads(r["payload"])
+            computed = _compute_entry_hash(
+                prev_hash,
+                r["challenge_id"],
+                r["event"],
+                r["to_state"],
+                r["to_rank"],
+                r["actor"],
+                payload,
+            )
+            is_ok = (computed == r["entry_hash"])
+            if not is_ok and first_bad_seq is None:
+                first_bad_seq = r["seq"]
+            hash_status[r["seq"]] = {
+                "hash_ok": is_ok,
+                "expected_hash": r["entry_hash"],
+                "computed_hash": computed,
+            }
+            prev_hash = r["entry_hash"]
+
+        entries = []
+        for r in rows:
+            d = dict(r)
+            status_info = hash_status.get(r["seq"], {
+                "hash_ok": True,
+                "expected_hash": r["entry_hash"],
+                "computed_hash": r["entry_hash"],
+            })
+            d.update(status_info)
+            entries.append(d)
+
+        return {
+            "entries": entries,
+            "chain_valid": valid,
+            "head_hash": head_row["entry_hash"] if head_row else None,
+            "first_bad_seq": first_bad_seq,
+            "verified_count": len(asc_rows),
+            "chain_height": chain_height,
+        }
+
     return {
         "entries": [dict(r) for r in rows],
         "chain_valid": valid,
         "head_hash": head_row["entry_hash"] if head_row else None,
+        "chain_height": chain_height,
     }
 
 
@@ -300,18 +359,33 @@ async def api_stats():
         "SELECT COUNT(*) as cnt FROM audit"
     ).fetchone()
 
+    in_doubt_count = conn.execute(
+        "SELECT COUNT(*) as cnt FROM txn WHERE state IN ('SETTLEMENT_UNKNOWN', 'SETTLING')"
+    ).fetchone()["cnt"]
+
+    attacks_blocked = conn.execute(
+        "SELECT COUNT(*) as cnt FROM audit WHERE event IN ('POLICY_DENY', 'REJECT_ILLEGAL_TRANSITION', 'ALERT_MAX_ATTEMPTS')"
+    ).fetchone()["cnt"]
+
     from gateway.console_api import is_envelope_revoked
 
     return {
         "total_txns": total_txns,
         "settled_count": state_map.get("SETTLED", 0),
+        "fulfilled_count": state_map.get("FULFILLED", 0),
         "failed_count": state_map.get("FAILED", 0),
         "refunded_count": state_map.get("REFUNDED", 0),
+        "compensated_count": state_map.get("COMPENSATED", 0),
         "paying_count": state_map.get("PAYING", 0),
         "total_captured_paise": captured_row["total"],
         "total_passes": pass_count["cnt"],
         "active_passes": active_passes["cnt"],
         "audit_entries": audit_count["cnt"],
+        "chain_height": audit_count["cnt"],
+        "challenges_issued": total_txns,
+        "in_doubt_count": in_doubt_count,
+        "attacks_blocked": attacks_blocked,
+        "reconciler_tick_s": RECONCILE_TICK_S,
         "chaos_mode": _chaos_mode,
         "envelope_status": "revoked" if is_envelope_revoked() else "active",
     }

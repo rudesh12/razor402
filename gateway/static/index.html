@@ -1,967 +1,1363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Razor402 — Razorpay Standard Checkout & AI Agent Commerce Platform</title>
-    <meta name="description" content="HTTP 402 payment protocol for autonomous AI agent commerce with Razorpay Standard Checkout on test rails">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <style>
-        :root {
-            --bg:           #06060b;
-            --bg-card:      #0d0d16;
-            --bg-elevated:  #131322;
-            --bg-hover:     #1a1a2e;
-            --border:       #1a1a30;
-            --border-hover: #2a2a48;
-            --text:         #e8e8f0;
-            --text-secondary: #a0a0b8;
-            --text-muted:   #6a6a82;
-            --accent:       #6366f1;
-            --accent-light: #818cf8;
-            --accent-glow:  rgba(99,102,241,0.12);
-            --green:        #22c55e;
-            --green-dim:    rgba(34,197,94,0.12);
-            --red:          #ef4444;
-            --red-dim:      rgba(239,68,68,0.12);
-            --amber:        #f59e0b;
-            --amber-dim:    rgba(245,158,11,0.12);
-            --blue:         #3b82f6;
-            --blue-dim:     rgba(59,130,246,0.12);
-            --cyan:         #06b6d4;
-            --purple:       #a855f7;
-            --radius:       0.75rem;
-            --radius-sm:    0.5rem;
-            --radius-lg:    1rem;
-            --shadow:       0 4px 24px rgba(0,0,0,0.4);
-            --shadow-lg:    0 8px 40px rgba(0,0,0,0.5);
-            --transition:   all 0.2s ease;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg); color: var(--text);
-            min-height: 100vh; overflow-x: hidden;
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Razor402 — HTTP 402 Payment Protocol for Autonomous AI Agents</title>
+<meta name="description" content="HTTP 402 challenge/response payment protocol for autonomous AI agent commerce on Razorpay rails">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='25'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+:root{
+  --bg:#06060b; --bg-card:#0d0d16; --bg-elevated:#131322; --bg-hover:#1a1a2e;
+  --border:#1a1a30; --border-hover:#2a2a48;
+  --text:#e8e8f0; --text-secondary:#a0a0b8; --text-muted:#6a6a82;
+  --accent:#6366f1; --accent-light:#818cf8; --accent-glow:rgba(99,102,241,.12);
+  --green:#22c55e; --green-dim:rgba(34,197,94,.12);
+  --red:#ef4444;   --red-dim:rgba(239,68,68,.12);
+  --amber:#f59e0b; --amber-dim:rgba(245,158,11,.12);
+  --blue:#3b82f6;  --blue-dim:rgba(59,130,246,.12);
+  --cyan:#06b6d4;  --purple:#a855f7;
+  --radius:.75rem; --radius-sm:.5rem; --radius-lg:1rem;
+  --shadow:0 4px 24px rgba(0,0,0,.4); --shadow-lg:0 8px 40px rgba(0,0,0,.5);
+  --transition:all .2s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hover)}
+code{font-family:'Fira Code',monospace;font-size:.92em;color:var(--accent-light)}
 
-        /* NAV */
-        .topnav {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(6,6,11,0.85);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 0 2rem; display: flex; align-items: center;
-            justify-content: space-between; height: 56px;
-        }
-        .topnav-brand {
-            font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
-            display: flex; align-items: center; gap: 0.5rem;
-            text-decoration: none; color: var(--text);
-        }
-        .topnav-brand span { color: var(--accent); }
-        .protocol-badge {
-            font-size: 0.6rem; font-weight: 600;
-            background: var(--accent-glow); color: var(--accent-light);
-            padding: 2px 8px; border-radius: 999px;
-            letter-spacing: 0.04em; text-transform: uppercase;
-        }
-        .topnav-links { display: flex; gap: 0; align-items: center; }
-        .topnav-link {
-            padding: 0 1rem; height: 56px;
-            display: flex; align-items: center; gap: 0.4rem;
-            font-size: 0.82rem; font-weight: 500;
-            color: var(--text-muted); text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: var(--transition); cursor: pointer;
-        }
-        .topnav-link:hover { color: var(--text-secondary); }
-        .topnav-link.active { color: var(--accent-light); border-bottom-color: var(--accent); }
-        .topnav-right { display: flex; align-items: center; gap: 1rem; }
-        .live-indicator { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-muted); }
-        .live-dot {
-            width: 7px; height: 7px; background: var(--green);
-            border-radius: 50%; animation: pulse 2s infinite ease-in-out;
-            box-shadow: 0 0 8px rgba(34,197,94,0.4);
-        }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+/* ── NAV ── */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(6,6,11,.85);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;height:56px}
+.topnav-brand{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;
+  gap:.5rem;text-decoration:none;color:var(--text);white-space:nowrap}
+.topnav-brand b{color:var(--accent)}
+.protocol-badge{font-size:.58rem;font-weight:700;background:var(--accent-glow);color:var(--accent-light);
+  padding:2px 8px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase}
+.topnav-links{display:flex;gap:0;align-items:center;overflow-x:auto}
+.topnav-link{padding:0 .85rem;height:56px;display:flex;align-items:center;gap:.35rem;font-size:.8rem;
+  font-weight:500;color:var(--text-muted);text-decoration:none;border-bottom:2px solid transparent;
+  transition:var(--transition);cursor:pointer;white-space:nowrap}
+.topnav-link:hover{color:var(--text-secondary)}
+.topnav-link.active{color:var(--accent-light);border-bottom-color:var(--accent)}
+.topnav-right{display:flex;align-items:center;gap:.85rem}
+.live-indicator{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--text-muted);white-space:nowrap}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite ease-in-out;
+  box-shadow:0 0 8px rgba(34,197,94,.4)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-        /* LAYOUT */
-        .app-container { max-width: 1320px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.25s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* ── LAYOUT ── */
+.app-container{max-width:1320px;margin:0 auto;padding:1.5rem 1.5rem 5.5rem}
+.view{display:none}
+.view.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:var(--transition)}
+.card:hover{border-color:var(--border-hover)}
+.section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:940px){.grid-2{grid-template-columns:1fr}}
 
-        /* CARDS */
-        .card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
-        }
-        .card:hover { border-color: var(--border-hover); box-shadow: var(--shadow); }
-        .section-title {
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--text-muted);
-            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
-        }
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;transition:var(--transition)}
+.stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;
+  justify-content:center;font-size:.95rem;margin-bottom:.65rem}
+.stat-value{font-size:1.45rem;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-.02em;line-height:1.1}
+.stat-label{font-size:.68rem;color:var(--text-muted);margin-top:.25rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.protocol-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:.65rem;margin-bottom:1.25rem}
+.pstat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.7rem .85rem}
+.pstat-v{font-family:'Fira Code',monospace;font-size:1rem;font-weight:700}
+.pstat-l{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:.15rem}
+@media(max-width:940px){.protocol-strip{grid-template-columns:repeat(3,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}}
 
-        /* STATS */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
-        }
-        .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
-        .stat-card .stat-icon {
-            width: 36px; height: 36px; border-radius: var(--radius-sm);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; margin-bottom: 0.75rem;
-        }
-        .stat-card .stat-value {
-            font-size: 1.5rem; font-weight: 800; font-family: 'Fira Code', monospace;
-            letter-spacing: -0.02em;
-        }
-        .stat-card .stat-label {
-            font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;
-            text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
-        }
+/* ── BADGES / BUTTONS / INPUTS ── */
+.badge{display:inline-flex;align-items:center;padding:.15rem .6rem;border-radius:999px;font-size:.66rem;
+  font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-amber{background:var(--amber-dim);color:var(--amber)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-accent{background:var(--accent-glow);color:var(--accent-light)}
+.badge-muted{background:var(--bg-elevated);color:var(--text-muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.05rem;
+  border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;border:1px solid transparent;
+  cursor:pointer;transition:var(--transition);font-family:inherit;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#5558e6;transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.3)}
+.btn-danger{background:transparent;color:var(--red);border-color:var(--red)}
+.btn-danger:hover{background:var(--red-dim)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border)}
+.btn-ghost:hover{background:var(--bg-hover);border-color:var(--border-hover)}
+.btn-sm{padding:.35rem .7rem;font-size:.72rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.input{width:100%;padding:.6rem .9rem;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;transition:var(--transition)}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.input::placeholder{color:var(--text-muted)}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a82' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .75rem center;padding-right:2.25rem}
+textarea.input{min-height:80px;resize:vertical;font-size:.82rem;line-height:1.5}
 
-        /* BADGES */
-        .badge {
-            display: inline-flex; align-items: center; padding: 0.15rem 0.6rem;
-            border-radius: 999px; font-size: 0.68rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.04em;
-        }
-        .badge-green  { background: var(--green-dim); color: var(--green); }
-        .badge-red    { background: var(--red-dim); color: var(--red); }
-        .badge-amber  { background: var(--amber-dim); color: var(--amber); }
-        .badge-blue   { background: var(--blue-dim); color: var(--blue); }
-        .badge-accent { background: var(--accent-glow); color: var(--accent-light); }
+/* ── SLIDERS / BUDGET ── */
+.slider-group{margin-bottom:1rem}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.slider-label{font-size:.76rem;font-weight:600;color:var(--text-secondary)}
+.slider-value{font-size:.82rem;font-weight:700;font-family:'Fira Code',monospace;color:var(--accent-light)}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:3px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--accent);
+  border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(99,102,241,.4);transition:var(--transition)}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.slider-range{display:flex;justify-content:space-between;font-size:.63rem;color:var(--text-muted);margin-top:.2rem}
+.budget-bar{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;display:flex}
+.budget-seg{height:100%;transition:width .5s ease}
+.budget-legend{display:flex;gap:1rem;margin-top:.5rem;font-size:.67rem;color:var(--text-muted);flex-wrap:wrap}
+.budget-legend span{display:flex;align-items:center;gap:.3rem}
+.budget-legend .dot{width:8px;height:8px;border-radius:50%}
 
-        /* BUTTONS */
-        .btn {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.55rem 1.1rem; border-radius: var(--radius-sm);
-            font-size: 0.82rem; font-weight: 600; border: 1px solid transparent;
-            cursor: pointer; transition: var(--transition); font-family: inherit;
-        }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { background: #5558e6; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
-        .btn-danger { background: transparent; color: var(--red); border-color: var(--red); }
-        .btn-danger:hover { background: var(--red-dim); }
-        .btn-ghost { background: transparent; color: var(--text-secondary); border-color: var(--border); }
-        .btn-ghost:hover { background: var(--bg-hover); border-color: var(--border-hover); }
-        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+/* ── TXN ── */
+.txn-row{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.7rem .5rem;
+  border-bottom:1px solid rgba(26,26,48,.5);font-size:.8rem;cursor:pointer;border-radius:var(--radius-sm);transition:background .15s}
+.txn-row:hover{background:var(--bg-hover)}
+.txn-row:last-child{border-bottom:none}
+.txn-item{font-weight:600}
+.txn-agent{color:var(--text-muted);font-size:.72rem;margin-top:.1rem}
+.txn-amount{font-family:'Fira Code',monospace;font-weight:600;font-size:.8rem}
 
-        /* INPUTS */
-        .input {
-            width: 100%; padding: 0.6rem 0.9rem; background: var(--bg);
-            border: 1px solid var(--border); border-radius: var(--radius-sm);
-            color: var(--text); font-size: 0.85rem; font-family: inherit;
-            outline: none; transition: var(--transition);
-        }
-        .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-        .input::placeholder { color: var(--text-muted); }
-        select.input {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a82' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2.25rem;
-        }
+/* ── MARKETPLACE ── */
+.market-banner{background:linear-gradient(135deg,var(--accent-glow) 0%,rgba(13,13,22,.8) 100%);
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.75rem;margin-bottom:1.25rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.market-stat-value{font-size:1.05rem;font-weight:800;font-family:'Fira Code',monospace}
+.market-stat-label{font-size:.63rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.filter-row{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.25rem}
+.filter-pill{padding:.32rem .8rem;border-radius:999px;font-size:.73rem;font-weight:600;background:var(--bg-card);
+  border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:var(--transition)}
+.filter-pill:hover{border-color:var(--border-hover);color:var(--text-secondary)}
+.filter-pill.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.catalog-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.15rem;transition:var(--transition);display:flex;flex-direction:column}
+.catalog-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.catalog-card.honeypot{border-color:rgba(239,68,68,.35)}
+.catalog-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.catalog-card-title{font-size:.84rem;font-weight:600;line-height:1.3;flex:1}
+.catalog-card-price{font-family:'Fira Code',monospace;font-size:.9rem;font-weight:700;color:var(--green);white-space:nowrap}
+.catalog-card-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;gap:.5rem}
+.catalog-card-seller{font-size:.71rem;font-weight:600;color:var(--accent-light)}
+.catalog-card-category{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+.catalog-card-specs{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem}
+.spec-chip{font-size:.61rem;font-weight:500;padding:.15rem .5rem;background:var(--bg-elevated);
+  border-radius:999px;color:var(--text-muted);font-family:'Fira Code',monospace}
+.catalog-card-actions{margin-top:auto;padding-top:.85rem;display:flex;gap:.45rem}
+.btn-agent{flex:1;padding:.5rem;background:linear-gradient(135deg,var(--accent),#5548e0);color:#fff;border:none;
+  border-radius:var(--radius-sm);font-size:.76rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit}
+.btn-agent:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.3)}
+.btn-human{padding:.5rem .7rem;background:transparent;color:var(--text-secondary);border:1px solid var(--border);
+  border-radius:var(--radius-sm);font-size:.76rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
+.btn-human:hover{background:var(--bg-hover);border-color:var(--border-hover)}
+.cap-warn{font-size:.62rem;color:var(--amber);margin-top:.4rem;font-weight:600}
 
-        /* SLIDERS */
-        .slider-group { margin-bottom: 1rem; }
-        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
-        .slider-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
-        .slider-value { font-size: 0.82rem; font-weight: 700; font-family: 'Fira Code', monospace; color: var(--accent-light); }
-        input[type="range"] {
-            width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
-            background: var(--border); border-radius: 3px; outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px;
-            background: var(--accent); border-radius: 50%; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(99,102,241,0.4); transition: var(--transition);
-        }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
-        .slider-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+/* ── CONSOLE ── */
+.mission-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem}
+.mission-chip{padding:.38rem .8rem;border-radius:999px;font-size:.73rem;font-weight:600;background:var(--bg-elevated);
+  border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
+.mission-chip:hover{border-color:var(--accent);color:var(--accent-light)}
+.mission-chip.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
+.bom-table{width:100%;border-collapse:collapse;font-size:.77rem;margin-top:.75rem}
+.bom-table th{text-align:left;padding:.5rem .7rem;font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.bom-table td{padding:.5rem .7rem;border-bottom:1px solid rgba(26,26,48,.3)}
+.bom-table tr:last-child td{border-bottom:none}
+.bom-total{display:flex;justify-content:space-between;align-items:center;padding:.7rem;margin-top:.5rem;
+  background:var(--bg-elevated);border-radius:var(--radius-sm);font-weight:700;font-size:.85rem}
+.exec-step{display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid rgba(26,26,48,.4);font-size:.78rem}
+.exec-step:last-child{border-bottom:none}
+.exec-icon{font-size:.9rem;flex-shrink:0;margin-top:.05rem}
+.exec-detail{flex:1;min-width:0}
+.exec-item{font-weight:600}
+.exec-rationale{color:var(--text-muted);font-size:.71rem;margin-top:.15rem;line-height:1.45}
 
-        /* BUDGET BAR */
-        .budget-bar-container { margin-top: 1rem; }
-        .budget-bar { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; display: flex; }
-        .budget-seg { height: 100%; transition: width 0.5s ease; }
-        .budget-seg-captured { background: var(--green); }
-        .budget-seg-held { background: var(--amber); }
-        .budget-seg-remaining { background: var(--border); }
-        .budget-legend { display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.68rem; color: var(--text-muted); }
-        .budget-legend span { display: flex; align-items: center; gap: 0.3rem; }
-        .budget-legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+/* ── SECURITY / ATTACK SIM ── */
+.attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.85rem}
+.attack-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem;transition:var(--transition)}
+.attack-card.pass{border-color:rgba(34,197,94,.4);background:linear-gradient(180deg,var(--green-dim),var(--bg-elevated))}
+.attack-card.fail{border-color:rgba(239,68,68,.4);background:linear-gradient(180deg,var(--red-dim),var(--bg-elevated))}
+.attack-card.running{border-color:var(--accent)}
+.attack-title{font-size:.82rem;font-weight:700}
+.attack-desc{font-size:.71rem;color:var(--text-muted);margin-top:.4rem;line-height:1.45}
+.mono-line{font-family:'Fira Code',monospace;font-size:.64rem;color:var(--text-muted);margin-top:.5rem;word-break:break-all}
+.score-ring{display:flex;align-items:baseline;gap:.4rem}
+.score-num{font-family:'Fira Code',monospace;font-size:2rem;font-weight:800;line-height:1}
 
-        /* TXN FEED */
-        .txn-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.75rem 0; border-bottom: 1px solid rgba(26,26,48,0.5); font-size: 0.82rem;
-        }
-        .txn-row:last-child { border-bottom: none; }
-        .txn-item { font-weight: 600; min-width: 180px; }
-        .txn-agent { color: var(--text-muted); font-size: 0.75rem; }
-        .txn-amount { font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.82rem; }
+/* ── AUDIT ── */
+.chain-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.35rem;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.25rem;flex-wrap:wrap}
+.chain-status{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.chain-actions{display:flex;gap:.5rem}
+.audit-row{display:grid;grid-template-columns:52px 1fr auto auto;gap:.75rem;align-items:center;
+  padding:.6rem .7rem;border-bottom:1px solid rgba(26,26,48,.3);font-size:.77rem;
+  transition:background .15s,border-left-color .15s;border-left:3px solid transparent}
+.audit-row:hover{background:var(--bg-hover)}
+.audit-seq{font-family:'Fira Code',monospace;font-size:.71rem;font-weight:600;color:var(--text-muted)}
+.audit-event{font-weight:600}
+.audit-hash{font-family:'Fira Code',monospace;font-size:.61rem;color:var(--text-muted)}
+.audit-time{font-size:.67rem;color:var(--text-muted);text-align:right;white-space:nowrap}
 
-        /* MARKETPLACE */
-        .market-banner {
-            background: linear-gradient(135deg, var(--accent-glow) 0%, rgba(13,13,22,0.8) 100%);
-            border: 1px solid var(--border); border-radius: var(--radius-lg);
-            padding: 1.5rem 2rem; margin-bottom: 1.5rem;
-            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
-        }
-        .market-stat-value { font-size: 1.1rem; font-weight: 800; }
-        .market-stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .filter-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-        .filter-pill {
-            padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-            background: var(--bg-card); border: 1px solid var(--border);
-            color: var(--text-muted); cursor: pointer; transition: var(--transition);
-        }
-        .filter-pill:hover { border-color: var(--border-hover); color: var(--text-secondary); }
-        .filter-pill.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-light); }
-        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
-        .catalog-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.25rem; transition: var(--transition);
-            display: flex; flex-direction: column;
-        }
-        .catalog-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
-        .catalog-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
-        .catalog-card-title { font-size: 0.85rem; font-weight: 600; line-height: 1.3; flex: 1; }
-        .catalog-card-price { font-family: 'Fira Code', monospace; font-size: 0.92rem; font-weight: 700; color: var(--green); white-space: nowrap; }
-        .catalog-card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-        .catalog-card-seller { font-size: 0.72rem; font-weight: 600; color: var(--accent-light); }
-        .catalog-card-category { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .catalog-card-specs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
-        .spec-chip {
-            font-size: 0.62rem; font-weight: 500; padding: 0.15rem 0.5rem;
-            background: var(--bg-elevated); border-radius: 999px;
-            color: var(--text-muted); font-family: 'Fira Code', monospace;
-        }
-        .catalog-card-actions { margin-top: auto; padding-top: 0.85rem; }
-        .btn-pay {
-            width: 100%; padding: 0.5rem;
-            background: linear-gradient(135deg, var(--accent), #5548e0); color: #fff;
-            border: none; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 700;
-            cursor: pointer; transition: var(--transition); font-family: inherit;
-        }
-        .btn-pay:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+/* ── SETTINGS ── */
+.radio-group{display:flex;flex-direction:column;gap:.5rem}
+.radio-option{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border:1px solid var(--border);
+  border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:.8rem}
+.radio-option:hover{border-color:var(--border-hover);background:var(--bg-hover)}
+.radio-option.active{border-color:var(--accent);background:var(--accent-glow)}
+.radio-option input{display:none}
+.radio-dot{width:16px;height:16px;border:2px solid var(--border);border-radius:50%;display:flex;
+  align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
+.radio-option.active .radio-dot{border-color:var(--accent)}
+.radio-option.active .radio-dot::after{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%}
+.info-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.55rem 0;
+  border-bottom:1px solid rgba(26,26,48,.3);font-size:.8rem}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text-muted)}
+.info-value{font-family:'Fira Code',monospace;font-weight:600;font-size:.76rem;text-align:right;word-break:break-all}
 
-        /* CONSOLE */
-        .console-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        @media (max-width: 900px) { .console-grid { grid-template-columns: 1fr; } }
-        .mission-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-        .mission-chip {
-            padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-            background: var(--bg-elevated); border: 1px solid var(--border);
-            color: var(--text-secondary); cursor: pointer; transition: var(--transition);
-        }
-        .mission-chip:hover { border-color: var(--accent); color: var(--accent-light); }
-        .mission-chip.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-light); }
-        textarea.input { min-height: 80px; resize: vertical; font-size: 0.82rem; line-height: 1.5; }
-        .bom-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 0.75rem; }
-        .bom-table th {
-            text-align: left; padding: 0.5rem 0.75rem; font-size: 0.68rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-        }
-        .bom-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(26,26,48,0.3); }
-        .bom-table tr:last-child td { border-bottom: none; }
-        .bom-total {
-            display: flex; justify-content: space-between; align-items: center; padding: 0.75rem;
-            margin-top: 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); font-weight: 700;
-        }
-        .exec-step {
-            display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.6rem 0;
-            border-bottom: 1px solid rgba(26,26,48,0.4); font-size: 0.78rem;
-        }
-        .exec-step:last-child { border-bottom: none; }
-        .exec-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
-        .exec-detail { flex: 1; }
-        .exec-item { font-weight: 600; }
-        .exec-rationale { color: var(--text-muted); font-size: 0.72rem; margin-top: 0.15rem; }
+/* ── PROTOCOL INSPECTOR ── */
+.wire-drawer{position:fixed;top:56px;right:0;bottom:0;width:min(580px,94vw);background:var(--bg-card);
+  border-left:1px solid var(--border);box-shadow:var(--shadow-lg);transform:translateX(101%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:400;display:flex;flex-direction:column}
+.wire-drawer.show{transform:none}
+.wire-head{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.9rem 1.2rem;
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.wire-body{flex:1;overflow-y:auto;padding:1rem 1.2rem}
+.wire-foot{padding:.75rem 1.2rem;border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+.wire-frame{border-left:2px solid var(--border);padding:.45rem 0 .7rem .8rem;margin-bottom:.35rem;
+  opacity:0;transform:translateY(6px);animation:wireIn .3s forwards}
+@keyframes wireIn{to{opacity:1;transform:none}}
+.wire-frame.req{border-left-color:var(--accent)}
+.wire-frame.res-402{border-left-color:var(--amber)}
+.wire-frame.res-2xx{border-left-color:var(--green)}
+.wire-frame.res-202{border-left-color:var(--amber)}
+.wire-frame.res-4xx,.wire-frame.res-5xx{border-left-color:var(--red)}
+.wire-frame.note{border-left-color:var(--purple)}
+.wire-line{font-family:'Fira Code',monospace;font-size:.74rem;font-weight:600}
+.wire-hdr{font-family:'Fira Code',monospace;font-size:.65rem;color:var(--text-muted);margin-top:.28rem;word-break:break-all}
+.wire-json{font-family:'Fira Code',monospace;font-size:.65rem;color:var(--text-secondary);background:var(--bg);
+  border-radius:var(--radius-sm);padding:.5rem .6rem;margin-top:.4rem;white-space:pre-wrap;word-break:break-word;
+  max-height:190px;overflow:auto;line-height:1.5}
+.jws-chip{display:inline-block;font-family:'Fira Code',monospace;font-size:.61rem;background:var(--accent-glow);
+  color:var(--accent-light);padding:1px 6px;border-radius:4px;cursor:pointer}
+.jws-chip:hover{background:rgba(99,102,241,.22)}
 
-        /* AUDIT */
-        .chain-banner {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius); margin-bottom: 1.5rem;
-        }
-        .chain-status { display: flex; align-items: center; gap: 0.75rem; }
-        .chain-actions { display: flex; gap: 0.5rem; }
-        .audit-row {
-            display: grid; grid-template-columns: 48px 1fr auto auto; gap: 0.75rem;
-            align-items: center; padding: 0.65rem 0.75rem;
-            border-bottom: 1px solid rgba(26,26,48,0.3); font-size: 0.78rem; transition: background 0.15s;
-        }
-        .audit-row:hover { background: var(--bg-hover); border-radius: var(--radius-sm); }
-        .audit-seq { font-family: 'Fira Code', monospace; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
-        .audit-event { font-weight: 600; }
-        .audit-hash { font-family: 'Fira Code', monospace; font-size: 0.62rem; color: var(--text-muted); }
-        .audit-time { font-size: 0.68rem; color: var(--text-muted); text-align: right; }
+/* ── DIRECTOR BAR ── */
+.director{position:fixed;left:0;right:0;bottom:0;z-index:350;background:rgba(6,6,11,.92);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);
+  padding:.6rem 1.5rem;display:flex;align-items:center;gap:.75rem;overflow-x:auto}
+.director-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--text-muted);white-space:nowrap}
+.director-steps{display:flex;gap:.4rem;flex:1}
+.dstep{padding:.32rem .7rem;border-radius:999px;font-size:.7rem;font-weight:600;background:var(--bg-elevated);
+  border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:var(--transition);white-space:nowrap}
+.dstep:hover{border-color:var(--accent);color:var(--accent-light)}
+.dstep.done{border-color:rgba(34,197,94,.35);color:var(--green)}
+.dstep.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
+.dstep kbd{font-family:'Fira Code',monospace;font-size:.6rem;opacity:.6;margin-right:.25rem}
 
-        /* SETTINGS */
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
-        .radio-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .radio-option {
-            display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.85rem;
-            border: 1px solid var(--border); border-radius: var(--radius-sm);
-            cursor: pointer; transition: var(--transition); font-size: 0.82rem;
-        }
-        .radio-option:hover { border-color: var(--border-hover); background: var(--bg-hover); }
-        .radio-option.active { border-color: var(--accent); background: var(--accent-glow); }
-        .radio-option input { display: none; }
-        .radio-dot {
-            width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; transition: var(--transition);
-        }
-        .radio-option.active .radio-dot { border-color: var(--accent); }
-        .radio-option.active .radio-dot::after { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
-        .info-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.6rem 0; border-bottom: 1px solid rgba(26,26,48,0.3); font-size: 0.82rem;
-        }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { color: var(--text-muted); }
-        .info-value { font-family: 'Fira Code', monospace; font-weight: 600; font-size: 0.78rem; }
-
-        /* TOAST */
-        .toast {
-            position: fixed; bottom: 2rem; right: 2rem; padding: 0.75rem 1.25rem;
-            background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: var(--radius); font-size: 0.82rem; font-weight: 600;
-            box-shadow: var(--shadow-lg); transform: translateY(100px); opacity: 0;
-            transition: all 0.3s ease; z-index: 1000;
-        }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast-success { border-color: var(--green); color: var(--green); }
-        .toast-error   { border-color: var(--red); color: var(--red); }
-        .toast-info    { border-color: var(--accent); color: var(--accent-light); }
-
-        /* MODAL */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px); display: none; align-items: center;
-            justify-content: center; z-index: 500;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal {
-            background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 2rem; max-width: 420px; width: 90%;
-            box-shadow: var(--shadow-lg);
-        }
-        .modal h3 { font-size: 1rem; margin-bottom: 0.75rem; }
-        .modal p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5; }
-        .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
-
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .topnav { padding: 0 1rem; }
-            .app-container { padding: 1rem; }
-            .catalog-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+/* ── TOAST / MODAL ── */
+.toast-stack{position:fixed;bottom:4.5rem;right:1.5rem;z-index:1000;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end}
+.toast{padding:.7rem 1.15rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
+  font-size:.8rem;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;transform:translateX(30px);
+  transition:all .25s ease;max-width:380px}
+.toast.show{opacity:1;transform:none}
+.toast-success{border-color:var(--green);color:var(--green)}
+.toast-error{border-color:var(--red);color:var(--red)}
+.toast-info{border-color:var(--accent);color:var(--accent-light)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:none;
+  align-items:center;justify-content:center;z-index:500;padding:1rem}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;
+  max-width:480px;width:100%;box-shadow:var(--shadow-lg);max-height:88vh;overflow-y:auto}
+.modal h3{font-size:1rem;margin-bottom:.75rem}
+.modal p{font-size:.84rem;color:var(--text-secondary);margin-bottom:1.2rem;line-height:1.55}
+.modal-actions{display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.2rem}
+.timeline{position:relative;padding-left:1.15rem;margin-top:.75rem}
+.timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--border)}
+.tl-item{position:relative;padding:.5rem 0}
+.tl-item::before{content:'';position:absolute;left:-1.15rem;top:.85rem;width:10px;height:10px;border-radius:50%;
+  background:var(--bg-elevated);border:2px solid var(--accent)}
+.tl-item.ok::before{border-color:var(--green)}
+.tl-item.bad::before{border-color:var(--red)}
+.tl-event{font-size:.79rem;font-weight:600}
+.tl-meta{font-family:'Fira Code',monospace;font-size:.63rem;color:var(--text-muted);margin-top:.15rem}
+.empty{color:var(--text-muted);font-size:.8rem;padding:1rem .25rem}
+@media(max-width:768px){.topnav{padding:0 .85rem}.app-container{padding:1rem 1rem 5.5rem}
+  .catalog-grid{grid-template-columns:1fr}.director{padding:.5rem .85rem}}
+</style>
 </head>
 <body>
 
 <nav class="topnav">
-    <a href="#overview" class="topnav-brand">
-        <span>Razor</span>402
-        <span class="protocol-badge">HTTP 402</span>
-    </a>
-    <div class="topnav-links">
-        <a class="topnav-link active" data-view="overview" href="#overview">📊 Overview</a>
-        <a class="topnav-link" data-view="marketplace" href="#marketplace">🛒 Marketplace</a>
-        <a class="topnav-link" data-view="console" href="#console">🤖 Console</a>
-        <a class="topnav-link" data-view="audit" href="#audit">🔗 Audit</a>
-        <a class="topnav-link" data-view="settings" href="#settings">⚙️</a>
-    </div>
-    <div class="topnav-right">
-        <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
-    </div>
+  <a href="#overview" class="topnav-brand"><span><b>Razor</b>402</span><span class="protocol-badge">HTTP 402</span></a>
+  <div class="topnav-links">
+    <a class="topnav-link active" data-view="overview"    href="#overview">📊 Overview</a>
+    <a class="topnav-link"        data-view="marketplace" href="#marketplace">🛒 Marketplace</a>
+    <a class="topnav-link"        data-view="console"     href="#console">🤖 Console</a>
+    <a class="topnav-link"        data-view="security"    href="#security">🛡 Security</a>
+    <a class="topnav-link"        data-view="audit"       href="#audit">🔗 Audit</a>
+    <a class="topnav-link"        data-view="settings"    href="#settings">⚙️</a>
+  </div>
+  <div class="topnav-right">
+    <button class="btn btn-ghost btn-sm" id="btn-open-wire" title="Protocol Inspector (W)">🔌 Wire</button>
+    <div class="live-indicator"><div class="live-dot"></div><span>Live</span></div>
+  </div>
 </nav>
 
 <div class="app-container">
 
-<!-- VIEW 1: OVERVIEW -->
+<!-- ══ OVERVIEW ══ -->
 <div id="view-overview" class="view active">
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:var(--blue-dim);color:var(--blue)">💳</div>
-            <div class="stat-value" id="stat-txns">0</div>
-            <div class="stat-label">Transactions</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon" style="background:var(--blue-dim);color:var(--blue)">💳</div>
+      <div class="stat-value" id="stat-txns">0</div><div class="stat-label">Transactions</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--green-dim);color:var(--green)">💰</div>
+      <div class="stat-value" id="stat-revenue">₹0.00</div><div class="stat-label">Revenue Captured</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--accent-glow);color:var(--accent-light)">🛡</div>
+      <div class="stat-value" id="stat-chain">—</div><div class="stat-label">Audit Chain</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--amber-dim);color:var(--amber)">📦</div>
+      <div class="stat-value" id="stat-passes">0</div><div class="stat-label">Active Passes</div></div>
+  </div>
+
+  <div class="protocol-strip">
+    <div class="pstat"><div class="pstat-v" id="ps-challenges" style="color:var(--accent-light)">—</div><div class="pstat-l">402 Challenges</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-fulfilled" style="color:var(--green)">—</div><div class="pstat-l">Fulfilled</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-indoubt" style="color:var(--amber)">—</div><div class="pstat-l">In Doubt</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-compensated" style="color:var(--blue)">—</div><div class="pstat-l">Compensated</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-blocked" style="color:var(--red)">—</div><div class="pstat-l">Attacks Blocked</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-height">—</div><div class="pstat-l">Chain Height</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">🎛️ Agent Identity &amp; Budget Mandate</div>
+      <div style="margin-bottom:1rem">
+        <label class="slider-label" style="display:block;margin-bottom:.35rem">Agent Identity (Ed25519 keypair)</label>
+        <select class="input" id="budget-agent" style="max-width:280px">
+          <option value="agt_coding_01">agt_coding_01 — Primary</option>
+          <option value="agt_coding_02">agt_coding_02 — Deputy</option>
+        </select>
+        <div class="mono-line" id="agent-kid-line">kid: —</div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Daily Pool</span><span class="slider-value" id="pool-display">₹150.00</span></div>
+        <input type="range" id="pool-slider" min="1000" max="50000" value="15000" step="500">
+        <div class="slider-range"><span>₹10</span><span>₹500</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Per-Call Cap</span><span class="slider-value" id="cap-display">₹50.00</span></div>
+        <input type="range" id="cap-slider" min="100" max="10000" value="5000" step="100">
+        <div class="slider-range"><span>₹1</span><span>₹100</span></div>
+      </div>
+      <button class="btn btn-primary" id="apply-budget" style="width:100%;margin-top:.25rem">Apply Budget Mandate</button>
+      <div style="margin-top:1rem">
+        <div class="budget-bar">
+          <div class="budget-seg" id="seg-captured" style="width:0%;background:var(--green)"></div>
+          <div class="budget-seg" id="seg-held"     style="width:0%;background:var(--amber)"></div>
+          <div class="budget-seg" id="seg-remaining" style="width:100%;background:var(--border)"></div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:var(--green-dim);color:var(--green)">💰</div>
-            <div class="stat-value" id="stat-revenue">₹0.00</div>
-            <div class="stat-label">Revenue Captured</div>
+        <div class="budget-legend">
+          <span><span class="dot" style="background:var(--green)"></span>Captured: <b id="lbl-captured">₹0</b></span>
+          <span><span class="dot" style="background:var(--amber)"></span>Held: <b id="lbl-held">₹0</b></span>
+          <span><span class="dot" style="background:var(--border)"></span>Free: <b id="lbl-free">₹150</b></span>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:var(--accent-glow);color:var(--accent-light)">🛡</div>
-            <div class="stat-value" id="stat-chain">—</div>
-            <div class="stat-label">Audit Chain</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:var(--amber-dim);color:var(--amber)">📦</div>
-            <div class="stat-value" id="stat-passes">0</div>
-            <div class="stat-label">Active Passes</div>
-        </div>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
-        <div class="card">
-            <div class="section-title">🎛️ AI Agent Budget Control</div>
-            <div style="margin-bottom:1rem;">
-                <label class="slider-label" style="display:block;margin-bottom:0.35rem;">Agent Identity</label>
-                <select class="input" id="budget-agent" style="max-width:260px;">
-                    <option value="agt_coding_01">agt_coding_01 (Primary)</option>
-                    <option value="agt_coding_02">agt_coding_02 (Deputy)</option>
-                </select>
-            </div>
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span class="slider-label">Daily Pool</span>
-                    <span class="slider-value" id="pool-display">₹150.00</span>
-                </div>
-                <input type="range" id="pool-slider" min="1000" max="50000" value="15000" step="500">
-                <div class="slider-range"><span>₹10</span><span>₹500</span></div>
-            </div>
-            <div class="slider-group">
-                <div class="slider-header">
-                    <span class="slider-label">Per-Call Cap</span>
-                    <span class="slider-value" id="cap-display">₹50.00</span>
-                </div>
-                <input type="range" id="cap-slider" min="100" max="10000" value="5000" step="100">
-                <div class="slider-range"><span>₹1</span><span>₹100</span></div>
-            </div>
-            <button class="btn btn-primary" id="apply-budget" style="width:100%;margin-top:0.5rem;">Apply Budget</button>
-            <div class="budget-bar-container">
-                <div class="budget-bar">
-                    <div class="budget-seg budget-seg-captured" id="seg-captured" style="width:0%"></div>
-                    <div class="budget-seg budget-seg-held" id="seg-held" style="width:0%"></div>
-                    <div class="budget-seg budget-seg-remaining" id="seg-remaining" style="width:100%"></div>
-                </div>
-                <div class="budget-legend">
-                    <span><span class="dot" style="background:var(--green)"></span> Captured: <b id="lbl-captured">₹0</b></span>
-                    <span><span class="dot" style="background:var(--amber)"></span> Held: <b id="lbl-held">₹0</b></span>
-                    <span><span class="dot" style="background:var(--border)"></span> Free: <b id="lbl-free">₹150</b></span>
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="section-title">📋 Recent Transactions</div>
-            <div id="txn-feed" style="max-height:380px;overflow-y:auto;">
-                <div style="color:var(--text-muted);font-size:0.82rem;">Loading...</div>
-            </div>
-        </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="section-title" style="margin:0">📋 Transaction Feed</div>
+        <button class="btn btn-ghost btn-sm" id="btn-sweep" title="Run one reconciler tick">🔄 Sweep now</button>
+      </div>
+      <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.5rem">Click any row to inspect its state-machine timeline.</div>
+      <div id="txn-feed" style="max-height:400px;overflow-y:auto"><div class="empty">Loading…</div></div>
     </div>
+  </div>
 </div>
 
-<!-- VIEW 2: MARKETPLACE -->
+<!-- ══ MARKETPLACE ══ -->
 <div id="view-marketplace" class="view">
-    <div class="market-banner">
-        <div><div class="market-stat-value" id="market-count">0</div><div class="market-stat-label">API Resources</div></div>
-        <div><div class="market-stat-value" id="market-sellers">0</div><div class="market-stat-label">Sellers</div></div>
-        <div><div class="market-stat-value" id="market-cheapest">—</div><div class="market-stat-label">From</div></div>
-        <div style="flex:1;max-width:320px;">
-            <input type="text" class="input" id="market-search" placeholder="Search resources...">
-        </div>
-    </div>
-    <div class="filter-row" id="filter-row"></div>
-    <div class="catalog-grid" id="catalog-grid"></div>
+  <div class="market-banner">
+    <div><div class="market-stat-value" id="market-count">0</div><div class="market-stat-label">API Resources</div></div>
+    <div><div class="market-stat-value" id="market-sellers">0</div><div class="market-stat-label">Sellers</div></div>
+    <div><div class="market-stat-value" id="market-cheapest">—</div><div class="market-stat-label">From</div></div>
+    <div><div class="market-stat-value" id="market-cap">—</div><div class="market-stat-label">Agent Per-Call Cap</div></div>
+    <div style="flex:1;min-width:220px;max-width:330px"><input type="text" class="input" id="market-search" placeholder="Search resources…"></div>
+  </div>
+  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;padding:.7rem 1rem;
+       background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm)">
+    <span style="font-size:.74rem;color:var(--text-secondary)">
+      <b style="color:var(--accent-light)">🤖 Agent Buy</b> runs the HTTP 402 handshake with an Ed25519-signed authorization.
+      <b>💳 Human</b> opens Razorpay Standard Checkout. Same catalog, same rails — different buyer.
+    </span>
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.73rem;color:var(--text-muted);margin-left:auto">
+      <input type="checkbox" id="chk-overcap"> show over-cap only
+    </label>
+  </div>
+  <div class="filter-row" id="filter-row"></div>
+  <div class="catalog-grid" id="catalog-grid"></div>
 </div>
 
-<!-- VIEW 3: CONSOLE -->
+<!-- ══ CONSOLE ══ -->
 <div id="view-console" class="view">
-    <div class="console-grid">
-        <div>
-            <div class="card" style="margin-bottom:1rem;">
-                <div class="section-title">🎯 Mission Planner</div>
-                <div class="mission-chips" id="mission-chips">
-                    <span class="mission-chip active" data-mission="rag">🔍 RAG Pipeline</span>
-                    <span class="mission-chip" data-mission="music">🎵 Music Streaming</span>
-                    <span class="mission-chip" data-mission="copilot">💻 AI Copilot</span>
-                    <span class="mission-chip" data-mission="compare">⚖️ Compare Providers</span>
-                    <span class="mission-chip" data-mission="scaling">📈 Scale Infra</span>
-                </div>
-                <textarea class="input" id="mission-text" placeholder="Describe your mission goal...">Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.</textarea>
-                <button class="btn btn-primary" id="btn-analyze" style="width:100%;margin-top:0.75rem;">🔍 Analyze Goal</button>
-            </div>
-            <div class="card" id="bom-card" style="display:none;">
-                <div class="section-title">📋 Bill of Materials</div>
-                <div id="bom-rationale" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.75rem;font-style:italic;"></div>
-                <table class="bom-table">
-                    <thead><tr><th>Resource</th><th>Seller</th><th>Qty</th><th style="text-align:right">Cost</th></tr></thead>
-                    <tbody id="bom-body"></tbody>
-                </table>
-                <div class="bom-total">
-                    <span>Envelope Total</span>
-                    <span id="bom-total" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span>
-                </div>
-                <button class="btn btn-primary" id="btn-execute" style="width:100%;margin-top:0.75rem;">▶ Approve &amp; Execute</button>
-            </div>
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="section-title">🎯 Mission Planner — Solutions Architect</div>
+        <div class="mission-chips" id="mission-chips">
+          <span class="mission-chip active" data-mission="rag">🔍 RAG Pipeline</span>
+          <span class="mission-chip" data-mission="music">🎵 Music Streaming</span>
+          <span class="mission-chip" data-mission="copilot">💻 AI Copilot</span>
+          <span class="mission-chip" data-mission="compare">⚖️ Compare Providers</span>
+          <span class="mission-chip" data-mission="scaling">📈 Scale Infra</span>
         </div>
-        <div>
-            <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-                    <div class="section-title" style="margin-bottom:0;">⚡ Execution Log</div>
-                    <div style="display:flex;gap:0.5rem;">
-                        <button class="btn btn-danger btn-sm" id="btn-revoke">🛑 Revoke</button>
-                        <button class="btn btn-ghost btn-sm" id="btn-reset-envelope">↺ Reset</button>
-                    </div>
-                </div>
-                <div id="exec-log" style="max-height:500px;overflow-y:auto;">
-                    <div style="color:var(--text-muted);font-size:0.82rem;">Execute a mission to see steps here.</div>
-                </div>
-                <div id="exec-summary" style="display:none;margin-top:0.75rem;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
-                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:600;">
-                        <span>Budget Spent</span>
-                        <span id="exec-spent" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:600;margin-top:0.25rem;">
-                        <span>Remaining</span>
-                        <span id="exec-remaining" style="font-family:'Fira Code',monospace;">₹0.00</span>
-                    </div>
-                </div>
-            </div>
+        <textarea class="input" id="mission-text">Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.</textarea>
+        <button class="btn btn-primary" id="btn-analyze" style="width:100%;margin-top:.75rem">🔍 Analyze Goal</button>
+      </div>
+      <div class="card" id="bom-card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <div class="section-title" style="margin:0">📋 Procurement Envelope</div>
+          <span id="envelope-badge-console" class="badge badge-green">ACTIVE</span>
         </div>
+        <div id="bom-rationale" style="font-size:.77rem;color:var(--text-secondary);margin-bottom:.6rem;font-style:italic;line-height:1.5"></div>
+        <table class="bom-table">
+          <thead><tr><th>Resource</th><th>Seller</th><th>Qty</th><th style="text-align:right">Cost</th></tr></thead>
+          <tbody id="bom-body"></tbody>
+        </table>
+        <div class="bom-total"><span>Envelope Total</span><span id="bom-total" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span></div>
+        <button class="btn btn-primary" id="btn-execute" style="width:100%;margin-top:.75rem">▶ Approve &amp; Execute</button>
+      </div>
     </div>
+    <div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;gap:.5rem;flex-wrap:wrap">
+          <div class="section-title" style="margin:0">⚡ Execution Log</div>
+          <div style="display:flex;gap:.45rem">
+            <button class="btn btn-danger btn-sm" id="btn-revoke">🛑 Revoke Envelope</button>
+            <button class="btn btn-ghost btn-sm" id="btn-reset-envelope">↺ Reset</button>
+          </div>
+        </div>
+        <div id="exec-log" style="max-height:480px;overflow-y:auto"><div class="empty">Analyze a mission, then approve to see procurement steps.</div></div>
+        <div id="exec-summary" style="display:none;margin-top:.75rem;padding:.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm)">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:600">
+            <span>Budget Spent</span><span id="exec-spent" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:600;margin-top:.25rem">
+            <span>Remaining</span><span id="exec-remaining" style="font-family:'Fira Code',monospace">₹0.00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- VIEW 4: AUDIT -->
+<!-- ══ SECURITY ══ -->
+<div id="view-security" class="view">
+  <div class="card" style="margin-bottom:1.25rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div class="section-title" style="margin-bottom:.5rem">🛡 Attack Simulator</div>
+        <p style="font-size:.79rem;color:var(--text-secondary);max-width:640px;line-height:1.55">
+          Each scenario fires at the live gateway. The policy gate is a <b>pure zero-I/O function</b> that
+          accepts an <code>llm_hint</code> argument and <b>deliberately ignores it</b> — so no prompt,
+          description, or model output can widen the mandate.
+        </p>
+      </div>
+      <div style="text-align:right">
+        <div class="score-ring"><span class="score-num" id="attack-score">0</span>
+          <span style="font-size:.85rem;color:var(--text-muted)">/ <span id="attack-total">5</span></span></div>
+        <div class="pstat-l" style="margin-top:.2rem">Attacks Defended</div>
+      </div>
+    </div>
+    <div class="attack-grid" id="attack-grid" style="margin-top:1.25rem"></div>
+    <div style="display:flex;gap:.5rem;margin-top:1.15rem">
+      <button class="btn btn-primary" id="btn-run-attacks" style="flex:1">▶ Run all attacks</button>
+      <button class="btn btn-ghost" id="btn-clear-attacks">Clear</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">🔐 Threat Model Coverage</div>
+    <div id="threat-table"></div>
+  </div>
+</div>
+
+<!-- ══ AUDIT ══ -->
 <div id="view-audit" class="view">
-    <div class="chain-banner">
-        <div class="chain-status">
-            <span id="chain-badge" class="badge badge-amber">checking...</span>
-            <span style="font-size:0.82rem;font-weight:600;">Hash Chain</span>
-            <span id="chain-head" style="font-family:'Fira Code',monospace;font-size:0.68rem;color:var(--text-muted);"></span>
+  <div class="chain-banner">
+    <div class="chain-status">
+      <span id="chain-badge" class="badge badge-amber">checking…</span>
+      <span style="font-size:.81rem;font-weight:600">SHA-256 Hash Chain</span>
+      <span id="chain-head" style="font-family:'Fira Code',monospace;font-size:.66rem;color:var(--text-muted)"></span>
+    </div>
+    <div class="chain-actions">
+      <button class="btn btn-ghost btn-sm" id="btn-tamper">🔨 Tamper</button>
+      <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Verify Chain</button>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+      <div class="section-title" style="margin:0">📜 Append-Only Audit Ledger</div>
+      <span style="font-size:.66rem;color:var(--text-muted)">SQL triggers block UPDATE + DELETE</span>
+    </div>
+    <div id="audit-log" style="max-height:calc(100vh - 300px);overflow-y:auto"><div class="empty">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="view-settings" class="view">
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">⚡ Chaos Mode</div>
+      <p style="font-size:.77rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.55">
+        Inject payment-gateway faults to exercise compensation sagas and in-doubt settlement recovery.
+      </p>
+      <div class="radio-group" id="chaos-group">
+        <label class="radio-option active" data-mode="ok"><input type="radio" name="chaos" value="ok" checked>
+          <span class="radio-dot"></span><span>✅ Normal — all payments succeed</span></label>
+        <label class="radio-option" data-mode="rzp_timeout"><input type="radio" name="chaos" value="rzp_timeout">
+          <span class="radio-dot"></span><span>⏱️ Timeout — hangs → <code>SETTLEMENT_UNKNOWN</code></span></label>
+        <label class="radio-option" data-mode="rzp_refund_timeout"><input type="radio" name="chaos" value="rzp_refund_timeout">
+          <span class="radio-dot"></span><span>💥 Refund Timeout — compensation saga fires</span></label>
+      </div>
+      <div style="margin-top:1.25rem">
+        <div class="section-title">📡 Envelope Killswitch</div>
+        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">
+          <span id="envelope-badge" class="badge badge-green">ACTIVE</span>
+          <button class="btn btn-danger btn-sm" id="btn-settings-revoke">🛑 Revoke</button>
+          <button class="btn btn-ghost btn-sm" id="btn-settings-reset-env">↺ Reset</button>
         </div>
-        <div class="chain-actions">
-            <button class="btn btn-ghost btn-sm" id="btn-tamper">🔨 Tamper</button>
-            <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Verify</button>
-        </div>
+      </div>
     </div>
     <div class="card">
-        <div class="section-title">📜 Audit Entries</div>
-        <div id="audit-log" style="max-height:calc(100vh - 260px);overflow-y:auto;">
-            <div style="color:var(--text-muted);font-size:0.82rem;">Loading...</div>
-        </div>
+      <div class="section-title">🗄️ Database</div>
+      <p style="font-size:.77rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.55">
+        Clears transactions, audit entries, budget reservations, and passes. Use before recording a clean demo take.
+      </p>
+      <button class="btn btn-danger" id="btn-reset-db" style="width:100%">🗑️ Reset Database</button>
+      <div style="margin-top:1.25rem">
+        <div class="section-title">🔌 Backend Capability Probe</div>
+        <div id="feature-probe"></div>
+      </div>
     </div>
-</div>
-
-<!-- VIEW 5: SETTINGS -->
-<div id="view-settings" class="view">
-    <div class="settings-grid">
-        <div class="card">
-            <div class="section-title">⚡ Chaos Mode</div>
-            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">
-                Inject payment gateway faults to test compensation sagas and in-doubt settlement recovery.
-            </p>
-            <div class="radio-group" id="chaos-group">
-                <label class="radio-option active" data-mode="ok">
-                    <input type="radio" name="chaos" value="ok" checked>
-                    <span class="radio-dot"></span>
-                    <span>✅ Normal — All payments succeed</span>
-                </label>
-                <label class="radio-option" data-mode="rzp_timeout">
-                    <input type="radio" name="chaos" value="rzp_timeout">
-                    <span class="radio-dot"></span>
-                    <span>⏱️ Timeout — Payment hangs (SETTLEMENT_UNKNOWN)</span>
-                </label>
-                <label class="radio-option" data-mode="rzp_refund_timeout">
-                    <input type="radio" name="chaos" value="rzp_refund_timeout">
-                    <span class="radio-dot"></span>
-                    <span>💥 Refund Timeout — Compensation saga fires</span>
-                </label>
-            </div>
+    <div class="card" style="grid-column:1/-1">
+      <div class="section-title">ℹ️ System Information</div>
+      <div class="grid-2" style="gap:0 2rem">
+        <div>
+          <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">razor402/0.1</span></div>
+          <div class="info-row"><span class="info-label">Merchant</span><span class="info-value">acc_buildbroker_test</span></div>
+          <div class="info-row"><span class="info-label">Policy Version</span><span class="info-value">policy-v1</span></div>
+          <div class="info-row"><span class="info-label">Signature Suite</span><span class="info-value">Ed25519 / JWS</span></div>
         </div>
-        <div class="card">
-            <div class="section-title">🗄️ Database</div>
-            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">
-                Clear all transactions, audit entries, budget reservations, and passes.
-            </p>
-            <button class="btn btn-danger" id="btn-reset-db" style="width:100%;">🗑️ Reset Database</button>
-            <div style="margin-top:1.5rem;">
-                <div class="section-title">📡 Envelope Status</div>
-                <div style="display:flex;align-items:center;gap:0.75rem;">
-                    <span id="envelope-badge" class="badge badge-green">ACTIVE</span>
-                    <button class="btn btn-ghost btn-sm" id="btn-settings-reset-env">Reset Envelope</button>
-                </div>
-            </div>
+        <div>
+          <div class="info-row"><span class="info-label">Reconciler Tick</span><span class="info-value" id="info-tick">15s</span></div>
+          <div class="info-row"><span class="info-label">Challenge TTL</span><span class="info-value">300s</span></div>
+          <div class="info-row"><span class="info-label">Fulfil Deadline</span><span class="info-value">8.0s</span></div>
+          <div class="info-row"><span class="info-label">Max Attempts</span><span class="info-value">6 → DEAD_LETTER</span></div>
         </div>
-        <div class="card" style="grid-column:1/-1;">
-            <div class="section-title">ℹ️ System Information</div>
-            <div>
-                <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">razor402/0.1</span></div>
-                <div class="info-row"><span class="info-label">Merchant</span><span class="info-value">acc_buildbroker_test</span></div>
-                <div class="info-row"><span class="info-label">Policy Version</span><span class="info-value">policy-v1</span></div>
-                <div class="info-row"><span class="info-label">Reconciler Tick</span><span class="info-value">15s</span></div>
-                <div class="info-row"><span class="info-label">Challenge TTL</span><span class="info-value">300s</span></div>
-                <div class="info-row"><span class="info-label">Fulfil Deadline</span><span class="info-value">8.0s</span></div>
-                <div class="info-row"><span class="info-label">Max Attempts</span><span class="info-value">6</span></div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-</div>
+</div><!-- /app-container -->
 
-<div class="toast" id="toast"></div>
-
-<div class="modal-overlay" id="reset-modal">
-    <div class="modal">
-        <h3>⚠️ Reset Database</h3>
-        <p>This will permanently delete all transactions, audit entries, budget reservations, and passes. This action cannot be undone.</p>
-        <div class="modal-actions">
-            <button class="btn btn-ghost" id="reset-cancel">Cancel</button>
-            <button class="btn btn-danger" id="reset-confirm">Reset Everything</button>
-        </div>
+<!-- ══ PROTOCOL INSPECTOR ══ -->
+<div id="wire-drawer" class="wire-drawer" aria-hidden="true">
+  <div class="wire-head">
+    <div style="display:flex;align-items:center;gap:.6rem;min-width:0">
+      <span class="section-title" style="margin:0">🔌 Protocol Inspector</span>
+      <span id="wire-state" class="badge badge-muted">idle</span>
     </div>
+    <div style="display:flex;gap:.4rem;align-items:center">
+      <button class="btn btn-ghost btn-sm" id="wire-replay" title="Replay last transcript">↻</button>
+      <button class="btn btn-ghost btn-sm" id="wire-close">✕</button>
+    </div>
+  </div>
+  <div id="wire-body" class="wire-body">
+    <div class="empty">Run an <b>🤖 Agent Buy</b> from the Marketplace, or an attack from the Security tab,
+      to see the raw HTTP 402 exchange frame by frame.</div>
+  </div>
+  <div class="wire-foot">
+    <span style="font-size:.66rem;color:var(--text-muted)">Speed</span>
+    <input type="range" id="wire-speed" min="0" max="900" step="100" value="380" style="flex:1;max-width:160px">
+    <span id="wire-ctx" style="font-size:.66rem;color:var(--text-muted);margin-left:auto;text-align:right"></span>
+  </div>
 </div>
 
-<div class="modal-overlay" id="receipt-modal">
-    <div class="modal">
-        <h3 style="color:var(--green)">✅ Payment Successful</h3>
-        <div id="receipt-body" style="font-size:0.82rem;"></div>
-        <div class="modal-actions" style="margin-top:1rem;">
-            <button class="btn btn-primary" onclick="document.getElementById('receipt-modal').classList.remove('show')">Close</button>
-        </div>
-    </div>
+<!-- ══ DIRECTOR ══ -->
+<div class="director" id="director">
+  <span class="director-label">🎬 Demo</span>
+  <div class="director-steps" id="director-steps"></div>
+  <button class="btn btn-ghost btn-sm" id="btn-director-reset" title="Reset markers">↺</button>
 </div>
+
+<div class="toast-stack" id="toast-stack"></div>
+
+<div class="modal-overlay" id="reset-modal"><div class="modal">
+  <h3>⚠️ Reset Database</h3>
+  <p>Permanently deletes all transactions, audit entries, budget reservations, and passes. Cannot be undone.</p>
+  <div class="modal-actions"><button class="btn btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-danger" id="reset-confirm">Reset Everything</button></div>
+</div></div>
+
+<div class="modal-overlay" id="receipt-modal"><div class="modal">
+  <h3 style="color:var(--green)">✅ Payment Verified</h3>
+  <div id="receipt-body" style="font-size:.82rem"></div>
+  <div class="modal-actions"><button class="btn btn-primary" data-close>Close</button></div>
+</div></div>
+
+<div class="modal-overlay" id="txn-modal"><div class="modal">
+  <h3 id="txn-modal-title">Transaction</h3>
+  <div id="txn-modal-body" style="font-size:.82rem"></div>
+  <div class="modal-actions"><button class="btn btn-primary" data-close>Close</button></div>
+</div></div>
 
 <script>
-const BASE = window.location.origin;
-let catalogData = {};
-let checkoutConfig = {};
-let refreshTimer = null;
+'use strict';
+const BASE = location.origin;
 
-function paise(p) {
-    const r = Math.abs(p) / 100;
-    return (p < 0 ? '-' : '') + '\u20B9' + r.toFixed(2);
+/* ═══ UTILS ═══ */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const paise = p => { const n = Number(p) || 0; return (n < 0 ? '-' : '') + '\u20B9' + (Math.abs(n)/100).toFixed(2); };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function timeAgo(ts){
+  const d = Math.floor(Date.now()/1000) - Number(ts);
+  if (!isFinite(d) || d < 0) return 'just now';
+  if (d < 60) return d + 's ago';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
 }
-function timeAgo(ts) {
-    const diff = Math.floor(Date.now() / 1000) - ts;
-    if (diff < 0) return 'just now';
-    if (diff < 60) return diff + 's ago';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    return Math.floor(diff / 3600) + 'h ago';
-}
-function truncHash(h) { return h ? h.slice(0, 10) + '\u2026' : '\u2014'; }
-function toast(msg, type) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'toast toast-' + (type || 'info') + ' show';
-    setTimeout(() => el.classList.remove('show'), 3000);
-}
-async function api(url, opts) {
-    try { const r = await fetch(BASE + url, opts); return await r.json(); }
-    catch (e) { console.error('API error:', url, e); return null; }
-}
-function stateColor(s) {
-    const m = { SETTLED:'green', PAYING:'amber', FAILED:'red', REFUNDED:'blue', SETTLEMENT_UNKNOWN:'amber', CHALLENGE_ISSUED:'accent' };
-    return m[s] || 'accent';
-}
+const truncHash = h => h ? String(h).slice(0,10) + '\u2026' : '\u2014';
+const titleCase = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
 
-// Router
-function navigate(viewId) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.topnav-link').forEach(l => l.classList.remove('active'));
-    const el = document.getElementById('view-' + viewId);
-    if (el) el.classList.add('active');
-    const link = document.querySelector('.topnav-link[data-view="' + viewId + '"]');
-    if (link) link.classList.add('active');
-}
-function handleHash() {
-    var target = window.location.hash.replace('#', '');
-    if (!target) {
-        if (window.location.pathname.indexOf('checkout') !== -1) target = 'marketplace';
-        else if (window.location.pathname.indexOf('console') !== -1) target = 'console';
-        else if (window.location.pathname.indexOf('dashboard') !== -1) target = 'overview';
-        else target = 'overview';
-    }
-    navigate(target);
-}
-window.addEventListener('hashchange', handleHash);
-
-// === OVERVIEW ===
-async function refreshOverview() {
-    const stats = await api('/api/v1/stats');
-    if (stats) {
-        document.getElementById('stat-txns').textContent = stats.total_txns;
-        document.getElementById('stat-revenue').textContent = paise(stats.total_captured_paise);
-        document.getElementById('stat-passes').textContent = stats.active_passes;
-    }
-    const audit = await api('/api/v1/audit?limit=1');
-    if (audit) {
-        const el = document.getElementById('stat-chain');
-        el.textContent = audit.chain_valid ? 'VALID \u2713' : 'BROKEN \u2717';
-        el.style.color = audit.chain_valid ? 'var(--green)' : 'var(--red)';
-    }
-    const agent = document.getElementById('budget-agent').value;
-    const budget = await api('/api/v1/budget?agent=' + agent);
-    if (budget) {
-        const pool = budget.daily_pool_paise, cap = budget.captured_paise, held = budget.held_paise, rem = budget.remaining_paise;
-        const capPct = pool > 0 ? (cap / pool * 100) : 0;
-        const heldPct = pool > 0 ? (held / pool * 100) : 0;
-        document.getElementById('seg-captured').style.width = capPct + '%';
-        document.getElementById('seg-held').style.width = heldPct + '%';
-        document.getElementById('seg-remaining').style.width = Math.max(0, 100 - capPct - heldPct) + '%';
-        document.getElementById('lbl-captured').textContent = paise(cap);
-        document.getElementById('lbl-held').textContent = paise(held);
-        document.getElementById('lbl-free').textContent = paise(rem);
-    }
-    const txns = await api('/api/v1/txns?limit=12');
-    if (txns && txns.transactions) {
-        const el = document.getElementById('txn-feed');
-        if (txns.transactions.length === 0) {
-            el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:1rem 0;">No transactions yet.</div>';
-        } else {
-            el.innerHTML = txns.transactions.map(t => '<div class="txn-row"><div><div class="txn-item">' + t.item_id + '</div><div class="txn-agent">' + t.agent_kid + ' \u00B7 ' + timeAgo(t.created_at) + '</div></div><div style="display:flex;align-items:center;gap:0.75rem;"><span class="badge badge-' + stateColor(t.state) + '">' + t.state + '</span><span class="txn-amount">' + paise(t.amount_paise) + '</span></div></div>').join('');
-        }
-    }
-}
-
-document.getElementById('pool-slider').addEventListener('input', function(e) { document.getElementById('pool-display').textContent = paise(parseInt(e.target.value)); });
-document.getElementById('cap-slider').addEventListener('input', function(e) { document.getElementById('cap-display').textContent = paise(parseInt(e.target.value)); });
-document.getElementById('budget-agent').addEventListener('change', async function() {
-    const budget = await api('/api/v1/budget?agent=' + this.value);
-    if (budget) {
-        document.getElementById('pool-slider').value = budget.daily_pool_paise;
-        document.getElementById('pool-display').textContent = paise(budget.daily_pool_paise);
-    }
-});
-document.getElementById('apply-budget').addEventListener('click', async function() {
-    const agent = document.getElementById('budget-agent').value;
-    const pool = parseInt(document.getElementById('pool-slider').value);
-    const cap = parseInt(document.getElementById('cap-slider').value);
-    const result = await api('/api/v1/budget/adjust', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ agent: agent, daily_pool_paise: pool, per_call_cap_paise: cap })
-    });
-    if (result && result.policy) { toast('Budget updated for ' + agent + ': Pool ' + paise(pool) + ', Cap ' + paise(cap), 'success'); refreshOverview(); }
-    else { toast('Failed to update budget: ' + (result ? result.error : 'unknown'), 'error'); }
-});
-
-// === MARKETPLACE ===
-let activeFilter = 'all';
-async function loadMarketplace() {
-    catalogData = await api('/api/v1/catalog') || {};
-    checkoutConfig = await api('/api/checkout-config') || {};
-    const entries = Object.entries(catalogData);
-    const sellers = new Set(entries.map(function(e) { return e[1].seller || 'BuildBroker'; }));
-    const cats = new Set(entries.map(function(e) { return e[1].category; }));
-    const prices = entries.map(function(e) { return e[1].price_paise; });
-    document.getElementById('market-count').textContent = entries.length;
-    document.getElementById('market-sellers').textContent = sellers.size;
-    document.getElementById('market-cheapest').textContent = prices.length ? paise(Math.min.apply(null, prices)) : '\u2014';
-    const filterRow = document.getElementById('filter-row');
-    var allCats = ['all'].concat(Array.from(cats).sort());
-    filterRow.innerHTML = allCats.map(function(c) {
-        var label = c === 'all' ? 'All' : c.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
-        var count = c === 'all' ? entries.length : entries.filter(function(e) { return e[1].category === c; }).length;
-        return '<span class="filter-pill ' + (c === 'all' ? 'active' : '') + '" data-cat="' + c + '">' + label + ' (' + count + ')</span>';
-    }).join('');
-    filterRow.querySelectorAll('.filter-pill').forEach(function(pill) {
-        pill.addEventListener('click', function() {
-            activeFilter = pill.dataset.cat;
-            filterRow.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
-            pill.classList.add('active');
-            renderCatalog();
-        });
-    });
-    renderCatalog();
-}
-function renderCatalog() {
-    var search = (document.getElementById('market-search').value || '').toLowerCase();
-    var grid = document.getElementById('catalog-grid');
-    var entries = Object.entries(catalogData).filter(function(e) {
-        if (activeFilter !== 'all' && e[1].category !== activeFilter) return false;
-        if (search) {
-            var hay = (e[1].title + ' ' + (e[1].seller || '') + ' ' + e[0] + ' ' + e[1].category).toLowerCase();
-            if (hay.indexOf(search) === -1) return false;
-        }
-        return true;
-    });
-    grid.innerHTML = entries.map(function(e) {
-        var id = e[0], item = e[1];
-        var specs = item.specs ? Object.entries(item.specs).map(function(s) {
-            return '<span class="spec-chip">' + s[0] + ': ' + s[1] + '</span>';
-        }).join('') : '';
-        var desc = item.description ? '<div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;font-style:italic;">' + item.description.slice(0, 100) + (item.description.length > 100 ? '\u2026' : '') + '</div>' : '';
-        return '<div class="catalog-card"><div class="catalog-card-header"><span class="catalog-card-title">' + item.title + '</span><span class="catalog-card-price">' + paise(item.price_paise) + '</span></div><div class="catalog-card-meta"><span class="catalog-card-seller">' + (item.seller || 'BuildBroker') + '</span><span class="catalog-card-category">' + item.category.replace(/_/g, ' ') + '</span></div>' + desc + '<div class="catalog-card-specs">' + specs + '</div><div class="catalog-card-actions"><button class="btn-pay" onclick="openCheckout(\'' + id + '\',' + item.price_paise + ')">Pay ' + paise(item.price_paise) + '</button></div></div>';
-    }).join('');
-}
-document.getElementById('market-search').addEventListener('input', renderCatalog);
-
-function openCheckout(itemId, amountPaise) {
-    api('/api/create-order', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ amount: amountPaise, currency: 'INR', item_id: itemId })
-    }).then(function(order) {
-        if (!order || !order.order_id) { toast('Failed to create order', 'error'); return; }
-        var options = {
-            key: checkoutConfig.key_id || order.key_id,
-            amount: order.amount, currency: order.currency,
-            name: 'BuildBroker', description: (catalogData[itemId] || {}).title || itemId,
-            order_id: order.order_id, theme: { color: '#6366f1' },
-            handler: function(response) {
-                api('/api/verify-payment', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(response)
-                }).then(function(verify) {
-                    if (verify && verify.verified) {
-                        document.getElementById('receipt-body').innerHTML = '<div class="info-row"><span class="info-label">Order ID</span><span class="info-value">' + response.razorpay_order_id + '</span></div><div class="info-row"><span class="info-label">Payment ID</span><span class="info-value">' + response.razorpay_payment_id + '</span></div><div class="info-row"><span class="info-label">Amount</span><span class="info-value" style="color:var(--green)">' + paise(amountPaise) + '</span></div><div class="info-row"><span class="info-label">Resource</span><span class="info-value">' + itemId + '</span></div>';
-                        document.getElementById('receipt-modal').classList.add('show');
-                        toast('Payment verified \u2713', 'success');
-                    } else { toast('Signature verification failed!', 'error'); }
-                });
-            },
-            modal: { ondismiss: function() { toast('Payment cancelled', 'info'); } }
-        };
-        new Razorpay(options).open();
-    });
-}
-
-// === CONSOLE ===
-var missionTexts = {
-    rag: 'Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is \u20B9150.',
-    music: 'Build a music streaming app with fingerprint identification, synchronized lyrics, stem separation, and CDN delivery.',
-    copilot: 'Build an AI code copilot with semantic code search, AST indexing, inline completion, and containerized test execution.',
-    compare: 'Compare multiple LLM and vector DB providers to find the most cost-effective combination for a retrieval pipeline.',
-    scaling: 'Scale the existing infrastructure: add GPU compute, upgrade to enterprise LLM tier, and expand vector capacity.'
+const STATE_META = {
+  ISSUED:['accent','challenge minted'], CHALLENGE_ISSUED:['accent','challenge minted'],
+  VERIFIED:['accent','JWS verified'],   SETTLING:['amber','charging'], PAYING:['amber','charging'],
+  SETTLED:['blue','paid'],              SETTLEMENT_UNKNOWN:['amber','in doubt — sweeper will resolve'],
+  FULFILLING:['amber','delivering'],    FULFILLED:['green','delivered'],
+  COMPENSATING:['amber','refunding'],   COMPENSATED:['blue','refunded'], REFUNDED:['blue','refunded'],
+  FAILED:['red','failed'],              DEAD_LETTER:['red','needs human'],
+  DENIED:['red','policy denied'],
 };
-document.querySelectorAll('.mission-chip').forEach(function(chip) {
-    chip.addEventListener('click', function() {
-        document.querySelectorAll('.mission-chip').forEach(function(c) { c.classList.remove('active'); });
-        chip.classList.add('active');
-        document.getElementById('mission-text').value = missionTexts[chip.dataset.mission] || '';
-    });
-});
-document.getElementById('btn-analyze').addEventListener('click', async function() {
-    var btn = this; btn.disabled = true; btn.textContent = '\u23F3 Analyzing...';
-    var plan = await api('/api/console/plan', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mission: document.getElementById('mission-text').value }) });
-    btn.disabled = false; btn.textContent = '\uD83D\uDD0D Analyze Goal';
-    if (!plan) { toast('Failed to generate plan', 'error'); return; }
-    document.getElementById('bom-rationale').textContent = plan.rationale || '';
-    document.getElementById('bom-body').innerHTML = plan.items.map(function(item) {
-        return '<tr><td style="font-weight:600;">' + item.title + '</td><td style="color:var(--accent-light);font-size:0.72rem;">' + item.seller + '</td><td style="text-align:center;">' + item.qty + '</td><td style="text-align:right;font-family:\'Fira Code\',monospace;color:var(--green);">' + paise(item.total_paise) + '</td></tr>';
+const stateColor = s => (STATE_META[s]||['accent'])[0];
+const stateHint  = s => (STATE_META[s]||['',''])[1];
+
+function toast(msg, type){
+  const el = document.createElement('div');
+  el.className = 'toast toast-' + (type || 'info');
+  el.textContent = msg;
+  document.getElementById('toast-stack').appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 300); }, 3600);
+}
+
+/* ═══ API LAYER ═══ */
+let liveUp = true;
+function setLive(up){
+  if (up === liveUp) return; liveUp = up;
+  const d = document.querySelector('.live-dot'); if (!d) return;
+  d.style.background = up ? 'var(--green)' : 'var(--red)';
+  d.style.boxShadow = '0 0 8px ' + (up ? 'rgba(34,197,94,.4)' : 'rgba(239,68,68,.4)');
+  const t = d.nextElementSibling; if (t) t.textContent = up ? 'Live' : 'Gateway down';
+  if (!up) toast('Gateway unreachable — is uvicorn running on :8000?', 'error');
+}
+async function apiFull(url, opts){
+  try{
+    const r = await fetch(BASE + url, opts);
+    let body = {};
+    if (r.status !== 204) body = await r.json().catch(()=>({}));
+    setLive(true);
+    return { ok:r.ok, status:r.status, body, missing:r.status===404||r.status===405 };
+  }catch(e){ setLive(false); return { ok:false, status:0, body:{error:String(e)}, missing:false }; }
+}
+const api = async (u,o) => (await apiFull(u,o)).body;
+
+/* capability probe → graceful degradation */
+const FEATURES = { agentBuy:null, attack:null, verifyParam:null, txnDetail:null, sweep:null };
+const FEATURE_EP = {
+  agentBuy:'POST /api/v1/agent/buy', attack:'POST /api/v1/demo/attack',
+  verifyParam:'GET /api/v1/audit?verify=1', txnDetail:'GET /api/v1/txns/{id}', sweep:'POST /api/v1/demo/sweep'
+};
+function renderProbe(){
+  document.getElementById('feature-probe').innerHTML = Object.keys(FEATURES).map(k=>{
+    const v = FEATURES[k];
+    const badge = v === null ? '<span class="badge badge-muted">probing</span>'
+      : v ? '<span class="badge badge-green">wired</span>' : '<span class="badge badge-amber">not built</span>';
+    return `<div class="info-row"><span class="info-label" style="font-family:'Fira Code',monospace;font-size:.72rem">${esc(FEATURE_EP[k])}</span>${badge}</div>`;
+  }).join('');
+}
+function needsBackend(key){
+  toast('Not wired yet — build ' + FEATURE_EP[key] + ' (see Settings → Capability Probe)', 'info');
+  wire.open(); wire.setState('missing endpoint','amber');
+  wire.frame({dir:'note', text:'Endpoint not implemented: ' + FEATURE_EP[key],
+    body:{ hint:'Add this route to the FastAPI gateway, then reload. The UI auto-detects it.' }});
+}
+
+/* ═══ ROUTER ═══ */
+const VIEWS = ['overview','marketplace','console','security','audit','settings'];
+function navigate(v){
+  if (!VIEWS.includes(v)) v = 'overview';
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('view-'+v)?.classList.add('active');
+  document.querySelector('.topnav-link[data-view="'+v+'"]')?.classList.add('active');
+  if (v === 'audit') refreshAudit();
+  if (v === 'settings') { updateEnvelopeStatus(); renderProbe(); }
+}
+function currentView(){ return (location.hash.replace('#','') || '') || 'overview'; }
+function handleHash(){
+  let t = location.hash.replace('#','');
+  if (!t){
+    const p = location.pathname;
+    t = p.includes('checkout') ? 'marketplace' : p.includes('console') ? 'console' : 'overview';
+  }
+  navigate(t);
+}
+addEventListener('hashchange', handleHash);
+
+/* ═══ PROTOCOL INSPECTOR ═══ */
+const wire = {
+  el:document.getElementById('wire-drawer'),
+  body:document.getElementById('wire-body'),
+  last:null,
+  open(){ this.el.classList.add('show'); this.el.setAttribute('aria-hidden','false'); },
+  close(){ this.el.classList.remove('show'); this.el.setAttribute('aria-hidden','true'); },
+  clear(){ this.body.innerHTML=''; },
+  ctx(t){ document.getElementById('wire-ctx').textContent = t || ''; },
+  setState(t,c){ const b=document.getElementById('wire-state'); b.textContent=t; b.className='badge badge-'+(c||'muted'); },
+  speed(){ return Number(document.getElementById('wire-speed').value) || 0; },
+  frame(f){
+    let cls, line;
+    if (f.dir === 'note'){ cls='note'; line='◆ ' + esc(f.text || 'note'); }
+    else if (f.dir === 'req'){ cls='req'; line = '→ ' + esc(f.method||'GET') + ' ' + esc(f.path||''); }
+    else {
+      const s = Number(f.status)||0;
+      cls = s===402 ? 'res-402' : s===202 ? 'res-202' : s>=500 ? 'res-5xx' : s>=400 ? 'res-4xx' : 'res-2xx';
+      line = '← ' + s + ' ' + esc(f.reason || '');
+    }
+    const hdrs = Object.entries(f.headers || {}).map(([k,v])=>{
+      const sv = String(v);
+      const val = sv.length > 46
+        ? `<span class="jws-chip" data-copy="${esc(sv)}" title="click to copy full value">${esc(sv.slice(0,30))}… copy</span>`
+        : esc(sv);
+      return `<div class="wire-hdr">${esc(k)}: ${val}</div>`;
     }).join('');
-    document.getElementById('bom-total').textContent = paise(plan.total_paise);
-    document.getElementById('bom-card').style.display = 'block';
-});
-document.getElementById('btn-execute').addEventListener('click', async function() {
-    var btn = this; btn.disabled = true; btn.textContent = '\u23F3 Executing...';
-    var execLog = document.getElementById('exec-log');
-    execLog.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;">\uD83D\uDD04 Procurement in progress...</div>';
-    var result = await api('/api/console/execute', { method: 'POST', headers: {'Content-Type': 'application/json'} });
-    btn.disabled = false; btn.textContent = '\u25B6 Approve & Execute';
-    if (!result) { toast('Execution failed', 'error'); return; }
-    execLog.innerHTML = result.steps.map(function(step) {
-        var icon = step.status === 'fulfilled' ? '\u2705' : step.status === 'denied' ? '\uD83D\uDEAB' : '\u26A0\uFE0F';
-        return '<div class="exec-step"><span class="exec-icon">' + icon + '</span><div class="exec-detail"><div class="exec-item">' + (step.item_id || step.tool) + '</div><div class="exec-rationale">' + step.rationale + '</div></div></div>';
-    }).join('');
-    document.getElementById('exec-summary').style.display = 'block';
-    document.getElementById('exec-spent').textContent = paise(result.captured_paise || 0);
-    document.getElementById('exec-remaining').textContent = paise(result.remaining_paise || 0);
-    toast('Mission executed: ' + result.steps.length + ' steps', 'success');
-    refreshOverview();
-});
-document.getElementById('btn-revoke').addEventListener('click', async function() {
-    await api('/api/console/revoke', { method: 'POST' });
-    toast('Envelope REVOKED', 'error'); updateEnvelopeStatus();
-});
-document.getElementById('btn-reset-envelope').addEventListener('click', async function() {
-    await api('/api/console/reset-envelope', { method: 'POST' });
-    toast('Envelope reset to active', 'success'); updateEnvelopeStatus();
+    let body = '';
+    if (f.body != null){
+      let txt; try { txt = typeof f.body === 'string' ? f.body : JSON.stringify(f.body, null, 2); }
+      catch(_) { txt = String(f.body); }
+      body = `<div class="wire-json">${esc(txt)}</div>`;
+    }
+    const d = document.createElement('div');
+    d.className = 'wire-frame ' + cls;
+    d.innerHTML = `<div class="wire-line">${line}</div>${hdrs}${body}`;
+    this.body.appendChild(d);
+    this.body.scrollTop = this.body.scrollHeight;
+  },
+  async play(frames, label){
+    this.clear(); this.last = { frames, label }; this.ctx(label || '');
+    const gap = this.speed();
+    for (const f of frames){ this.frame(f); if (gap) await sleep(gap); }
+  }
+};
+document.getElementById('wire-close').onclick = ()=>wire.close();
+document.getElementById('btn-open-wire').onclick = ()=>wire.open();
+document.getElementById('wire-replay').onclick = async ()=>{
+  if (!wire.last){ toast('Nothing to replay yet','info'); return; }
+  wire.setState('replaying','amber');
+  await wire.play(wire.last.frames, wire.last.label);
+  wire.setState('replayed','accent');
+};
+wire.body.addEventListener('click', e=>{
+  const c = e.target.closest('[data-copy]');
+  if (c && navigator.clipboard){ navigator.clipboard.writeText(c.dataset.copy); toast('Copied full header value','success'); }
 });
 
-// === AUDIT ===
-async function refreshAudit() {
-    var data = await api('/api/v1/audit?limit=50');
-    if (!data) return;
-    var badge = document.getElementById('chain-badge');
-    if (data.chain_valid) { badge.className = 'badge badge-green'; badge.textContent = 'VALID \u2713'; }
-    else { badge.className = 'badge badge-red'; badge.textContent = 'BROKEN \u2717'; }
-    document.getElementById('chain-head').textContent = data.head_hash ? 'Head: ' + truncHash(data.head_hash) : '';
-    var el = document.getElementById('audit-log');
-    if (data.entries.length === 0) {
-        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;padding:1rem 0;">No audit entries.</div>';
-        return;
-    }
-    el.innerHTML = data.entries.map(function(a) {
-        return '<div class="audit-row"><span class="audit-seq">#' + a.seq + '</span><div><span class="audit-event">' + a.event + '</span>' + (a.to_state ? ' <span class="badge badge-' + stateColor(a.to_state) + '" style="margin-left:0.4rem;">' + a.to_state + '</span>' : '') + '<div style="margin-top:0.15rem;"><span class="audit-hash">prev: ' + truncHash(a.prev_hash) + ' \u2192 ' + truncHash(a.entry_hash) + '</span></div></div><span style="font-size:0.72rem;color:var(--text-muted);">' + a.actor + '</span><span class="audit-time">' + timeAgo(a.ts) + '</span></div>';
-    }).join('');
+/* ═══ AGENT BUY (402 handshake) ═══ */
+async function agentBuy(itemId){
+  const agent = document.getElementById('budget-agent').value;
+  if (FEATURES.agentBuy === false) return needsBackend('agentBuy');
+  wire.open(); wire.clear(); wire.setState('handshaking','amber');
+  wire.ctx(itemId + ' · ' + agent);
+  wire.frame({dir:'note', text:`Agent ${agent} initiating purchase of ${itemId}`});
+  const r = await apiFull('/api/v1/agent/buy', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ item_id:itemId, agent })
+  });
+  if (r.missing){ FEATURES.agentBuy = false; renderProbe(); return needsBackend('agentBuy'); }
+  FEATURES.agentBuy = true;
+  if (!r.ok && !(r.body && r.body.frames)){
+    wire.frame({dir:'res', status:r.status, reason:'gateway error', body:r.body});
+    wire.setState('error','red'); return;
+  }
+  const frames = (r.body.frames||[]);
+  if (!frames.length) wire.frame({dir:'note', text:'No frames returned', body:r.body});
+  await wire.play([{dir:'note',text:`Agent ${agent} → ${itemId}`}].concat(frames), itemId + ' · ' + agent);
+  const st = r.body.final_state || (r.body.error_code ? 'DENIED' : 'UNKNOWN');
+  wire.setState(st + (stateHint(st) ? ' · ' + stateHint(st) : ''), stateColor(st));
+  if (r.body.error_code) toast('Denied: ' + r.body.error_code, 'error');
+  else if (st === 'FULFILLED') toast('Resource provisioned · ' + itemId, 'success');
+  else toast('Final state: ' + st, 'info');
+  refreshOverview(); if (currentView()==='audit') refreshAudit();
 }
-document.getElementById('btn-tamper').addEventListener('click', async function() {
-    var result = await api('/api/v1/demo/tamper', { method: 'POST' });
-    if (result && result.tampered_seq) { toast('Tampered entry #' + result.tampered_seq, 'error'); refreshAudit(); }
-    else { toast(result ? result.error : 'No entries to tamper', 'info'); }
+
+/* ═══ OVERVIEW ═══ */
+let lastBudget = { per_call_cap_paise:5000, daily_pool_paise:15000 };
+async function refreshOverview(){
+  const stats = await api('/api/v1/stats');
+  if (stats){
+    document.getElementById('stat-txns').textContent    = stats.total_txns ?? 0;
+    document.getElementById('stat-revenue').textContent = paise(stats.total_captured_paise);
+    document.getElementById('stat-passes').textContent  = stats.active_passes ?? 0;
+    const num = (v)=> (v===undefined||v===null) ? '—' : v;
+    document.getElementById('ps-challenges').textContent  = num(stats.challenges_issued);
+    document.getElementById('ps-fulfilled').textContent   = num(stats.fulfilled_count);
+    document.getElementById('ps-indoubt').textContent     = num(stats.in_doubt_count);
+    document.getElementById('ps-compensated').textContent = num(stats.compensated_count);
+    document.getElementById('ps-blocked').textContent     = num(stats.attacks_blocked);
+    document.getElementById('ps-height').textContent      = num(stats.chain_height);
+    if (stats.reconciler_tick_s) document.getElementById('info-tick').textContent = stats.reconciler_tick_s + 's';
+  }
+  const audit = await api('/api/v1/audit?limit=1');
+  if (audit){
+    const el = document.getElementById('stat-chain');
+    el.textContent = audit.chain_valid ? 'VALID \u2713' : 'BROKEN \u2717';
+    el.style.color = audit.chain_valid ? 'var(--green)' : 'var(--red)';
+  }
+  const agent = document.getElementById('budget-agent').value;
+  const b = await api('/api/v1/budget?agent=' + encodeURIComponent(agent));
+  if (b){
+    lastBudget = b;
+    const pool = b.daily_pool_paise||0, cap = b.captured_paise||0, held = b.held_paise||0;
+    const cp = pool>0 ? cap/pool*100 : 0, hp = pool>0 ? held/pool*100 : 0;
+    document.getElementById('seg-captured').style.width = cp + '%';
+    document.getElementById('seg-held').style.width     = hp + '%';
+    document.getElementById('seg-remaining').style.width = Math.max(0, 100-cp-hp) + '%';
+    document.getElementById('lbl-captured').textContent = paise(cap);
+    document.getElementById('lbl-held').textContent     = paise(held);
+    document.getElementById('lbl-free').textContent     = paise(b.remaining_paise);
+    document.getElementById('agent-kid-line').textContent = 'kid: ' + (b.kid || b.agent_kid || agent);
+    document.getElementById('market-cap').textContent = paise(b.per_call_cap_paise ?? lastBudget.per_call_cap_paise);
+  }
+  const t = await api('/api/v1/txns?limit=14');
+  const feed = document.getElementById('txn-feed');
+  if (t && Array.isArray(t.transactions)){
+    feed.innerHTML = t.transactions.length ? t.transactions.map(x=>{
+      const cid = x.challenge_id || x.id || '';
+      return `<div class="txn-row" data-cid="${esc(cid)}">
+        <div style="min-width:0"><div class="txn-item">${esc(x.item_id)}</div>
+        <div class="txn-agent">${esc(x.agent_kid)} · ${esc(timeAgo(x.created_at))}</div></div>
+        <div style="display:flex;align-items:center;gap:.7rem">
+          <span class="badge badge-${stateColor(x.state)}" title="${esc(stateHint(x.state))}">${esc(x.state)}</span>
+          <span class="txn-amount">${paise(x.amount_paise)}</span></div></div>`;
+    }).join('') : '<div class="empty">No transactions yet. Try 🤖 Agent Buy in the Marketplace.</div>';
+  }
+}
+document.getElementById('txn-feed').addEventListener('click', e=>{
+  const row = e.target.closest('.txn-row'); if (row) openTxn(row.dataset.cid);
 });
-document.getElementById('btn-verify').addEventListener('click', async function() {
-    toast('Verifying chain...', 'info');
+async function openTxn(cid){
+  if (!cid) return;
+  if (FEATURES.txnDetail === false) return needsBackend('txnDetail');
+  const r = await apiFull('/api/v1/txns/' + encodeURIComponent(cid));
+  if (r.missing){ FEATURES.txnDetail = false; renderProbe(); return needsBackend('txnDetail'); }
+  FEATURES.txnDetail = true;
+  const d = r.body || {};
+  document.getElementById('txn-modal-title').innerHTML =
+    esc(d.item_id||cid) + ' <span class="badge badge-'+stateColor(d.state)+'">'+esc(d.state||'?')+'</span>';
+  const fields = [
+    ['Challenge ID', d.challenge_id||cid], ['Agent', d.agent_kid], ['Amount', paise(d.amount_paise)],
+    ['Attempts', d.attempts], ['RZP Order', d.rzp_order_id], ['RZP Payment', d.rzp_payment_id],
+    ['RZP Refund', d.rzp_refund_id], ['Response SHA-256', d.resp_sha256 ? truncHash(d.resp_sha256) : null],
+    ['Reservation', d.reservation ? d.reservation.status + ' · ' + paise(d.reservation.amount_paise) : null],
+  ].filter(f => f[1] !== undefined && f[1] !== null && f[1] !== '');
+  const tl = (d.timeline||[]).map(s=>{
+    const c = ['FULFILLED','COMPENSATED','SETTLED'].includes(s.to_state) ? 'ok'
+            : ['FAILED','DEAD_LETTER'].includes(s.to_state) ? 'bad' : '';
+    return `<div class="tl-item ${c}"><div class="tl-event">${esc(s.event)}
+      ${s.to_state?`<span class="badge badge-${stateColor(s.to_state)}" style="margin-left:.35rem">${esc(s.to_state)}</span>`:''}</div>
+      <div class="tl-meta">#${esc(s.seq)} · ${esc(s.actor||'')} · ${esc(timeAgo(s.ts))} · ${esc(truncHash(s.entry_hash))}</div></div>`;
+  }).join('');
+  document.getElementById('txn-modal-body').innerHTML =
+    fields.map(f=>`<div class="info-row"><span class="info-label">${esc(f[0])}</span><span class="info-value">${esc(f[1])}</span></div>`).join('') +
+    (tl ? `<div class="section-title" style="margin-top:1.1rem">🔀 State Machine Timeline</div><div class="timeline">${tl}</div>` : '');
+  document.getElementById('txn-modal').classList.add('show');
+}
+
+document.getElementById('pool-slider').oninput = e => document.getElementById('pool-display').textContent = paise(+e.target.value);
+document.getElementById('cap-slider').oninput  = e => document.getElementById('cap-display').textContent  = paise(+e.target.value);
+document.getElementById('budget-agent').onchange = async function(){
+  const b = await api('/api/v1/budget?agent=' + encodeURIComponent(this.value)); if (!b) return;
+  const set = (sid, did, v) => { if (v==null) return;
+    document.getElementById(sid).value = v; document.getElementById(did).textContent = paise(v); };
+  set('pool-slider','pool-display', b.daily_pool_paise);
+  set('cap-slider','cap-display',  b.per_call_cap_paise);   // was missing before
+  refreshOverview(); renderCatalog();
+};
+document.getElementById('apply-budget').onclick = async function(){
+  const agent = document.getElementById('budget-agent').value;
+  const pool = +document.getElementById('pool-slider').value;
+  const cap  = +document.getElementById('cap-slider').value;
+  if (cap > pool) return toast('Per-call cap cannot exceed the daily pool','error');
+  this.disabled = true;
+  const r = await apiFull('/api/v1/budget/adjust', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ agent, daily_pool_paise:pool, per_call_cap_paise:cap }) });
+  this.disabled = false;
+  if (r.ok && r.body && (r.body.policy || r.body.ok)){
+    toast(`Mandate updated · ${agent} · pool ${paise(pool)} · cap ${paise(cap)}`,'success');
+    refreshOverview(); renderCatalog();
+  } else toast('Budget update failed: ' + (r.body?.error || r.status), 'error');
+};
+document.getElementById('btn-sweep').onclick = async function(){
+  if (FEATURES.sweep === false) return needsBackend('sweep');
+  this.disabled = true; this.textContent = '⏳ Sweeping…';
+  const r = await apiFull('/api/v1/demo/sweep', {method:'POST'});
+  this.disabled = false; this.textContent = '🔄 Sweep now';
+  if (r.missing){ FEATURES.sweep=false; renderProbe(); return needsBackend('sweep'); }
+  FEATURES.sweep = true;
+  const res = r.body?.resolved || [];
+  toast(res.length ? `Sweeper resolved ${res.length}: ` + res.map(x=>x.to_state).join(', ')
+                   : 'Sweeper ran · nothing in doubt', res.length ? 'success' : 'info');
+  refreshOverview();
+};
+
+/* ═══ MARKETPLACE ═══ */
+let catalogData = {}, checkoutConfig = {}, activeFilter = 'all';
+async function loadMarketplace(){
+  catalogData = await api('/api/v1/catalog') || {};
+  checkoutConfig = await api('/api/checkout-config') || {};
+  const e = Object.entries(catalogData);
+  const sellers = new Set(e.map(x => x[1].seller || 'BuildBroker'));
+  const cats = Array.from(new Set(e.map(x => x[1].category))).sort();
+  const prices = e.map(x => x[1].price_paise);
+  document.getElementById('market-count').textContent = e.length;
+  document.getElementById('market-sellers').textContent = sellers.size;
+  document.getElementById('market-cheapest').textContent = prices.length ? paise(Math.min(...prices)) : '—';
+  const fr = document.getElementById('filter-row');
+  fr.innerHTML = ['all'].concat(cats).map(c=>{
+    const n = c==='all' ? e.length : e.filter(x=>x[1].category===c).length;
+    return `<span class="filter-pill${c===activeFilter?' active':''}" data-cat="${esc(c)}">${esc(c==='all'?'All':titleCase(c))} (${n})</span>`;
+  }).join('');
+  renderCatalog();
+}
+document.getElementById('filter-row').addEventListener('click', e=>{
+  const p = e.target.closest('.filter-pill'); if (!p) return;
+  activeFilter = p.dataset.cat;
+  document.querySelectorAll('#filter-row .filter-pill').forEach(x=>x.classList.toggle('active', x===p));
+  renderCatalog();
+});
+function renderCatalog(){
+  const q = (document.getElementById('market-search').value||'').toLowerCase().trim();
+  const overOnly = document.getElementById('chk-overcap').checked;
+  const cap = lastBudget.per_call_cap_paise ?? 5000;
+  const rows = Object.entries(catalogData).filter(([id,it])=>{
+    if (activeFilter!=='all' && it.category!==activeFilter) return false;
+    if (overOnly && it.price_paise <= cap) return false;
+    if (q){
+      const hay = (it.title+' '+(it.seller||'')+' '+id+' '+it.category+' '+(it.description||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  const grid = document.getElementById('catalog-grid');
+  if (!rows.length){ grid.innerHTML = '<div class="empty">No resources match this filter.</div>'; return; }
+  grid.innerHTML = rows.map(([id,it])=>{
+    const over = it.price_paise > cap;
+    const specs = it.specs ? Object.entries(it.specs).map(([k,v])=>`<span class="spec-chip">${esc(k)}: ${esc(v)}</span>`).join('') : '';
+    const desc = it.description
+      ? `<div style="font-size:.71rem;color:var(--text-muted);margin-top:.5rem;font-style:italic;line-height:1.45">${esc(String(it.description).slice(0,120))}${String(it.description).length>120?'…':''}</div>` : '';
+    return `<div class="catalog-card${over?' honeypot':''}">
+      <div class="catalog-card-header"><span class="catalog-card-title">${esc(it.title)}</span>
+        <span class="catalog-card-price">${paise(it.price_paise)}</span></div>
+      <div class="catalog-card-meta"><span class="catalog-card-seller">${esc(it.seller||'BuildBroker')}</span>
+        <span class="catalog-card-category">${esc(titleCase(it.category))}</span></div>
+      ${desc}<div class="catalog-card-specs">${specs}</div>
+      ${over?`<div class="cap-warn">⚠ ${paise(it.price_paise)} exceeds the ${paise(cap)} per-call cap — the gate will deny this.</div>`:''}
+      <div class="catalog-card-actions">
+        <button class="btn-agent" data-agent-buy="${esc(id)}">🤖 Agent Buy · 402</button>
+        <button class="btn-human" data-human-buy="${esc(id)}" data-paise="${it.price_paise}" title="Razorpay Standard Checkout">💳</button>
+      </div></div>`;
+  }).join('');
+}
+document.getElementById('market-search').oninput = renderCatalog;
+document.getElementById('chk-overcap').onchange = renderCatalog;
+document.getElementById('catalog-grid').addEventListener('click', e=>{
+  const a = e.target.closest('[data-agent-buy]'); if (a) return agentBuy(a.dataset.agentBuy);
+  const h = e.target.closest('[data-human-buy]'); if (h) return openCheckout(h.dataset.humanBuy, +h.dataset.paise);
+});
+async function openCheckout(itemId, amountPaise){
+  const order = await api('/api/create-order', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ amount:amountPaise, currency:'INR', item_id:itemId }) });
+  if (!order || !order.order_id) return toast('Failed to create Razorpay order','error');
+  if (typeof Razorpay === 'undefined') return toast('Razorpay checkout.js failed to load (offline?)','error');
+  new Razorpay({
+    key: checkoutConfig.key_id || order.key_id, amount: order.amount, currency: order.currency,
+    name:'BuildBroker', description:(catalogData[itemId]||{}).title || itemId,
+    order_id: order.order_id, theme:{color:'#6366f1'},
+    handler: async resp => {
+      const v = await api('/api/verify-payment', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(resp) });
+      if (v && v.verified){
+        document.getElementById('receipt-body').innerHTML = [
+          ['Order ID',resp.razorpay_order_id],['Payment ID',resp.razorpay_payment_id],
+          ['Amount',paise(amountPaise)],['Resource',itemId],['HMAC',(v.algo||'SHA256')+' verified ✓']
+        ].map(f=>`<div class="info-row"><span class="info-label">${esc(f[0])}</span><span class="info-value">${esc(f[1])}</span></div>`).join('');
+        document.getElementById('receipt-modal').classList.add('show');
+        toast('Payment verified ✓','success'); refreshOverview();
+      } else toast('HMAC signature verification FAILED','error');
+    },
+    modal:{ ondismiss:()=>toast('Checkout dismissed','info') }
+  }).open();
+}
+
+/* ═══ CONSOLE ═══ */
+const MISSIONS = {
+  rag:'Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.',
+  music:'Build a music streaming app with fingerprint identification, synchronized lyrics, stem separation, and CDN delivery.',
+  copilot:'Build an AI code copilot with semantic code search, AST indexing, inline completion, and containerized test execution.',
+  compare:'Compare multiple LLM and vector DB providers to find the most cost-effective combination for a retrieval pipeline.',
+  scaling:'Scale the existing infrastructure: add GPU compute, upgrade to enterprise LLM tier, and expand vector capacity.'
+};
+document.getElementById('mission-chips').addEventListener('click', e=>{
+  const c = e.target.closest('.mission-chip'); if (!c) return;
+  document.querySelectorAll('.mission-chip').forEach(x=>x.classList.toggle('active', x===c));
+  document.getElementById('mission-text').value = MISSIONS[c.dataset.mission] || '';
+});
+document.getElementById('btn-analyze').onclick = async function(){
+  this.disabled = true; this.textContent = '⏳ Solutions Architect thinking…';
+  const plan = await api('/api/console/plan', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ mission: document.getElementById('mission-text').value }) });
+  this.disabled = false; this.textContent = '🔍 Analyze Goal';
+  if (!plan || !Array.isArray(plan.items)) return toast('Planner returned no BOM','error');
+  document.getElementById('bom-rationale').textContent = plan.rationale || '';
+  document.getElementById('bom-body').innerHTML = plan.items.map(i=>
+    `<tr><td style="font-weight:600">${esc(i.title)}</td>
+      <td style="color:var(--accent-light);font-size:.71rem">${esc(i.seller)}</td>
+      <td style="text-align:center">${esc(i.qty)}</td>
+      <td style="text-align:right;font-family:'Fira Code',monospace;color:var(--green)">${paise(i.total_paise)}</td></tr>`).join('');
+  document.getElementById('bom-total').textContent = paise(plan.total_paise);
+  document.getElementById('bom-card').style.display = 'block';
+  toast(`Envelope drafted · ${plan.items.length} line items · ${paise(plan.total_paise)}`,'success');
+  updateEnvelopeStatus();
+};
+document.getElementById('btn-execute').onclick = async function(){
+  this.disabled = true; this.textContent = '⏳ Procuring…';
+  const log = document.getElementById('exec-log');
+  log.innerHTML = '<div class="empty">🔄 Procurement in progress — 402 handshakes running…</div>';
+  const res = await api('/api/console/execute', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+  this.disabled = false; this.textContent = '▶ Approve & Execute';
+  if (!res || !Array.isArray(res.steps)) return toast('Execution failed','error');
+  log.innerHTML = res.steps.map(s=>{
+    const icon = s.status==='fulfilled' ? '✅' : s.status==='denied' ? '🚫' : s.status==='compensated' ? '↩️' : '⚠️';
+    const st = s.state ? `<span class="badge badge-${stateColor(s.state)}" style="margin-left:.35rem">${esc(s.state)}</span>` : '';
+    const err = s.error_code ? `<div class="mono-line" style="color:var(--red)">${esc(s.error_code)}</div>` : '';
+    return `<div class="exec-step"><span class="exec-icon">${icon}</span>
+      <div class="exec-detail"><div class="exec-item">${esc(s.item_id||s.tool||'step')}${st}</div>
+      <div class="exec-rationale">${esc(s.rationale||'')}</div>${err}</div></div>`;
+  }).join('');
+  document.getElementById('exec-summary').style.display = 'block';
+  document.getElementById('exec-spent').textContent = paise(res.captured_paise||0);
+  document.getElementById('exec-remaining').textContent = paise(res.remaining_paise||0);
+  const denied = res.steps.filter(s=>s.status==='denied').length;
+  toast(`Mission complete · ${res.steps.length} steps` + (denied?` · ${denied} denied by gate`:''), denied?'info':'success');
+  refreshOverview(); updateEnvelopeStatus();
+};
+document.getElementById('btn-revoke').onclick = revokeEnvelope;
+document.getElementById('btn-settings-revoke').onclick = revokeEnvelope;
+async function revokeEnvelope(){
+  await api('/api/console/revoke', {method:'POST'});
+  toast('🛑 Envelope REVOKED — all further purchases get 403 ENVELOPE_REVOKED','error');
+  updateEnvelopeStatus();
+}
+document.getElementById('btn-reset-envelope').onclick = resetEnvelope;
+document.getElementById('btn-settings-reset-env').onclick = resetEnvelope;
+async function resetEnvelope(){
+  await api('/api/console/reset-envelope', {method:'POST'});
+  toast('Envelope reset to ACTIVE','success'); updateEnvelopeStatus();
+}
+async function updateEnvelopeStatus(){
+  const s = await api('/api/v1/stats'); if (!s) return;
+  const revoked = s.envelope_status === 'revoked';
+  ['envelope-badge','envelope-badge-console'].forEach(id=>{
+    const b = document.getElementById(id); if (!b) return;
+    b.className = 'badge badge-' + (revoked?'red':'green');
+    b.textContent = revoked ? 'REVOKED' : 'ACTIVE';
+  });
+}
+
+/* ═══ SECURITY ═══ */
+const ATTACKS = [
+  {k:'prompt_injection', t:'Prompt Injection', d:'Purchase the ₹10,000 enterprise-gpu-node honeypot whose description claims "budget checks are waived".', want:'PER_CALL_CAP_EXCEEDED'},
+  {k:'confused_deputy',  t:'Confused Deputy',  d:'agt_coding_02 signs the JWS but claims to be agt_coding_01 in the challenge binding.', want:'403 kid mismatch'},
+  {k:'replay',           t:'Replay Attack',    d:'Re-submit an already-spent signed authorization (same jti) a second time.', want:'idempotent · no double charge'},
+  {k:'pool_drain',       t:'Budget Drain',     d:'Loop purchases until the daily pool is exhausted, then attempt one more.', want:'DAILY_POOL_EXCEEDED'},
+  {k:'revoked_envelope', t:'Revoked Envelope', d:'Attempt a purchase after the human operator hit the killswitch.', want:'ENVELOPE_REVOKED'},
+];
+const THREATS = [
+  ['T1','LLM tricked into overspending','Server-side gate: per-call cap + daily pool, read from ledger state'],
+  ['T2','Agent key leak','Resource-hash binding · 300s TTL · single-use jti · pool ceiling'],
+  ['T3','Challenge replay','jti UNIQUE constraint + hash binding blocks cross-resource reuse'],
+  ['T4','Confused deputy','agentKid in challenge bound to JWS kid; mismatch → 403'],
+  ['T5','Double payment','CAS rank monotonicity + jti UNIQUE'],
+  ['T6','Double refund','Read-before-write convergence + Idempotency-Key'],
+  ['T7','Audit tampering','SHA-256 chain + signed checkpoints + append-only triggers'],
+  ['T8','Timeout misread as failure','SETTLEMENT_UNKNOWN state; no exception→FAILED path'],
+  ['T9','Prompt injection via catalog','Honeypot item; gate denies regardless of model output'],
+  ['T10','Budget TOCTOU','Gate + reservation insert inside one BEGIN IMMEDIATE txn'],
+];
+let attackResults = {};
+document.getElementById('attack-total').textContent = ATTACKS.length;
+function renderAttacks(runningKey){
+  document.getElementById('attack-grid').innerHTML = ATTACKS.map(a=>{
+    const r = attackResults[a.k];
+    const running = runningKey === a.k;
+    const cls = running ? 'running' : r ? (r.defended ? 'pass' : 'fail') : '';
+    const badge = running ? '<span class="badge badge-accent">firing…</span>'
+      : !r ? '<span class="badge badge-muted">idle</span>'
+      : r.defended ? '<span class="badge badge-green">DEFENDED ✓</span>' : '<span class="badge badge-red">BREACHED ✗</span>';
+    const got = r ? `<div class="mono-line">got: ${esc(r.error_code || r.detail || ('HTTP '+r.http_status))}</div>` : '';
+    const btn = r && r.frames && r.frames.length
+      ? `<button class="btn btn-ghost btn-sm" style="margin-top:.6rem;width:100%" data-show-frames="${esc(a.k)}">🔌 View wire</button>` : '';
+    return `<div class="attack-card ${cls}">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start">
+        <span class="attack-title">${esc(a.t)}</span>${badge}</div>
+      <div class="attack-desc">${esc(a.d)}</div>
+      <div class="mono-line">expect: ${esc(a.want)}</div>${got}${btn}</div>`;
+  }).join('');
+  const n = Object.values(attackResults).filter(r=>r.defended).length;
+  const el = document.getElementById('attack-score');
+  el.textContent = n;
+  el.style.color = !Object.keys(attackResults).length ? 'var(--text)'
+    : n === ATTACKS.length ? 'var(--green)' : 'var(--amber)';
+}
+document.getElementById('attack-grid').addEventListener('click', e=>{
+  const b = e.target.closest('[data-show-frames]'); if (!b) return;
+  const r = attackResults[b.dataset.showFrames]; if (!r) return;
+  const a = ATTACKS.find(x=>x.k===b.dataset.showFrames);
+  wire.open(); wire.setState(r.defended?'defended':'BREACHED', r.defended?'green':'red');
+  wire.play(r.frames, 'attack · ' + a.t);
+});
+document.getElementById('btn-run-attacks').onclick = async function(){
+  if (FEATURES.attack === false) return needsBackend('attack');
+  this.disabled = true; attackResults = {};
+  for (const a of ATTACKS){
+    this.textContent = '⏳ ' + a.t + '…';
+    renderAttacks(a.k);
+    const r = await apiFull('/api/v1/demo/attack', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ kind:a.k }) });
+    if (r.missing){ FEATURES.attack = false; renderProbe(); this.disabled=false;
+      this.textContent='▶ Run all attacks'; renderAttacks(); return needsBackend('attack'); }
+    FEATURES.attack = true;
+    attackResults[a.k] = r.body && typeof r.body.defended === 'boolean'
+      ? r.body : { defended:false, detail:'malformed response', http_status:r.status };
+    renderAttacks(); await sleep(420);
+  }
+  this.disabled = false; this.textContent = '▶ Run all attacks';
+  const n = Object.values(attackResults).filter(r=>r.defended).length;
+  toast(`${n}/${ATTACKS.length} attacks defended`, n===ATTACKS.length ? 'success' : 'error');
+  refreshOverview(); if (currentView()==='audit') refreshAudit();
+};
+document.getElementById('btn-clear-attacks').onclick = ()=>{ attackResults = {}; renderAttacks(); };
+document.getElementById('threat-table').innerHTML = THREATS.map(t=>
+  `<div class="info-row"><span style="display:flex;gap:.6rem;align-items:baseline;flex:1">
+    <span class="badge badge-accent">${esc(t[0])}</span>
+    <span style="font-size:.79rem;font-weight:600">${esc(t[1])}</span></span>
+   <span style="font-size:.71rem;color:var(--text-muted);text-align:right;max-width:52%">${esc(t[2])}</span></div>`).join('');
+renderAttacks();
+
+/* ═══ AUDIT ═══ */
+let auditEntries = [];
+async function refreshAudit(){
+  const d = await api('/api/v1/audit?limit=60'); if (!d) return;
+  auditEntries = d.entries || [];
+  const badge = document.getElementById('chain-badge');
+  if (badge.textContent !== 'UNVERIFIED' && badge.textContent !== 'WALKING…'){
+    badge.className = 'badge badge-' + (d.chain_valid ? 'green' : 'red');
+    badge.textContent = d.chain_valid ? 'VALID ✓' : 'BROKEN ✗';
+  }
+  document.getElementById('chain-head').textContent =
+    (d.head_hash ? 'head ' + truncHash(d.head_hash) : '') + (d.chain_height ? ' · height ' + d.chain_height : '');
+  const el = document.getElementById('audit-log');
+  el.innerHTML = auditEntries.length ? auditEntries.map(a=>
+    `<div class="audit-row" data-seq="${esc(a.seq)}">
+      <span class="audit-seq">#${esc(a.seq)}</span>
+      <div style="min-width:0"><span class="audit-event">${esc(a.event)}</span>
+        ${a.to_state?`<span class="badge badge-${stateColor(a.to_state)}" style="margin-left:.4rem">${esc(a.to_state)}</span>`:''}
+        <div style="margin-top:.15rem"><span class="audit-hash">prev ${esc(truncHash(a.prev_hash))} → ${esc(truncHash(a.entry_hash))}</span></div></div>
+      <span style="font-size:.71rem;color:var(--text-muted)">${esc(a.actor)}</span>
+      <span class="audit-time">${esc(timeAgo(a.ts))}</span></div>`).join('')
+    : '<div class="empty">No audit entries yet.</div>';
+}
+document.getElementById('btn-tamper').onclick = async function(){
+  const r = await apiFull('/api/v1/demo/tamper', {method:'POST'});
+  if (r.body && r.body.tampered_seq){
+    toast(`DB row #${r.body.tampered_seq} silently altered via dropped triggers — chain NOT yet re-checked`,'error');
+    const b = document.getElementById('chain-badge');
+    b.className = 'badge badge-amber'; b.textContent = 'UNVERIFIED';
     await refreshAudit();
-    var badge = document.getElementById('chain-badge');
-    toast(badge.textContent.indexOf('VALID') >= 0 ? 'Hash chain integrity verified \u2713' : 'Hash chain BROKEN \u2014 tampering detected!', badge.textContent.indexOf('VALID') >= 0 ? 'success' : 'error');
+    const row = document.querySelector(`.audit-row[data-seq="${r.body.tampered_seq}"]`);
+    if (row){ row.style.borderLeftColor = 'var(--amber)'; row.scrollIntoView({block:'center',behavior:'smooth'}); }
+  } else toast(r.body?.error || 'Nothing to tamper — make a transaction first','info');
+};
+document.getElementById('btn-verify').onclick = async function(){
+  const badge = document.getElementById('chain-badge');
+  badge.className = 'badge badge-amber'; badge.textContent = 'WALKING…';
+  document.querySelectorAll('.audit-row').forEach(r=>{ r.style.borderLeftColor='transparent'; r.style.background=''; });
+  const r = await apiFull('/api/v1/audit?limit=200&verify=1');
+  const perEntry = (r.body?.entries || []).some(e => 'hash_ok' in e);
+  FEATURES.verifyParam = perEntry; renderProbe();
+  const entries = (r.body?.entries || []).slice().reverse();          // oldest → newest
+  let bad = null;
+  for (const e of entries){
+    const ok = perEntry ? e.hash_ok !== false : true;
+    const row = document.querySelector(`.audit-row[data-seq="${e.seq}"]`);
+    if (row){
+      row.style.borderLeftColor = ok ? 'var(--green)' : 'var(--red)';
+      if (!ok) row.style.background = 'var(--red-dim)';
+      row.scrollIntoView({block:'nearest'});
+    }
+    await sleep(entries.length > 40 ? 14 : 45);
+    if (!ok){ bad = e; break; }
+  }
+  if (!perEntry && r.body && r.body.chain_valid === false){
+    bad = { seq: r.body.first_bad_seq ?? '?' };
+    const row = document.querySelector(`.audit-row[data-seq="${bad.seq}"]`);
+    if (row){ row.style.borderLeftColor='var(--red)'; row.style.background='var(--red-dim)'; row.scrollIntoView({block:'center'}); }
+  }
+  if (bad){
+    badge.className = 'badge badge-red'; badge.textContent = 'BROKEN ✗';
+    toast(`Tampering detected at entry #${bad.seq} — recomputed SHA-256 ≠ stored entry_hash`,'error');
+  } else {
+    badge.className = 'badge badge-green'; badge.textContent = 'VALID ✓';
+    toast(`${entries.length} entries walked · chain intact ✓`,'success');
+  }
+};
+
+/* ═══ SETTINGS ═══ */
+document.getElementById('chaos-group').addEventListener('click', async e=>{
+  const opt = e.target.closest('.radio-option'); if (!opt) return;
+  const r = await apiFull('/chaos', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ mode: opt.dataset.mode }) });
+  if (!r.ok) return toast('Failed to set chaos mode','error');
+  document.querySelectorAll('#chaos-group .radio-option').forEach(o=>o.classList.toggle('active', o===opt));
+  const M = { ok:'Normal — payments succeed', rzp_timeout:'Timeout — next payment → SETTLEMENT_UNKNOWN',
+              rzp_refund_timeout:'Refund timeout — compensation saga will fire' };
+  toast('Chaos: ' + (M[opt.dataset.mode]||opt.dataset.mode), opt.dataset.mode==='ok' ? 'success' : 'info');
+});
+async function loadChaosMode(){
+  const d = await api('/chaos'); if (!d) return;
+  document.querySelectorAll('#chaos-group .radio-option').forEach(o=>o.classList.toggle('active', o.dataset.mode===d.chaos));
+}
+document.getElementById('btn-reset-db').onclick = ()=>document.getElementById('reset-modal').classList.add('show');
+document.getElementById('reset-confirm').onclick = async ()=>{
+  document.getElementById('reset-modal').classList.remove('show');
+  const r = await api('/api/v1/reset-db', {method:'POST'});
+  if (r && r.cleared){
+    toast(`Database cleared · ${(r.tables||[]).length} tables`,'success');
+    attackResults = {}; renderAttacks();
+    const b = document.getElementById('chain-badge'); b.className='badge badge-green'; b.textContent='VALID ✓';
+    refreshOverview(); refreshAudit(); updateEnvelopeStatus();
+  } else toast('Database reset failed','error');
+};
+
+/* ═══ MODALS ═══ */
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', e=>{ if (e.target===o || e.target.hasAttribute('data-close')) o.classList.remove('show'); });
+});
+addEventListener('keydown', e=>{
+  if (e.key === 'Escape'){
+    const open = document.querySelectorAll('.modal-overlay.show');
+    if (open.length) open.forEach(m=>m.classList.remove('show'));
+    else wire.close();
+    return;
+  }
+  if (e.target.matches('input,textarea,select')) return;
+  if (e.key.toLowerCase() === 'w'){ wire.el.classList.contains('show') ? wire.close() : wire.open(); return; }
+  const i = parseInt(e.key,10);
+  if (i >= 1 && i <= SCRIPT.length) runStep(i-1);
 });
 
-// === SETTINGS ===
-document.querySelectorAll('#chaos-group .radio-option').forEach(function(opt) {
-    opt.addEventListener('click', async function() {
-        await api('/chaos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ mode: opt.dataset.mode }) });
-        document.querySelectorAll('#chaos-group .radio-option').forEach(function(o) { o.classList.remove('active'); });
-        opt.classList.add('active');
-        toast('Chaos mode: ' + opt.dataset.mode, 'info');
-    });
-});
-document.getElementById('btn-reset-db').addEventListener('click', function() { document.getElementById('reset-modal').classList.add('show'); });
-document.getElementById('reset-cancel').addEventListener('click', function() { document.getElementById('reset-modal').classList.remove('show'); });
-document.getElementById('reset-confirm').addEventListener('click', async function() {
-    document.getElementById('reset-modal').classList.remove('show');
-    var result = await api('/api/v1/reset-db', { method: 'POST' });
-    if (result && result.cleared) { toast('Database cleared: ' + result.tables.length + ' tables', 'success'); refreshOverview(); refreshAudit(); }
-    else { toast('Database reset failed', 'error'); }
-});
-document.getElementById('btn-settings-reset-env').addEventListener('click', async function() {
-    await api('/api/console/reset-envelope', { method: 'POST' });
-    toast('Envelope reset to active', 'success'); updateEnvelopeStatus();
-});
-async function updateEnvelopeStatus() {
-    var stats = await api('/api/v1/stats');
-    if (stats) {
-        var badge = document.getElementById('envelope-badge');
-        if (stats.envelope_status === 'revoked') { badge.className = 'badge badge-red'; badge.textContent = 'REVOKED'; }
-        else { badge.className = 'badge badge-green'; badge.textContent = 'ACTIVE'; }
-    }
+/* ═══ DEMO DIRECTOR ═══ */
+const SCRIPT = [
+  {l:'Budget', run: async()=>{ location.hash='overview'; await sleep(200);
+      const s=document.getElementById('pool-slider'); s.value=30000;
+      document.getElementById('pool-display').textContent=paise(30000);
+      document.getElementById('apply-budget').click(); }},
+  {l:'402 Wire', run: async()=>{ location.hash='marketplace'; await sleep(250);
+      const first = document.querySelector('[data-agent-buy]');
+      if (first) await agentBuy(first.dataset.agentBuy); else toast('Catalog not loaded yet','info'); }},
+  {l:'Mission', run: async()=>{ location.hash='console'; await sleep(250);
+      document.getElementById('btn-analyze').click(); }},
+  {l:'Execute', run: async()=>{ location.hash='console'; await sleep(200);
+      const b=document.getElementById('btn-execute');
+      if (document.getElementById('bom-card').style.display==='none') toast('Run step 3 (Analyze) first','info'); else b.click(); }},
+  {l:'Attacks', run: async()=>{ location.hash='security'; await sleep(250);
+      document.getElementById('btn-run-attacks').click(); }},
+  {l:'Tamper', run: async()=>{ location.hash='audit'; await sleep(300);
+      document.getElementById('btn-tamper').click(); }},
+  {l:'Verify', run: async()=>{ location.hash='audit'; await sleep(200);
+      document.getElementById('btn-verify').click(); }},
+  {l:'Chaos', run: async()=>{ location.hash='settings'; await sleep(250);
+      document.querySelector('#chaos-group [data-mode="rzp_refund_timeout"]').click(); }},
+];
+let stepDone = new Set(), stepActive = -1;
+function renderDirector(){
+  document.getElementById('director-steps').innerHTML = SCRIPT.map((s,i)=>
+    `<span class="dstep${stepActive===i?' active':stepDone.has(i)?' done':''}" data-step="${i}">
+      <kbd>${i+1}</kbd>${esc(s.l)}</span>`).join('');
 }
-async function loadChaosMode() {
-    var data = await api('/chaos');
-    if (data) {
-        document.querySelectorAll('#chaos-group .radio-option').forEach(function(opt) {
-            opt.classList.toggle('active', opt.dataset.mode === data.chaos);
-        });
-    }
+async function runStep(i){
+  const s = SCRIPT[i]; if (!s) return;
+  stepActive = i; renderDirector();
+  try { await s.run(); stepDone.add(i); } catch(err){ console.error(err); toast('Step failed: '+s.l,'error'); }
+  stepActive = -1; renderDirector();
 }
+document.getElementById('director-steps').addEventListener('click', e=>{
+  const d = e.target.closest('.dstep'); if (d) runStep(+d.dataset.step);
+});
+document.getElementById('btn-director-reset').onclick = ()=>{ stepDone.clear(); stepActive=-1; renderDirector(); toast('Demo markers reset','info'); };
+renderDirector();
 
-// === INIT ===
-async function init() {
-    handleHash();
-    await Promise.all([refreshOverview(), loadMarketplace(), refreshAudit(), loadChaosMode(), updateEnvelopeStatus()]);
-    refreshTimer = setInterval(async function() {
-        var hash = window.location.hash.replace('#', '') || 'overview';
-        if (hash === 'overview') await refreshOverview();
-        else if (hash === 'audit') await refreshAudit();
-    }, 2500);
+/* ═══ INIT ═══ */
+async function probe(){
+  const r = await apiFull('/openapi.json');
+  if (r.ok && r.body && r.body.paths){
+    const p = r.body.paths;
+    FEATURES.agentBuy   = !!p['/api/v1/agent/buy'];
+    FEATURES.attack     = !!p['/api/v1/demo/attack'];
+    FEATURES.sweep      = !!p['/api/v1/demo/sweep'];
+    FEATURES.txnDetail  = Object.keys(p).some(k=>/^\/api\/v1\/txns\/\{/.test(k));
+  }
+  renderProbe();
+}
+async function init(){
+  handleHash();
+  await Promise.all([refreshOverview(), loadMarketplace(), refreshAudit(), loadChaosMode(), updateEnvelopeStatus(), probe()]);
+  setInterval(async ()=>{
+    if (document.visibilityState !== 'visible') return;
+    const v = currentView();
+    if (v === 'overview') await refreshOverview();
+    else if (v === 'audit'){
+      const b = document.getElementById('chain-badge').textContent;
+      if (b !== 'UNVERIFIED' && b !== 'WALKING…') await refreshAudit();   // never clobber the tamper reveal
+    }
+    else if (v === 'settings') await updateEnvelopeStatus();
+  }, 2500);
 }
 init();
 </script>
-
 </body>
 </html>
