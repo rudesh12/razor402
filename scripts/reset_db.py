@@ -84,6 +84,15 @@ def reset_database(db_path: str = "razor402.db"):
     except Exception:
         pass
 
+    # Reset gateway chaos mode if running
+    try:
+        import httpx
+        gw_url = os.environ.get("GATEWAY_URL", "http://127.0.0.1:8000")
+        httpx.post(f"{gw_url}/chaos", json={"mode": "ok"}, timeout=1.5)
+        print("✓ Gateway chaos mode reset to 'ok'")
+    except Exception:
+        pass
+
     # Reset console operator revocation if running
     try:
         from gateway.console_api import set_envelope_revoked

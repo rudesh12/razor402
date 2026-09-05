@@ -117,3 +117,10 @@ Solved the buyer/merchant narrative tension by demonstrating that machine-to-mac
 - **Dual-Lens Spend View**: Interactive toggle on `#view-spend` switching between Buyer View (committed spend, savings, policy denials, active subscriptions) and Merchant View (revenue captured, AOV lift, upsell take-rate, zero-CAC orders).
 - **Audit-Grounded Metrics**: Zero fabricated baseline numbers. `upsell_offered`, `upsell_accepted`, `aov_single_paise`, and `aov_pass_paise` are computed directly from ledger events and transaction history.
 
+
+## D1 — Payment Mode (probed 2026-09-05T22:04:21.976374)
+
+Mode: `MODE_C` (harness) — orders are real, s2s payments unavailable.
+Error: `The requested URL was not found on the server.`
+Order creation works (tested: `order_TYQI21S3WJQvGO`).
+MODE_B alternative: save a Checkout-created `pay_` id to `agent/fixtures/real_payment.json`.

@@ -1,11 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment & Secrets (Never commit credentials)
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# SQLite & Database artifacts
 *.db
 *.db-wal
 *.db-shm
-__pycache__/
-.pytest_cache/
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Virtual environments
 .venv/
-recordings/
-*.egg-info/
-dist/
+venv/
+ENV/
+env/
+
+# Packaging & Distribution
 build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Media & Scratch recordings
+recordings/
+*.mp4
+*.webm
+*.webp
+
+# IDEs & Editor temp files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.directory
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
