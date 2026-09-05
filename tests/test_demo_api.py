@@ -28,6 +28,27 @@ def test_agent_buy_success(client):
     assert data["frames"][3]["dir"] == "res"
     assert data["frames"][3]["status"] == 200
 
+def test_agent_buy_paid_but_undelivered_triggers_compensation(client):
+    """When failure injection is rzp_refund_timeout, settlement succeeds but fulfilment triggers compensation auto-refund."""
+    client.post("/chaos", json={"mode": "rzp_refund_timeout"})
+    try:
+        resp = client.post("/api/v1/agent/buy", json={"item_id": "deepseek-v4-flash", "agent": "agt_coding_01"})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["final_state"] == "COMPENSATED"
+        assert len(data["frames"]) == 4
+
+        # Frame 4 should be 502 Bad Gateway with COMPENSATED state header
+        f4 = data["frames"][3]
+        assert f4["status"] == 502
+        assert f4["headers"]["x-razor402-state"] == "COMPENSATED"
+        assert "x-payment-response" in f4["headers"]
+        assert f4["body"]["error"] == "UPSTREAM_FULFILMENT_FAILED"
+        assert f4["body"]["settlement"]["status"] == "refunded"
+        assert f4["body"]["settlement"]["refundId"].startswith("rfnd_")
+    finally:
+        client.post("/chaos", json={"mode": "ok"})
+
 
 def test_agent_buy_validations(client):
     """POST /api/v1/agent/buy validates unknown items and agents."""

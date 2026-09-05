@@ -210,8 +210,15 @@ def client(tmp_db, keys):
     from gateway.app import app, _adapter
     import gateway.app as gw_module
 
-    # Reset adapter
+    # Reset adapter and chaos mode
     gw_module._adapter = None
+    gw_module._chaos_mode = "ok"
+    try:
+        import httpx
+        with httpx.Client(timeout=0.5) as hc:
+            hc.post("http://127.0.0.1:9000/chaos", json={"mode": "ok"})
+    except Exception:
+        pass
 
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c

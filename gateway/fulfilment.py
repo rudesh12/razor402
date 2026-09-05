@@ -45,6 +45,16 @@ def fulfil(conn, adapter, cid: str,
     item_id = txn["item_id"]
     last_reason = None
 
+    # Chaos check: Paid but undelivered triggers autonomous compensation saga
+    try:
+        from gateway.app import get_chaos_mode
+        if get_chaos_mode() == "rzp_refund_timeout":
+            last_reason = "upstream_500_chaos_undelivered"
+            bump(conn, cid, reason=last_reason)
+            return compensate(conn, adapter, cid, last_reason)
+    except Exception:
+        pass
+
     for attempt in range(1, FULFIL_MAX_ATTEMPTS + 1):
         try:
             resp = httpx.post(

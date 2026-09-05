@@ -172,13 +172,54 @@ def cas(conn, challenge_id: str, to_state: str, *, actor: str,
     return ("ILLEGAL", seq)
 
 
-def note(conn, challenge_id: str, event: str, actor: str,
+def note(conn, challenge_id: str | None, event: str, actor: str,
          payload: dict | None = None) -> int:
     """Audit append with no transition."""
     if payload is None:
         payload = {}
     seq = _append_audit(conn, challenge_id, event, None, None, None, actor, payload)
     return seq
+
+
+def append_system_audit(conn, *, event: str, actor: str,
+                        payload: dict | None = None) -> int:
+    """
+    Append a system-scoped event (no challenge_id / state transition) to the audit chain.
+    Uses the exact same prev_hash -> entry_hash formula as cas().
+    """
+    return note(conn, None, event, actor, payload)
+
+
+def is_po_approved(conn, po_number: str) -> dict | None:
+    """
+    Check if a purchase order is approved in the audit ledger.
+    Returns approval details dict or None.
+    A subsequent PO_CANCELLED event for the same po_number supersedes approval.
+    """
+    row = conn.execute(
+        "SELECT actor, payload, seq FROM audit "
+        "WHERE event='PO_APPROVED' AND json_extract(payload, '$.po_number')=? "
+        "ORDER BY seq DESC LIMIT 1",
+        (po_number,)
+    ).fetchone()
+    if not row:
+        return None
+
+    cancel = conn.execute(
+        "SELECT 1 FROM audit WHERE event='PO_CANCELLED' "
+        "AND json_extract(payload, '$.po_number')=? AND seq > ?",
+        (po_number, row["seq"])
+    ).fetchone()
+    if cancel:
+        return None
+
+    payload = json.loads(row["payload"])
+    return {
+        "approver": row["actor"],
+        "audit_seq": row["seq"],
+        **payload,
+    }
+
 
 
 def bump(conn, challenge_id: str, *, inc: int = 1, next_at: int | None = None,

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Razor402 — HTTP 402 Payment Protocol for Autonomous AI Agents</title>
-<meta name="description" content="HTTP 402 challenge/response payment protocol for autonomous AI agent commerce on Razorpay rails">
+<title>Razor402 — Make a Razorpay Merchant Sellable to AI Buyers</title>
+<meta name="description" content="HTTP 402 payment protocol that makes a Razorpay merchant discoverable, transactable and more profitable to autonomous AI buyers.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='25'>⚡</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -30,56 +30,108 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg)
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border-hover)}
 code{font-family:'Fira Code',monospace;font-size:.92em;color:var(--accent-light)}
+b{font-weight:700}
 
 /* ── NAV ── */
-.topnav{position:sticky;top:0;z-index:100;background:rgba(6,6,11,.85);backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 1.5rem;
-  display:flex;align-items:center;justify-content:space-between;height:56px}
-.topnav-brand{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;
+.topnav{position:sticky;top:0;z-index:100;background:rgba(6,6,11,.86);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 1.25rem;
+  display:flex;align-items:center;justify-content:space-between;height:56px;gap:1rem}
+.topnav-brand{font-size:1.05rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;
   gap:.5rem;text-decoration:none;color:var(--text);white-space:nowrap}
 .topnav-brand b{color:var(--accent)}
-.protocol-badge{font-size:.58rem;font-weight:700;background:var(--accent-glow);color:var(--accent-light);
-  padding:2px 8px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase}
-.topnav-links{display:flex;gap:0;align-items:center;overflow-x:auto}
-.topnav-link{padding:0 .85rem;height:56px;display:flex;align-items:center;gap:.35rem;font-size:.8rem;
+.protocol-badge{font-size:.56rem;font-weight:700;background:var(--accent-glow);color:var(--accent-light);
+  padding:2px 7px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.topnav-links{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.topnav-link{padding:0 .72rem;height:56px;display:flex;align-items:center;gap:.3rem;font-size:.79rem;
   font-weight:500;color:var(--text-muted);text-decoration:none;border-bottom:2px solid transparent;
   transition:var(--transition);cursor:pointer;white-space:nowrap}
 .topnav-link:hover{color:var(--text-secondary)}
 .topnav-link.active{color:var(--accent-light);border-bottom-color:var(--accent)}
-.topnav-right{display:flex;align-items:center;gap:.85rem}
-.live-indicator{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--text-muted);white-space:nowrap}
+.topnav-right{display:flex;align-items:center;gap:.7rem}
+.live-indicator{display:flex;align-items:center;gap:.4rem;font-size:.69rem;color:var(--text-muted);white-space:nowrap}
 .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite ease-in-out;
   box-shadow:0 0 8px rgba(34,197,94,.4)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* ── LAYOUT ── */
-.app-container{max-width:1320px;margin:0 auto;padding:1.5rem 1.5rem 5.5rem}
+.app-container{max-width:1340px;margin:0 auto;padding:1.35rem 1.35rem 5.5rem}
 .view{display:none}
 .view.active{display:block;animation:fadeIn .25s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:var(--transition)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:var(--transition)}
 .card:hover{border-color:var(--border-hover)}
-.section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-  color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.section-title{font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-muted);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
 @media(max-width:940px){.grid-2{grid-template-columns:1fr}}
+.lede{font-size:.82rem;color:var(--text-secondary);line-height:1.6;max-width:78ch}
+.empty{color:var(--text-muted);font-size:.8rem;padding:1rem .25rem}
+.mono-line{font-family:'Fira Code',monospace;font-size:.64rem;color:var(--text-muted);margin-top:.45rem;word-break:break-all}
+
+/* ── PITCH BAR ── */
+.pitchbar{background:linear-gradient(135deg,var(--accent-glow),rgba(13,13,22,.7));border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:1.15rem 1.5rem;margin-bottom:1.25rem}
+.pitchbar h1{font-size:1.12rem;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.pitchbar h1 em{font-style:normal;color:var(--accent-light)}
+.pitch-pills{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.pitch-pill{font-size:.68rem;font-weight:600;padding:.22rem .6rem;border-radius:999px;
+  background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary)}
+.pitch-pill.on{border-color:rgba(34,197,94,.4);color:var(--green)}
+
+/* ── SYSTEM MAP ── */
+.sysmap{display:grid;grid-template-columns:1fr auto 1.15fr auto 1fr;gap:0;align-items:center;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 1.25rem}
+.node{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.9rem .95rem;transition:var(--transition);position:relative}
+.node.boundary{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);background:linear-gradient(180deg,var(--accent-glow),var(--bg-elevated))}
+.node.flash{border-color:var(--green);box-shadow:0 0 0 3px var(--green-dim)}
+.node-head{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700}
+.node-sub{font-size:.65rem;color:var(--text-muted);margin-top:.15rem;font-family:'Fira Code',monospace}
+.node-rows{margin-top:.6rem;display:flex;flex-direction:column;gap:.22rem}
+.node-row{display:flex;justify-content:space-between;gap:.5rem;font-size:.67rem}
+.node-row span:first-child{color:var(--text-muted)}
+.node-row span:last-child{font-family:'Fira Code',monospace;font-weight:600}
+.node-tag{position:absolute;top:-9px;left:.8rem;font-size:.55rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;background:var(--bg-card);padding:0 .4rem;color:var(--text-muted)}
+.node.boundary .node-tag{color:var(--accent-light)}
+.conn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;padding:0 .5rem;min-width:96px}
+.conn-line{width:100%;height:2px;background:linear-gradient(90deg,var(--border),var(--border-hover));position:relative;border-radius:2px}
+.conn-line::after{content:'';position:absolute;right:-1px;top:-3px;border-left:6px solid var(--border-hover);
+  border-top:4px solid transparent;border-bottom:4px solid transparent}
+.conn-line.flowing{background:linear-gradient(90deg,var(--accent),var(--accent-light));
+  background-size:200% 100%;animation:flow 1s linear infinite}
+@keyframes flow{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.conn-label{font-size:.63rem;font-weight:600;color:var(--text-secondary);text-align:center;line-height:1.35;cursor:pointer}
+.conn-label:hover{color:var(--accent-light)}
+.conn-label b{font-family:'Fira Code',monospace;color:var(--accent-light)}
+.sysmap-stack{display:flex;flex-direction:column;gap:.85rem}
+.sysmap-lower{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;margin-top:.25rem}
+.conn-down{display:flex;flex-direction:column;align-items:center;height:34px}
+.conn-down .v{width:2px;flex:1;background:var(--border-hover)}
+.conn-down .a{border-top:6px solid var(--border-hover);border-left:4px solid transparent;border-right:4px solid transparent}
+@media(max-width:980px){
+  .sysmap{grid-template-columns:1fr;gap:.85rem}
+  .conn{min-width:0;padding:.25rem 0;flex-direction:row;gap:.5rem}
+  .conn-line{width:40px}
+}
 
 /* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
-.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;transition:var(--transition)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-bottom:.9rem}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.05rem;transition:var(--transition)}
 .stat-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
-.stat-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;
-  justify-content:center;font-size:.95rem;margin-bottom:.65rem}
-.stat-value{font-size:1.45rem;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-.02em;line-height:1.1}
-.stat-label{font-size:.68rem;color:var(--text-muted);margin-top:.25rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-.protocol-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:.65rem;margin-bottom:1.25rem}
-.pstat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.7rem .85rem}
-.pstat-v{font-family:'Fira Code',monospace;font-size:1rem;font-weight:700}
-.pstat-l{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:.15rem}
+.stat-icon{width:33px;height:33px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.92rem;margin-bottom:.6rem}
+.stat-value{font-size:1.42rem;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-.02em;line-height:1.1}
+.stat-label{font-size:.66rem;color:var(--text-muted);margin-top:.25rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.stat-sub{font-size:.63rem;color:var(--text-muted);margin-top:.3rem}
+.protocol-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:.6rem;margin-bottom:1.2rem}
+.pstat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.65rem .8rem}
+.pstat-v{font-family:'Fira Code',monospace;font-size:.98rem;font-weight:700}
+.pstat-l{font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:.15rem}
 @media(max-width:940px){.protocol-strip{grid-template-columns:repeat(3,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ── BADGES / BUTTONS / INPUTS ── */
-.badge{display:inline-flex;align-items:center;padding:.15rem .6rem;border-radius:999px;font-size:.66rem;
+.badge{display:inline-flex;align-items:center;padding:.15rem .58rem;border-radius:999px;font-size:.65rem;
   font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .badge-green{background:var(--green-dim);color:var(--green)}
 .badge-red{background:var(--red-dim);color:var(--red)}
@@ -87,8 +139,8 @@ code{font-family:'Fira Code',monospace;font-size:.92em;color:var(--accent-light)
 .badge-blue{background:var(--blue-dim);color:var(--blue)}
 .badge-accent{background:var(--accent-glow);color:var(--accent-light)}
 .badge-muted{background:var(--bg-elevated);color:var(--text-muted)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.05rem;
-  border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;border:1px solid transparent;
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1rem;
+  border-radius:var(--radius-sm);font-size:.79rem;font-weight:600;border:1px solid transparent;
   cursor:pointer;transition:var(--transition);font-family:inherit;white-space:nowrap}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-primary:hover{background:#5558e6;transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.3)}
@@ -96,126 +148,131 @@ code{font-family:'Fira Code',monospace;font-size:.92em;color:var(--accent-light)
 .btn-danger:hover{background:var(--red-dim)}
 .btn-ghost{background:transparent;color:var(--text-secondary);border-color:var(--border)}
 .btn-ghost:hover{background:var(--bg-hover);border-color:var(--border-hover)}
-.btn-sm{padding:.35rem .7rem;font-size:.72rem}
+.btn-sm{padding:.33rem .68rem;font-size:.71rem}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none!important}
-.input{width:100%;padding:.6rem .9rem;background:var(--bg);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);font-size:.85rem;font-family:inherit;outline:none;transition:var(--transition)}
+.input{width:100%;padding:.6rem .88rem;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:.84rem;font-family:inherit;outline:none;transition:var(--transition)}
 .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .input::placeholder{color:var(--text-muted)}
 select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236a6a82' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right .75rem center;padding-right:2.25rem}
-textarea.input{min-height:80px;resize:vertical;font-size:.82rem;line-height:1.5}
+  background-repeat:no-repeat;background-position:right .75rem center;padding-right:2.2rem}
+textarea.input{min-height:78px;resize:vertical;font-size:.81rem;line-height:1.5}
 
 /* ── SLIDERS / BUDGET ── */
-.slider-group{margin-bottom:1rem}
-.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
-.slider-label{font-size:.76rem;font-weight:600;color:var(--text-secondary)}
-.slider-value{font-size:.82rem;font-weight:700;font-family:'Fira Code',monospace;color:var(--accent-light)}
+.slider-group{margin-bottom:.95rem}
+.slider-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.38rem}
+.slider-label{font-size:.75rem;font-weight:600;color:var(--text-secondary)}
+.slider-value{font-size:.81rem;font-weight:700;font-family:'Fira Code',monospace;color:var(--accent-light)}
 input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:3px;outline:none}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--accent);
   border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(99,102,241,.4);transition:var(--transition)}
 input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
-.slider-range{display:flex;justify-content:space-between;font-size:.63rem;color:var(--text-muted);margin-top:.2rem}
+.slider-range{display:flex;justify-content:space-between;font-size:.62rem;color:var(--text-muted);margin-top:.2rem}
 .budget-bar{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;display:flex}
 .budget-seg{height:100%;transition:width .5s ease}
-.budget-legend{display:flex;gap:1rem;margin-top:.5rem;font-size:.67rem;color:var(--text-muted);flex-wrap:wrap}
+.budget-legend{display:flex;gap:.9rem;margin-top:.5rem;font-size:.66rem;color:var(--text-muted);flex-wrap:wrap}
 .budget-legend span{display:flex;align-items:center;gap:.3rem}
 .budget-legend .dot{width:8px;height:8px;border-radius:50%}
 
 /* ── TXN ── */
-.txn-row{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.7rem .5rem;
-  border-bottom:1px solid rgba(26,26,48,.5);font-size:.8rem;cursor:pointer;border-radius:var(--radius-sm);transition:background .15s}
+.txn-row{display:flex;justify-content:space-between;align-items:center;gap:.7rem;padding:.65rem .5rem;
+  border-bottom:1px solid rgba(26,26,48,.5);font-size:.79rem;cursor:pointer;border-radius:var(--radius-sm);transition:background .15s}
 .txn-row:hover{background:var(--bg-hover)}
 .txn-row:last-child{border-bottom:none}
 .txn-item{font-weight:600}
-.txn-agent{color:var(--text-muted);font-size:.72rem;margin-top:.1rem}
-.txn-amount{font-family:'Fira Code',monospace;font-weight:600;font-size:.8rem}
+.txn-agent{color:var(--text-muted);font-size:.71rem;margin-top:.1rem}
+.txn-amount{font-family:'Fira Code',monospace;font-weight:600;font-size:.79rem}
 
-/* ── MARKETPLACE ── */
-.market-banner{background:linear-gradient(135deg,var(--accent-glow) 0%,rgba(13,13,22,.8) 100%);
-  border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.75rem;margin-bottom:1.25rem;
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.market-stat-value{font-size:1.05rem;font-weight:800;font-family:'Fira Code',monospace}
-.market-stat-label{font-size:.63rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-.filter-row{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.25rem}
-.filter-pill{padding:.32rem .8rem;border-radius:999px;font-size:.73rem;font-weight:600;background:var(--bg-card);
+/* ── CATALOG ── */
+.market-banner{background:linear-gradient(135deg,var(--accent-glow),rgba(13,13,22,.8));border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:1.1rem 1.6rem;margin-bottom:1rem;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:1rem}
+.market-stat-value{font-size:1.02rem;font-weight:800;font-family:'Fira Code',monospace}
+.market-stat-label{font-size:.61rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.filter-row{display:flex;flex-wrap:wrap;gap:.42rem;margin-bottom:1.1rem}
+.filter-pill{padding:.3rem .78rem;border-radius:999px;font-size:.72rem;font-weight:600;background:var(--bg-card);
   border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:var(--transition)}
 .filter-pill:hover{border-color:var(--border-hover);color:var(--text-secondary)}
 .filter-pill.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
-.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.95rem}
 .catalog-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:1.15rem;transition:var(--transition);display:flex;flex-direction:column}
+  padding:1.1rem;transition:var(--transition);display:flex;flex-direction:column}
 .catalog-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
 .catalog-card.honeypot{border-color:rgba(239,68,68,.35)}
+.catalog-card.haspass{border-color:rgba(34,197,94,.4)}
 .catalog-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
-.catalog-card-title{font-size:.84rem;font-weight:600;line-height:1.3;flex:1}
-.catalog-card-price{font-family:'Fira Code',monospace;font-size:.9rem;font-weight:700;color:var(--green);white-space:nowrap}
+.catalog-card-title{font-size:.83rem;font-weight:600;line-height:1.3;flex:1}
+.catalog-card-price{font-family:'Fira Code',monospace;font-size:.89rem;font-weight:700;color:var(--green);white-space:nowrap}
 .catalog-card-meta{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;gap:.5rem}
-.catalog-card-seller{font-size:.71rem;font-weight:600;color:var(--accent-light)}
-.catalog-card-category{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
-.catalog-card-specs{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem}
-.spec-chip{font-size:.61rem;font-weight:500;padding:.15rem .5rem;background:var(--bg-elevated);
+.catalog-card-seller{font-size:.7rem;font-weight:600;color:var(--accent-light)}
+.catalog-card-category{font-size:.61rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+.catalog-card-specs{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.55rem}
+.spec-chip{font-size:.6rem;font-weight:500;padding:.13rem .48rem;background:var(--bg-elevated);
   border-radius:999px;color:var(--text-muted);font-family:'Fira Code',monospace}
-.catalog-card-actions{margin-top:auto;padding-top:.85rem;display:flex;gap:.45rem}
+.catalog-card-actions{margin-top:auto;padding-top:.8rem;display:flex;gap:.42rem}
 .btn-agent{flex:1;padding:.5rem;background:linear-gradient(135deg,var(--accent),#5548e0);color:#fff;border:none;
-  border-radius:var(--radius-sm);font-size:.76rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit}
+  border-radius:var(--radius-sm);font-size:.75rem;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit}
 .btn-agent:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.3)}
-.btn-human{padding:.5rem .7rem;background:transparent;color:var(--text-secondary);border:1px solid var(--border);
-  border-radius:var(--radius-sm);font-size:.76rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
+.btn-human{padding:.5rem .68rem;background:transparent;color:var(--text-secondary);border:1px solid var(--border);
+  border-radius:var(--radius-sm);font-size:.75rem;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
 .btn-human:hover{background:var(--bg-hover);border-color:var(--border-hover)}
-.cap-warn{font-size:.62rem;color:var(--amber);margin-top:.4rem;font-weight:600}
+.cap-warn{font-size:.61rem;color:var(--amber);margin-top:.38rem;font-weight:600;line-height:1.4}
+.pass-note{font-size:.62rem;color:var(--green);margin-top:.38rem;font-weight:700}
 
-/* ── CONSOLE ── */
-.mission-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem}
-.mission-chip{padding:.38rem .8rem;border-radius:999px;font-size:.73rem;font-weight:600;background:var(--bg-elevated);
+/* ── PROCUREMENT ── */
+.mission-chips{display:flex;flex-wrap:wrap;gap:.42rem;margin-bottom:.9rem}
+.mission-chip{padding:.36rem .78rem;border-radius:999px;font-size:.72rem;font-weight:600;background:var(--bg-elevated);
   border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
 .mission-chip:hover{border-color:var(--accent);color:var(--accent-light)}
 .mission-chip.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
-.bom-table{width:100%;border-collapse:collapse;font-size:.77rem;margin-top:.75rem}
-.bom-table th{text-align:left;padding:.5rem .7rem;font-size:.65rem;font-weight:700;text-transform:uppercase;
+.po-warn{font-size:.71rem;color:var(--amber);margin-bottom:.6rem;display:flex;gap:.4rem;align-items:flex-start;line-height:1.45}
+.bom-table{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:.7rem}
+.bom-table th{text-align:left;padding:.45rem .6rem;font-size:.63rem;font-weight:700;text-transform:uppercase;
   letter-spacing:.05em;color:var(--text-muted);border-bottom:1px solid var(--border)}
-.bom-table td{padding:.5rem .7rem;border-bottom:1px solid rgba(26,26,48,.3)}
+.bom-table td{padding:.55rem .6rem;border-bottom:1px solid rgba(26,26,48,.3);vertical-align:top}
 .bom-table tr:last-child td{border-bottom:none}
+.bom-savings{font-size:.74rem;color:var(--green);font-weight:600;margin-top:.6rem;padding:.5rem .7rem;
+  background:var(--green-dim);border-radius:var(--radius-sm);line-height:1.45}
 .bom-total{display:flex;justify-content:space-between;align-items:center;padding:.7rem;margin-top:.5rem;
-  background:var(--bg-elevated);border-radius:var(--radius-sm);font-weight:700;font-size:.85rem}
-.exec-step{display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid rgba(26,26,48,.4);font-size:.78rem}
+  background:var(--bg-elevated);border-radius:var(--radius-sm);font-weight:700;font-size:.84rem}
+.alt-panel{margin-top:.5rem;padding:.55rem .6rem;background:var(--bg);border-radius:var(--radius-sm)}
+.alt-head{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:.32rem}
+.alt-row{display:flex;justify-content:space-between;gap:.5rem;padding:.2rem 0;font-size:.69rem}
+.exec-step{display:flex;align-items:flex-start;gap:.55rem;padding:.55rem 0;border-bottom:1px solid rgba(26,26,48,.4);font-size:.77rem}
 .exec-step:last-child{border-bottom:none}
 .exec-icon{font-size:.9rem;flex-shrink:0;margin-top:.05rem}
 .exec-detail{flex:1;min-width:0}
 .exec-item{font-weight:600}
-.exec-rationale{color:var(--text-muted);font-size:.71rem;margin-top:.15rem;line-height:1.45}
+.exec-rationale{color:var(--text-muted);font-size:.7rem;margin-top:.15rem;line-height:1.45}
 
-/* ── SECURITY / ATTACK SIM ── */
-.attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.85rem}
-.attack-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
-  padding:1rem;transition:var(--transition)}
+/* ── CONTROLS ── */
+.attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:.8rem}
+.attack-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:.95rem;transition:var(--transition)}
 .attack-card.pass{border-color:rgba(34,197,94,.4);background:linear-gradient(180deg,var(--green-dim),var(--bg-elevated))}
 .attack-card.fail{border-color:rgba(239,68,68,.4);background:linear-gradient(180deg,var(--red-dim),var(--bg-elevated))}
 .attack-card.running{border-color:var(--accent)}
-.attack-title{font-size:.82rem;font-weight:700}
-.attack-desc{font-size:.71rem;color:var(--text-muted);margin-top:.4rem;line-height:1.45}
-.mono-line{font-family:'Fira Code',monospace;font-size:.64rem;color:var(--text-muted);margin-top:.5rem;word-break:break-all}
-.score-ring{display:flex;align-items:baseline;gap:.4rem}
-.score-num{font-family:'Fira Code',monospace;font-size:2rem;font-weight:800;line-height:1}
+.attack-title{font-size:.81rem;font-weight:700}
+.attack-desc{font-size:.7rem;color:var(--text-muted);margin-top:.38rem;line-height:1.45}
+.score-num{font-family:'Fira Code',monospace;font-size:1.95rem;font-weight:800;line-height:1}
 
 /* ── AUDIT ── */
-.chain-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.35rem;
-  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.25rem;flex-wrap:wrap}
-.chain-status{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
-.chain-actions{display:flex;gap:.5rem}
-.audit-row{display:grid;grid-template-columns:52px 1fr auto auto;gap:.75rem;align-items:center;
-  padding:.6rem .7rem;border-bottom:1px solid rgba(26,26,48,.3);font-size:.77rem;
+.chain-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.95rem 1.3rem;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.1rem;flex-wrap:wrap}
+.chain-status{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.chain-actions{display:flex;gap:.45rem}
+.audit-row{display:grid;grid-template-columns:52px 1fr auto auto;gap:.7rem;align-items:center;
+  padding:.58rem .65rem;border-bottom:1px solid rgba(26,26,48,.3);font-size:.76rem;
   transition:background .15s,border-left-color .15s;border-left:3px solid transparent}
 .audit-row:hover{background:var(--bg-hover)}
-.audit-seq{font-family:'Fira Code',monospace;font-size:.71rem;font-weight:600;color:var(--text-muted)}
+.audit-seq{font-family:'Fira Code',monospace;font-size:.7rem;font-weight:600;color:var(--text-muted)}
 .audit-event{font-weight:600}
-.audit-hash{font-family:'Fira Code',monospace;font-size:.61rem;color:var(--text-muted)}
-.audit-time{font-size:.67rem;color:var(--text-muted);text-align:right;white-space:nowrap}
+.audit-hash{font-family:'Fira Code',monospace;font-size:.6rem;color:var(--text-muted)}
+.audit-time{font-size:.66rem;color:var(--text-muted);text-align:right;white-space:nowrap}
 
 /* ── SETTINGS ── */
-.radio-group{display:flex;flex-direction:column;gap:.5rem}
-.radio-option{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border:1px solid var(--border);
-  border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:.8rem}
+.radio-group{display:flex;flex-direction:column;gap:.45rem}
+.radio-option{display:flex;align-items:center;gap:.6rem;padding:.58rem .78rem;border:1px solid var(--border);
+  border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:.79rem}
 .radio-option:hover{border-color:var(--border-hover);background:var(--bg-hover)}
 .radio-option.active{border-color:var(--accent);background:var(--accent-glow)}
 .radio-option input{display:none}
@@ -223,22 +280,22 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
   align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
 .radio-option.active .radio-dot{border-color:var(--accent)}
 .radio-option.active .radio-dot::after{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%}
-.info-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.55rem 0;
-  border-bottom:1px solid rgba(26,26,48,.3);font-size:.8rem}
+.info-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.52rem 0;
+  border-bottom:1px solid rgba(26,26,48,.3);font-size:.79rem}
 .info-row:last-child{border-bottom:none}
 .info-label{color:var(--text-muted)}
-.info-value{font-family:'Fira Code',monospace;font-weight:600;font-size:.76rem;text-align:right;word-break:break-all}
+.info-value{font-family:'Fira Code',monospace;font-weight:600;font-size:.75rem;text-align:right;word-break:break-all}
 
-/* ── PROTOCOL INSPECTOR ── */
+/* ── INSPECTOR ── */
 .wire-drawer{position:fixed;top:56px;right:0;bottom:0;width:min(580px,94vw);background:var(--bg-card);
   border-left:1px solid var(--border);box-shadow:var(--shadow-lg);transform:translateX(101%);
   transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:400;display:flex;flex-direction:column}
 .wire-drawer.show{transform:none}
-.wire-head{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.9rem 1.2rem;
+.wire-head{display:flex;justify-content:space-between;align-items:center;gap:.7rem;padding:.85rem 1.15rem;
   border-bottom:1px solid var(--border);flex-shrink:0}
-.wire-body{flex:1;overflow-y:auto;padding:1rem 1.2rem}
-.wire-foot{padding:.75rem 1.2rem;border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:center;flex-shrink:0}
-.wire-frame{border-left:2px solid var(--border);padding:.45rem 0 .7rem .8rem;margin-bottom:.35rem;
+.wire-body{flex:1;overflow-y:auto;padding:.95rem 1.15rem}
+.wire-foot{padding:.7rem 1.15rem;border-top:1px solid var(--border);display:flex;gap:.5rem;align-items:center;flex-shrink:0}
+.wire-frame{border-left:2px solid var(--border);padding:.42rem 0 .68rem .78rem;margin-bottom:.32rem;
   opacity:0;transform:translateY(6px);animation:wireIn .3s forwards}
 @keyframes wireIn{to{opacity:1;transform:none}}
 .wire-frame.req{border-left-color:var(--accent)}
@@ -247,70 +304,72 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 .wire-frame.res-202{border-left-color:var(--amber)}
 .wire-frame.res-4xx,.wire-frame.res-5xx{border-left-color:var(--red)}
 .wire-frame.note{border-left-color:var(--purple)}
-.wire-line{font-family:'Fira Code',monospace;font-size:.74rem;font-weight:600}
-.wire-hdr{font-family:'Fira Code',monospace;font-size:.65rem;color:var(--text-muted);margin-top:.28rem;word-break:break-all}
-.wire-json{font-family:'Fira Code',monospace;font-size:.65rem;color:var(--text-secondary);background:var(--bg);
-  border-radius:var(--radius-sm);padding:.5rem .6rem;margin-top:.4rem;white-space:pre-wrap;word-break:break-word;
+.wire-line{font-family:'Fira Code',monospace;font-size:.73rem;font-weight:600}
+.wire-hdr{font-family:'Fira Code',monospace;font-size:.64rem;color:var(--text-muted);margin-top:.26rem;word-break:break-all}
+.wire-json{font-family:'Fira Code',monospace;font-size:.64rem;color:var(--text-secondary);background:var(--bg);
+  border-radius:var(--radius-sm);padding:.5rem .58rem;margin-top:.38rem;white-space:pre-wrap;word-break:break-word;
   max-height:190px;overflow:auto;line-height:1.5}
-.jws-chip{display:inline-block;font-family:'Fira Code',monospace;font-size:.61rem;background:var(--accent-glow);
+.jws-chip{display:inline-block;font-family:'Fira Code',monospace;font-size:.6rem;background:var(--accent-glow);
   color:var(--accent-light);padding:1px 6px;border-radius:4px;cursor:pointer}
 .jws-chip:hover{background:rgba(99,102,241,.22)}
+.upsell-box{margin-top:.5rem;padding:.55rem .65rem;background:var(--green-dim);border:1px solid rgba(34,197,94,.3);
+  border-radius:var(--radius-sm)}
+.upsell-box b{color:var(--green)}
 
-/* ── DIRECTOR BAR ── */
-.director{position:fixed;left:0;right:0;bottom:0;z-index:350;background:rgba(6,6,11,.92);
+/* ── DIRECTOR ── */
+.director{position:fixed;left:0;right:0;bottom:0;z-index:350;background:rgba(6,6,11,.93);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);
-  padding:.6rem 1.5rem;display:flex;align-items:center;gap:.75rem;overflow-x:auto}
-.director-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--text-muted);white-space:nowrap}
-.director-steps{display:flex;gap:.4rem;flex:1}
-.dstep{padding:.32rem .7rem;border-radius:999px;font-size:.7rem;font-weight:600;background:var(--bg-elevated);
+  padding:.55rem 1.25rem;display:flex;align-items:center;gap:.7rem;overflow-x:auto}
+.director-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);white-space:nowrap}
+.director-steps{display:flex;gap:.35rem;flex:1}
+.dstep{padding:.3rem .65rem;border-radius:999px;font-size:.69rem;font-weight:600;background:var(--bg-elevated);
   border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:var(--transition);white-space:nowrap}
 .dstep:hover{border-color:var(--accent);color:var(--accent-light)}
 .dstep.done{border-color:rgba(34,197,94,.35);color:var(--green)}
 .dstep.active{background:var(--accent-glow);border-color:var(--accent);color:var(--accent-light)}
-.dstep kbd{font-family:'Fira Code',monospace;font-size:.6rem;opacity:.6;margin-right:.25rem}
+.dstep kbd{font-family:'Fira Code',monospace;font-size:.58rem;opacity:.6;margin-right:.22rem}
 
 /* ── TOAST / MODAL ── */
-.toast-stack{position:fixed;bottom:4.5rem;right:1.5rem;z-index:1000;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end}
-.toast{padding:.7rem 1.15rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
-  font-size:.8rem;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;transform:translateX(30px);
-  transition:all .25s ease;max-width:380px}
+.toast-stack{position:fixed;bottom:4.3rem;right:1.25rem;z-index:1000;display:flex;flex-direction:column;gap:.45rem;align-items:flex-end}
+.toast{padding:.68rem 1.1rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);
+  font-size:.79rem;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;transform:translateX(30px);
+  transition:all .25s ease;max-width:400px;line-height:1.4}
 .toast.show{opacity:1;transform:none}
 .toast-success{border-color:var(--green);color:var(--green)}
 .toast-error{border-color:var(--red);color:var(--red)}
 .toast-info{border-color:var(--accent);color:var(--accent-light)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:none;
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.66);backdrop-filter:blur(4px);display:none;
   align-items:center;justify-content:center;z-index:500;padding:1rem}
 .modal-overlay.show{display:flex}
-.modal{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;
-  max-width:480px;width:100%;box-shadow:var(--shadow-lg);max-height:88vh;overflow-y:auto}
-.modal h3{font-size:1rem;margin-bottom:.75rem}
-.modal p{font-size:.84rem;color:var(--text-secondary);margin-bottom:1.2rem;line-height:1.55}
-.modal-actions{display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.2rem}
-.timeline{position:relative;padding-left:1.15rem;margin-top:.75rem}
+.modal{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.7rem;
+  max-width:520px;width:100%;box-shadow:var(--shadow-lg);max-height:88vh;overflow-y:auto}
+.modal h3{font-size:1rem;margin-bottom:.7rem}
+.modal p{font-size:.82rem;color:var(--text-secondary);margin-bottom:1.1rem;line-height:1.55}
+.modal-actions{display:flex;gap:.65rem;justify-content:flex-end;margin-top:1.15rem}
+.timeline{position:relative;padding-left:1.1rem;margin-top:.7rem}
 .timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--border)}
-.tl-item{position:relative;padding:.5rem 0}
-.tl-item::before{content:'';position:absolute;left:-1.15rem;top:.85rem;width:10px;height:10px;border-radius:50%;
+.tl-item{position:relative;padding:.45rem 0}
+.tl-item::before{content:'';position:absolute;left:-1.1rem;top:.8rem;width:10px;height:10px;border-radius:50%;
   background:var(--bg-elevated);border:2px solid var(--accent)}
 .tl-item.ok::before{border-color:var(--green)}
 .tl-item.bad::before{border-color:var(--red)}
-.tl-event{font-size:.79rem;font-weight:600}
-.tl-meta{font-family:'Fira Code',monospace;font-size:.63rem;color:var(--text-muted);margin-top:.15rem}
-.empty{color:var(--text-muted);font-size:.8rem;padding:1rem .25rem}
-@media(max-width:768px){.topnav{padding:0 .85rem}.app-container{padding:1rem 1rem 5.5rem}
-  .catalog-grid{grid-template-columns:1fr}.director{padding:.5rem .85rem}}
+.tl-event{font-size:.78rem;font-weight:600}
+.tl-meta{font-family:'Fira Code',monospace;font-size:.62rem;color:var(--text-muted);margin-top:.15rem}
+@media(max-width:768px){.topnav{padding:0 .8rem}.app-container{padding:1rem 1rem 5.5rem}
+  .catalog-grid{grid-template-columns:1fr}.director{padding:.45rem .8rem}}
 </style>
 </head>
 <body>
 
 <nav class="topnav">
-  <a href="#overview" class="topnav-brand"><span><b>Razor</b>402</span><span class="protocol-badge">HTTP 402</span></a>
+  <a href="#system" class="topnav-brand"><span><b>Razor</b>402</span><span class="protocol-badge">HTTP 402</span></a>
   <div class="topnav-links">
-    <a class="topnav-link active" data-view="overview"    href="#overview">📊 Overview</a>
-    <a class="topnav-link"        data-view="marketplace" href="#marketplace">🛒 Marketplace</a>
-    <a class="topnav-link"        data-view="console"     href="#console">🤖 Console</a>
-    <a class="topnav-link"        data-view="security"    href="#security">🛡 Security</a>
-    <a class="topnav-link"        data-view="audit"       href="#audit">🔗 Audit</a>
+    <a class="topnav-link active" data-view="system"      href="#system">🗺 System</a>
+    <a class="topnav-link"        data-view="spend"       href="#spend">📊 Spend</a>
+    <a class="topnav-link"        data-view="catalog"     href="#catalog">🏪 Vendor Catalog</a>
+    <a class="topnav-link"        data-view="procurement" href="#procurement">📋 Procurement</a>
+    <a class="topnav-link"        data-view="controls"    href="#controls">🛡 Controls</a>
+    <a class="topnav-link"        data-view="audit"       href="#audit">🔗 Audit Trail</a>
     <a class="topnav-link"        data-view="settings"    href="#settings">⚙️</a>
   </div>
   <div class="topnav-right">
@@ -321,91 +380,241 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 
 <div class="app-container">
 
-<!-- ══ OVERVIEW ══ -->
-<div id="view-overview" class="view active">
-  <div class="stats-grid">
+<!-- ══════════ SYSTEM ══════════ -->
+<div id="view-system" class="view active">
+  <div class="pitchbar">
+    <h1>Razor402 makes a Razorpay merchant <em>discoverable, transactable, and more profitable</em> to AI buyers.</h1>
+    <p class="lede" style="margin-top:.6rem">
+      An AI sourcing analyst discovers the merchant's catalog at a well-known URI, negotiates over HTTP 402,
+      and settles on Razorpay — inside a human-approved purchase order with hard, server-enforced spending limits.
+      Every money action is explainable, bounded, gated, and written to a tamper-evident ledger.
+    </p>
+    <div class="pitch-pills">
+      <span class="pitch-pill on">✓ Explainable — full wire transcript</span>
+      <span class="pitch-pill on">✓ Bounded — per-call cap + daily pool + PO ceiling</span>
+      <span class="pitch-pill on">✓ Gated — server-side, ignores model output</span>
+      <span class="pitch-pill on">✓ Audit trail — SHA-256 chain, append-only</span>
+      <span class="pitch-pill on">✓ Failures handled — 3 recovery paths</span>
+    </div>
+  </div>
+
+  <div class="sysmap">
+    <div class="node" id="node-agent">
+      <span class="node-tag">AI Buyer</span>
+      <div class="node-head">🤖 Sourcing Analyst</div>
+      <div class="node-sub" id="sys-agent-kid">agt_coding_01</div>
+      <div class="node-rows">
+        <div class="node-row"><span>Identity</span><span style="color:var(--accent-light)">Ed25519</span></div>
+        <div class="node-row"><span>Daily pool</span><span id="sys-pool">—</span></div>
+        <div class="node-row"><span>Per-call cap</span><span id="sys-cap">—</span></div>
+        <div class="node-row"><span>PO status</span><span id="sys-po">—</span></div>
+      </div>
+    </div>
+
+    <div class="conn">
+      <div class="conn-label" data-trace="handshake"><b>①</b> request<br><b>②</b> 402 + signed JWS</div>
+      <div class="conn-line" id="flow-1"></div>
+      <div class="conn-label" style="color:var(--text-muted);font-size:.58rem">two round trips</div>
+    </div>
+
+    <div class="node boundary" id="node-gateway">
+      <span class="node-tag">Security Boundary</span>
+      <div class="node-head">🔒 Gateway + Policy Gate</div>
+      <div class="node-sub">verify · gate · settle · fulfil</div>
+      <div class="node-rows">
+        <div class="node-row"><span>JWS verify</span><span style="color:var(--green)">Ed25519 ✓</span></div>
+        <div class="node-row"><span>Policy gate</span><span style="color:var(--green)">pure fn · zero I/O</span></div>
+        <div class="node-row"><span><code>llm_hint</code></span><span style="color:var(--red)">IGNORED</span></div>
+        <div class="node-row"><span>Replay guard</span><span>jti UNIQUE</span></div>
+        <div class="node-row"><span>State machine</span><span>11 states · CAS</span></div>
+        <div class="node-row"><span>Policy denials</span><span id="sys-denials" style="color:var(--red)">—</span></div>
+      </div>
+    </div>
+
+    <div class="conn">
+      <div class="conn-label" data-trace="settle"><b>③</b> order · capture<br>· refund</div>
+      <div class="conn-line" id="flow-2"></div>
+      <div class="conn-label" data-trace="fulfil"><b>④</b> provision</div>
+      <div class="conn-line" id="flow-3"></div>
+    </div>
+
+    <div class="sysmap-stack">
+      <div class="node" id="node-rzp">
+        <span class="node-tag">Settlement</span>
+        <div class="node-head">💳 Razorpay</div>
+        <div class="node-sub">test mode · real API</div>
+        <div class="node-rows">
+          <div class="node-row"><span>Captured</span><span id="sys-captured" style="color:var(--green)">—</span></div>
+          <div class="node-row"><span>Reconciling</span><span id="sys-indoubt" style="color:var(--amber)">—</span></div>
+          <div class="node-row"><span>Auto-refunded</span><span id="sys-comp" style="color:var(--blue)">—</span></div>
+        </div>
+      </div>
+      <div class="node" id="node-merchant">
+        <span class="node-tag">The Merchant</span>
+        <div class="node-head">🏪 BuildBroker</div>
+        <div class="node-sub">402-native · agent-readable</div>
+        <div class="node-rows">
+          <div class="node-row"><span>Catalog</span><span id="sys-items">—</span></div>
+          <div class="node-row"><span>Discovery</span><span style="color:var(--accent-light)">/.well-known</span></div>
+          <div class="node-row"><span>AOV lift</span><span id="sys-aov" style="color:var(--green)">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sysmap-lower">
+    <div></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="conn-down"><div class="v"></div><div class="a"></div></div>
+      <div class="node" style="min-width:280px" id="node-ledger">
+        <span class="node-tag">Accountability</span>
+        <div class="node-head">📜 Audit Ledger</div>
+        <div class="node-sub">SHA-256 chain · append-only triggers</div>
+        <div class="node-rows">
+          <div class="node-row"><span>Entries</span><span id="sys-height">—</span></div>
+          <div class="node-row"><span>Integrity</span><span id="sys-chain">—</span></div>
+          <div class="node-row"><span>Reconciler</span><span id="sys-tick">15s tick</span></div>
+        </div>
+      </div>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:1.2rem">
+    <div class="card">
+      <div class="section-title">🏪 Why the merchant wins</div>
+      <div class="info-row"><span class="info-label">Discoverable</span><span class="info-value" style="color:var(--accent-light)">/.well-known/agent-catalog</span></div>
+      <div class="info-row"><span class="info-label">Transactable</span><span class="info-value">HTTP 402 · no SDK required</span></div>
+      <div class="info-row"><span class="info-label">Upsell in-protocol</span><span class="info-value" id="sys-upsell">—</span></div>
+      <div class="info-row"><span class="info-label">Customer acquisition cost</span><span class="info-value" style="color:var(--green)">₹0 — agent found them</span></div>
+      <p class="lede" style="margin-top:.75rem;font-size:.76rem">
+        A human buys the lowest sticker price. An analyst buys the best <b>unit economics</b> — so it takes the day pass
+        every time. The merchant's ticket goes up, negotiated machine-to-machine, with zero marketing spend.
+      </p>
+      <button class="btn btn-ghost btn-sm" id="btn-open-wellknown" style="margin-top:.7rem">🔎 View agent-readable catalog</button>
+    </div>
+    <div class="card">
+      <div class="section-title">🛡 Why finance signs off</div>
+      <div class="info-row"><span class="info-label">Human approval</span><span class="info-value">server-enforced, in ledger</span></div>
+      <div class="info-row"><span class="info-label">Spend ceiling</span><span class="info-value">PO + pool + per-call</span></div>
+      <div class="info-row"><span class="info-label">Prompt injection</span><span class="info-value" style="color:var(--green)">structurally defeated</span></div>
+      <div class="info-row"><span class="info-label">Record integrity</span><span class="info-value">tamper-evident, detectable</span></div>
+      <div class="info-row"><span class="info-label">Payment timeout</span><span class="info-value">never guessed</span></div>
+      <p class="lede" style="margin-top:.75rem;font-size:.76rem">
+        The policy gate is a pure function that <b>accepts a hint from the language model and deliberately ignores it.</b>
+        The analyst can suggest. It cannot approve. Only arithmetic decides.
+      </p>
+      <button class="btn btn-ghost btn-sm" id="btn-jump-controls" style="margin-top:.7rem">🛡 Run the 5 attacks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SPEND ══════════ -->
+<div id="view-spend" class="view">
+  <div class="filter-row" style="margin-bottom:1rem">
+    <span class="filter-pill active" data-lens="buyer">🏢 Buyer view — our spend</span>
+    <span class="filter-pill" data-lens="merchant">🏪 Merchant view — vendor revenue</span>
+  </div>
+
+  <div class="stats-grid" id="lens-buyer">
     <div class="stat-card"><div class="stat-icon" style="background:var(--blue-dim);color:var(--blue)">💳</div>
-      <div class="stat-value" id="stat-txns">0</div><div class="stat-label">Transactions</div></div>
+      <div class="stat-value" id="stat-txns">0</div><div class="stat-label">Purchases Executed</div></div>
     <div class="stat-card"><div class="stat-icon" style="background:var(--green-dim);color:var(--green)">💰</div>
-      <div class="stat-value" id="stat-revenue">₹0.00</div><div class="stat-label">Revenue Captured</div></div>
+      <div class="stat-value" id="stat-revenue">₹0.00</div><div class="stat-label">Committed Spend</div></div>
     <div class="stat-card"><div class="stat-icon" style="background:var(--accent-glow);color:var(--accent-light)">🛡</div>
-      <div class="stat-value" id="stat-chain">—</div><div class="stat-label">Audit Chain</div></div>
+      <div class="stat-value" id="stat-chain">—</div><div class="stat-label">Audit Integrity</div></div>
     <div class="stat-card"><div class="stat-icon" style="background:var(--amber-dim);color:var(--amber)">📦</div>
-      <div class="stat-value" id="stat-passes">0</div><div class="stat-label">Active Passes</div></div>
+      <div class="stat-value" id="stat-passes">0</div><div class="stat-label">Active Subscriptions</div></div>
+  </div>
+
+  <div class="stats-grid" id="lens-merchant" style="display:none">
+    <div class="stat-card"><div class="stat-icon" style="background:var(--green-dim);color:var(--green)">💰</div>
+      <div class="stat-value" id="m-revenue">₹0.00</div><div class="stat-label">Revenue Captured</div>
+      <div class="stat-sub">settled on Razorpay</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--accent-glow);color:var(--accent-light)">📈</div>
+      <div class="stat-value" id="m-aov">—</div><div class="stat-label">AOV Lift</div>
+      <div class="stat-sub" id="m-aov-sub">single → day pass</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--amber-dim);color:var(--amber)">🎯</div>
+      <div class="stat-value" id="m-takerate">—</div><div class="stat-label">Upsell Take-Rate</div>
+      <div class="stat-sub" id="m-takerate-sub">offered vs accepted</div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:var(--blue-dim);color:var(--blue)">🆓</div>
+      <div class="stat-value" id="m-cac">₹0</div><div class="stat-label">Acquisition Cost</div>
+      <div class="stat-sub">agent discovered the catalog</div></div>
   </div>
 
   <div class="protocol-strip">
-    <div class="pstat"><div class="pstat-v" id="ps-challenges" style="color:var(--accent-light)">—</div><div class="pstat-l">402 Challenges</div></div>
-    <div class="pstat"><div class="pstat-v" id="ps-fulfilled" style="color:var(--green)">—</div><div class="pstat-l">Fulfilled</div></div>
-    <div class="pstat"><div class="pstat-v" id="ps-indoubt" style="color:var(--amber)">—</div><div class="pstat-l">In Doubt</div></div>
-    <div class="pstat"><div class="pstat-v" id="ps-compensated" style="color:var(--blue)">—</div><div class="pstat-l">Compensated</div></div>
-    <div class="pstat"><div class="pstat-v" id="ps-blocked" style="color:var(--red)">—</div><div class="pstat-l">Attacks Blocked</div></div>
-    <div class="pstat"><div class="pstat-v" id="ps-height">—</div><div class="pstat-l">Chain Height</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-challenges" style="color:var(--accent-light)">—</div><div class="pstat-l">Vendor Quotes</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-fulfilled" style="color:var(--green)">—</div><div class="pstat-l">Delivered</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-indoubt" style="color:var(--amber)">—</div><div class="pstat-l">Reconciling</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-compensated" style="color:var(--blue)">—</div><div class="pstat-l">Auto-Refunded</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-blocked" style="color:var(--red)">—</div><div class="pstat-l">Policy Denials</div></div>
+    <div class="pstat"><div class="pstat-v" id="ps-height">—</div><div class="pstat-l">Ledger Entries</div></div>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="section-title">🎛️ Agent Identity &amp; Budget Mandate</div>
-      <div style="margin-bottom:1rem">
-        <label class="slider-label" style="display:block;margin-bottom:.35rem">Agent Identity (Ed25519 keypair)</label>
+      <div class="section-title">🎛️ Spending Mandate</div>
+      <div style="margin-bottom:.9rem">
+        <label class="slider-label" style="display:block;margin-bottom:.35rem">Buyer identity (Ed25519 keypair)</label>
         <select class="input" id="budget-agent" style="max-width:280px">
-          <option value="agt_coding_01">agt_coding_01 — Primary</option>
-          <option value="agt_coding_02">agt_coding_02 — Deputy</option>
+          <option value="agt_coding_01">agt_coding_01 — Primary analyst</option>
+          <option value="agt_coding_02">agt_coding_02 — Deputy (lower mandate)</option>
         </select>
         <div class="mono-line" id="agent-kid-line">kid: —</div>
       </div>
       <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Daily Pool</span><span class="slider-value" id="pool-display">₹150.00</span></div>
+        <div class="slider-header"><span class="slider-label">Daily pool</span><span class="slider-value" id="pool-display">₹150.00</span></div>
         <input type="range" id="pool-slider" min="1000" max="50000" value="15000" step="500">
         <div class="slider-range"><span>₹10</span><span>₹500</span></div>
       </div>
       <div class="slider-group">
-        <div class="slider-header"><span class="slider-label">Per-Call Cap</span><span class="slider-value" id="cap-display">₹50.00</span></div>
+        <div class="slider-header"><span class="slider-label">Per-purchase cap</span><span class="slider-value" id="cap-display">₹50.00</span></div>
         <input type="range" id="cap-slider" min="100" max="10000" value="5000" step="100">
         <div class="slider-range"><span>₹1</span><span>₹100</span></div>
       </div>
-      <button class="btn btn-primary" id="apply-budget" style="width:100%;margin-top:.25rem">Apply Budget Mandate</button>
-      <div style="margin-top:1rem">
+      <button class="btn btn-primary" id="apply-budget" style="width:100%;margin-top:.25rem">Apply Mandate</button>
+      <div style="margin-top:.9rem">
         <div class="budget-bar">
-          <div class="budget-seg" id="seg-captured" style="width:0%;background:var(--green)"></div>
-          <div class="budget-seg" id="seg-held"     style="width:0%;background:var(--amber)"></div>
+          <div class="budget-seg" id="seg-captured"  style="width:0%;background:var(--green)"></div>
+          <div class="budget-seg" id="seg-held"      style="width:0%;background:var(--amber)"></div>
           <div class="budget-seg" id="seg-remaining" style="width:100%;background:var(--border)"></div>
         </div>
         <div class="budget-legend">
-          <span><span class="dot" style="background:var(--green)"></span>Captured: <b id="lbl-captured">₹0</b></span>
+          <span><span class="dot" style="background:var(--green)"></span>Spent: <b id="lbl-captured">₹0</b></span>
           <span><span class="dot" style="background:var(--amber)"></span>Held: <b id="lbl-held">₹0</b></span>
-          <span><span class="dot" style="background:var(--border)"></span>Free: <b id="lbl-free">₹150</b></span>
+          <span><span class="dot" style="background:var(--border)"></span>Available: <b id="lbl-free">₹150</b></span>
         </div>
+        <div class="mono-line">Held = reserved mid-flight, like a hotel pre-auth. Released automatically if delivery fails.</div>
       </div>
     </div>
 
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-        <div class="section-title" style="margin:0">📋 Transaction Feed</div>
-        <button class="btn btn-ghost btn-sm" id="btn-sweep" title="Run one reconciler tick">🔄 Sweep now</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+        <div class="section-title" style="margin:0">📋 Purchase Ledger</div>
+        <button class="btn btn-ghost btn-sm" id="btn-sweep" title="Run one reconciler tick">🔄 Reconcile now</button>
       </div>
-      <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.5rem">Click any row to inspect its state-machine timeline.</div>
+      <div style="font-size:.67rem;color:var(--text-muted);margin-bottom:.45rem">Click any row for its full state-machine timeline.</div>
       <div id="txn-feed" style="max-height:400px;overflow-y:auto"><div class="empty">Loading…</div></div>
     </div>
   </div>
 </div>
 
-<!-- ══ MARKETPLACE ══ -->
-<div id="view-marketplace" class="view">
+<!-- ══════════ CATALOG ══════════ -->
+<div id="view-catalog" class="view">
   <div class="market-banner">
-    <div><div class="market-stat-value" id="market-count">0</div><div class="market-stat-label">API Resources</div></div>
-    <div><div class="market-stat-value" id="market-sellers">0</div><div class="market-stat-label">Sellers</div></div>
+    <div><div class="market-stat-value" id="market-count">0</div><div class="market-stat-label">Resources</div></div>
+    <div><div class="market-stat-value" id="market-sellers">0</div><div class="market-stat-label">Vendors</div></div>
     <div><div class="market-stat-value" id="market-cheapest">—</div><div class="market-stat-label">From</div></div>
-    <div><div class="market-stat-value" id="market-cap">—</div><div class="market-stat-label">Agent Per-Call Cap</div></div>
-    <div style="flex:1;min-width:220px;max-width:330px"><input type="text" class="input" id="market-search" placeholder="Search resources…"></div>
+    <div><div class="market-stat-value" id="market-cap">—</div><div class="market-stat-label">Per-purchase cap</div></div>
+    <div style="flex:1;min-width:210px;max-width:320px"><input type="text" class="input" id="market-search" placeholder="Search vendors and resources…"></div>
   </div>
-  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;padding:.7rem 1rem;
+  <div style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-bottom:.9rem;padding:.65rem .95rem;
        background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm)">
-    <span style="font-size:.74rem;color:var(--text-secondary)">
+    <span style="font-size:.73rem;color:var(--text-secondary);line-height:1.5">
       <b style="color:var(--accent-light)">🤖 Agent Buy</b> runs the HTTP 402 handshake with an Ed25519-signed authorization.
-      <b>💳 Human</b> opens Razorpay Standard Checkout. Same catalog, same rails — different buyer.
+      <b>💳</b> opens Razorpay Standard Checkout for a human. <b>Same merchant, same rails — different buyer.</b>
     </span>
-    <label style="display:flex;align-items:center;gap:.4rem;font-size:.73rem;color:var(--text-muted);margin-left:auto">
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--text-muted);margin-left:auto">
       <input type="checkbox" id="chk-overcap"> show over-cap only
     </label>
   </div>
@@ -413,77 +622,92 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
   <div class="catalog-grid" id="catalog-grid"></div>
 </div>
 
-<!-- ══ CONSOLE ══ -->
-<div id="view-console" class="view">
+<!-- ══════════ PROCUREMENT ══════════ -->
+<div id="view-procurement" class="view">
   <div class="grid-2">
     <div>
-      <div class="card" style="margin-bottom:1rem">
-        <div class="section-title">🎯 Mission Planner — Solutions Architect</div>
+      <div class="card" style="margin-bottom:.95rem">
+        <div class="section-title">🔎 Sourcing Analyst — Market Research</div>
+        <p class="lede" style="font-size:.76rem;margin-bottom:.75rem">
+          Describe what you need. The analyst reads the merchant's agent-readable catalog, normalizes pricing across
+          vendors, and drafts a purchase order with a justification per line.
+        </p>
         <div class="mission-chips" id="mission-chips">
-          <span class="mission-chip active" data-mission="rag">🔍 RAG Pipeline</span>
-          <span class="mission-chip" data-mission="music">🎵 Music Streaming</span>
-          <span class="mission-chip" data-mission="copilot">💻 AI Copilot</span>
-          <span class="mission-chip" data-mission="compare">⚖️ Compare Providers</span>
-          <span class="mission-chip" data-mission="scaling">📈 Scale Infra</span>
+          <span class="mission-chip active" data-mission="compare">⚖️ Compare Vendors</span>
+          <span class="mission-chip" data-mission="rag">🔍 RAG Stack</span>
+          <span class="mission-chip" data-mission="copilot">💻 Code Copilot</span>
+          <span class="mission-chip" data-mission="music">🎵 Audio Pipeline</span>
+          <span class="mission-chip" data-mission="scaling">📈 Scale Existing</span>
         </div>
-        <textarea class="input" id="mission-text">Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.</textarea>
-        <button class="btn btn-primary" id="btn-analyze" style="width:100%;margin-top:.75rem">🔍 Analyze Goal</button>
+        <textarea class="input" id="mission-text" placeholder="What do you need to buy?"></textarea>
+        <button class="btn btn-primary" id="btn-analyze" style="width:100%;margin-top:.7rem">🔎 Research the Market</button>
       </div>
+
       <div class="card" id="bom-card" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-          <div class="section-title" style="margin:0">📋 Procurement Envelope</div>
-          <span id="envelope-badge-console" class="badge badge-green">ACTIVE</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem;gap:.5rem;flex-wrap:wrap">
+          <div class="section-title" style="margin:0">📄 Purchase Order</div>
+          <div style="display:flex;gap:.45rem;align-items:center">
+            <span class="mono-line" id="po-num-inline" style="margin:0"></span>
+            <span id="po-status" class="badge badge-amber">DRAFT</span>
+          </div>
         </div>
-        <div id="bom-rationale" style="font-size:.77rem;color:var(--text-secondary);margin-bottom:.6rem;font-style:italic;line-height:1.5"></div>
+        <div class="po-warn">⚠️ <span>Drafted by the sourcing analyst · <b>nothing is purchased until a human approves</b></span></div>
+        <div id="bom-rationale" style="font-size:.76rem;color:var(--text-secondary);margin-bottom:.5rem;font-style:italic;line-height:1.5"></div>
         <table class="bom-table">
-          <thead><tr><th>Resource</th><th>Seller</th><th>Qty</th><th style="text-align:right">Cost</th></tr></thead>
+          <thead><tr><th>Line item &amp; justification</th><th>Vendor</th><th>Qty</th><th style="text-align:right">Cost</th></tr></thead>
           <tbody id="bom-body"></tbody>
         </table>
-        <div class="bom-total"><span>Envelope Total</span><span id="bom-total" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span></div>
-        <button class="btn btn-primary" id="btn-execute" style="width:100%;margin-top:.75rem">▶ Approve &amp; Execute</button>
+        <div class="bom-savings" id="bom-savings" style="display:none"></div>
+        <div class="bom-total"><span>PO ceiling — max authorized spend</span>
+          <span id="bom-total" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span></div>
+        <button class="btn btn-primary" id="btn-execute" style="width:100%;margin-top:.7rem">✍️ Review &amp; Approve Purchase Order</button>
       </div>
     </div>
+
     <div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;gap:.5rem;flex-wrap:wrap">
-          <div class="section-title" style="margin:0">⚡ Execution Log</div>
-          <div style="display:flex;gap:.45rem">
-            <button class="btn btn-danger btn-sm" id="btn-revoke">🛑 Revoke Envelope</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;gap:.5rem;flex-wrap:wrap">
+          <div class="section-title" style="margin:0">📦 Fulfilment Log</div>
+          <div style="display:flex;gap:.42rem">
+            <button class="btn btn-danger btn-sm" id="btn-revoke">🛑 Cancel PO</button>
             <button class="btn btn-ghost btn-sm" id="btn-reset-envelope">↺ Reset</button>
           </div>
         </div>
-        <div id="exec-log" style="max-height:480px;overflow-y:auto"><div class="empty">Analyze a mission, then approve to see procurement steps.</div></div>
-        <div id="exec-summary" style="display:none;margin-top:.75rem;padding:.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm)">
-          <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:600">
-            <span>Budget Spent</span><span id="exec-spent" style="font-family:'Fira Code',monospace;color:var(--green)">₹0.00</span></div>
-          <div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:600;margin-top:.25rem">
-            <span>Remaining</span><span id="exec-remaining" style="font-family:'Fira Code',monospace">₹0.00</span></div>
+        <div id="exec-log" style="max-height:470px;overflow-y:auto">
+          <div class="empty">Research the market, then approve the purchase order to see fulfilment steps.</div>
+        </div>
+        <div id="exec-summary" style="display:none;margin-top:.7rem;padding:.7rem;background:var(--bg-elevated);border-radius:var(--radius-sm)">
+          <div class="info-row" style="padding:.3rem 0"><span class="info-label">Approved by</span><span class="info-value" id="exec-approver">—</span></div>
+          <div class="info-row" style="padding:.3rem 0"><span class="info-label">Committed</span><span class="info-value" id="exec-spent" style="color:var(--green)">₹0.00</span></div>
+          <div class="info-row" style="padding:.3rem 0"><span class="info-label">Remaining today</span><span class="info-value" id="exec-remaining">₹0.00</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ SECURITY ══ -->
-<div id="view-security" class="view">
-  <div class="card" style="margin-bottom:1.25rem">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+<!-- ══════════ CONTROLS ══════════ -->
+<div id="view-controls" class="view">
+  <div class="card" style="margin-bottom:1.15rem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
       <div>
-        <div class="section-title" style="margin-bottom:.5rem">🛡 Attack Simulator</div>
-        <p style="font-size:.79rem;color:var(--text-secondary);max-width:640px;line-height:1.55">
-          Each scenario fires at the live gateway. The policy gate is a <b>pure zero-I/O function</b> that
-          accepts an <code>llm_hint</code> argument and <b>deliberately ignores it</b> — so no prompt,
-          description, or model output can widen the mandate.
+        <div class="section-title" style="margin-bottom:.5rem">🛡 Adversarial Test — Are the limits real?</div>
+        <p class="lede" style="font-size:.78rem">
+          Five attacks fired at the live gateway. The policy gate is a <b>pure zero-I/O function</b> that accepts an
+          <code>llm_hint</code> argument and <b>deliberately ignores it</b> — so no prompt, product description, or
+          model output can widen the mandate. <b>The analyst can suggest. It cannot approve.</b>
         </p>
       </div>
       <div style="text-align:right">
-        <div class="score-ring"><span class="score-num" id="attack-score">0</span>
-          <span style="font-size:.85rem;color:var(--text-muted)">/ <span id="attack-total">5</span></span></div>
+        <div style="display:flex;align-items:baseline;gap:.35rem;justify-content:flex-end">
+          <span class="score-num" id="attack-score">0</span>
+          <span style="font-size:.85rem;color:var(--text-muted)">/ <span id="attack-total">5</span></span>
+        </div>
         <div class="pstat-l" style="margin-top:.2rem">Attacks Defended</div>
       </div>
     </div>
-    <div class="attack-grid" id="attack-grid" style="margin-top:1.25rem"></div>
-    <div style="display:flex;gap:.5rem;margin-top:1.15rem">
+    <div class="attack-grid" id="attack-grid" style="margin-top:1.15rem"></div>
+    <div style="display:flex;gap:.5rem;margin-top:1.1rem">
       <button class="btn btn-primary" id="btn-run-attacks" style="flex:1">▶ Run all attacks</button>
       <button class="btn btn-ghost" id="btn-clear-attacks">Clear</button>
     </div>
@@ -494,60 +718,62 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
   </div>
 </div>
 
-<!-- ══ AUDIT ══ -->
+<!-- ══════════ AUDIT ══════════ -->
 <div id="view-audit" class="view">
   <div class="chain-banner">
     <div class="chain-status">
       <span id="chain-badge" class="badge badge-amber">checking…</span>
       <span style="font-size:.81rem;font-weight:600">SHA-256 Hash Chain</span>
-      <span id="chain-head" style="font-family:'Fira Code',monospace;font-size:.66rem;color:var(--text-muted)"></span>
+      <span id="chain-head" style="font-family:'Fira Code',monospace;font-size:.65rem;color:var(--text-muted)"></span>
     </div>
     <div class="chain-actions">
-      <button class="btn btn-ghost btn-sm" id="btn-tamper">🔨 Tamper</button>
+      <button class="btn btn-ghost btn-sm" id="btn-tamper">🔨 Simulate Breach</button>
       <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Verify Chain</button>
     </div>
   </div>
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-      <div class="section-title" style="margin:0">📜 Append-Only Audit Ledger</div>
-      <span style="font-size:.66rem;color:var(--text-muted)">SQL triggers block UPDATE + DELETE</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;gap:.5rem;flex-wrap:wrap">
+      <div class="section-title" style="margin:0">📜 Append-Only Ledger — every money action</div>
+      <span style="font-size:.65rem;color:var(--text-muted)">SQL triggers block UPDATE and DELETE</span>
     </div>
     <div id="audit-log" style="max-height:calc(100vh - 300px);overflow-y:auto"><div class="empty">Loading…</div></div>
   </div>
 </div>
 
-<!-- ══ SETTINGS ══ -->
+<!-- ══════════ SETTINGS ══════════ -->
 <div id="view-settings" class="view">
   <div class="grid-2">
     <div class="card">
-      <div class="section-title">⚡ Chaos Mode</div>
-      <p style="font-size:.77rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.55">
-        Inject payment-gateway faults to exercise compensation sagas and in-doubt settlement recovery.
+      <div class="section-title">⚡ Failure Injection</div>
+      <p class="lede" style="font-size:.76rem;margin-bottom:.9rem">
+        Real payment rails fail. Inject faults to exercise the recovery paths — in-doubt reconciliation and
+        the compensation saga.
       </p>
       <div class="radio-group" id="chaos-group">
         <label class="radio-option active" data-mode="ok"><input type="radio" name="chaos" value="ok" checked>
-          <span class="radio-dot"></span><span>✅ Normal — all payments succeed</span></label>
+          <span class="radio-dot"></span><span>✅ Normal — payments succeed</span></label>
         <label class="radio-option" data-mode="rzp_timeout"><input type="radio" name="chaos" value="rzp_timeout">
-          <span class="radio-dot"></span><span>⏱️ Timeout — hangs → <code>SETTLEMENT_UNKNOWN</code></span></label>
+          <span class="radio-dot"></span><span>⏱️ Razorpay timeout → <code>SETTLEMENT_UNKNOWN</code>, sweeper reconciles</span></label>
         <label class="radio-option" data-mode="rzp_refund_timeout"><input type="radio" name="chaos" value="rzp_refund_timeout">
-          <span class="radio-dot"></span><span>💥 Refund Timeout — compensation saga fires</span></label>
+          <span class="radio-dot"></span><span>💥 Paid but undelivered → compensation saga auto-refunds</span></label>
       </div>
-      <div style="margin-top:1.25rem">
-        <div class="section-title">📡 Envelope Killswitch</div>
-        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">
+      <div style="margin-top:1.2rem">
+        <div class="section-title">📡 PO Killswitch</div>
+        <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap">
           <span id="envelope-badge" class="badge badge-green">ACTIVE</span>
-          <button class="btn btn-danger btn-sm" id="btn-settings-revoke">🛑 Revoke</button>
+          <button class="btn btn-danger btn-sm" id="btn-settings-revoke">🛑 Cancel PO</button>
           <button class="btn btn-ghost btn-sm" id="btn-settings-reset-env">↺ Reset</button>
         </div>
+        <div class="mono-line">Cancelled → every further purchase gets 403 ENVELOPE_REVOKED, server-side.</div>
       </div>
     </div>
     <div class="card">
       <div class="section-title">🗄️ Database</div>
-      <p style="font-size:.77rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.55">
-        Clears transactions, audit entries, budget reservations, and passes. Use before recording a clean demo take.
+      <p class="lede" style="font-size:.76rem;margin-bottom:.9rem">
+        Clears purchases, ledger entries, reservations, and subscriptions. Run this before recording a clean take.
       </p>
       <button class="btn btn-danger" id="btn-reset-db" style="width:100%">🗑️ Reset Database</button>
-      <div style="margin-top:1.25rem">
+      <div style="margin-top:1.2rem">
         <div class="section-title">🔌 Backend Capability Probe</div>
         <div id="feature-probe"></div>
       </div>
@@ -556,16 +782,16 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
       <div class="section-title">ℹ️ System Information</div>
       <div class="grid-2" style="gap:0 2rem">
         <div>
-          <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">razor402/0.1</span></div>
+          <div class="info-row"><span class="info-label">Protocol</span><span class="info-value">razor402/0.1 · HTTP 402</span></div>
           <div class="info-row"><span class="info-label">Merchant</span><span class="info-value">acc_buildbroker_test</span></div>
-          <div class="info-row"><span class="info-label">Policy Version</span><span class="info-value">policy-v1</span></div>
-          <div class="info-row"><span class="info-label">Signature Suite</span><span class="info-value">Ed25519 / JWS</span></div>
+          <div class="info-row"><span class="info-label">Settlement</span><span class="info-value">Razorpay (test mode)</span></div>
+          <div class="info-row"><span class="info-label">Signature suite</span><span class="info-value">Ed25519 / JWS</span></div>
         </div>
         <div>
-          <div class="info-row"><span class="info-label">Reconciler Tick</span><span class="info-value" id="info-tick">15s</span></div>
-          <div class="info-row"><span class="info-label">Challenge TTL</span><span class="info-value">300s</span></div>
-          <div class="info-row"><span class="info-label">Fulfil Deadline</span><span class="info-value">8.0s</span></div>
-          <div class="info-row"><span class="info-label">Max Attempts</span><span class="info-value">6 → DEAD_LETTER</span></div>
+          <div class="info-row"><span class="info-label">Reconciler tick</span><span class="info-value" id="info-tick">15s</span></div>
+          <div class="info-row"><span class="info-label">Quote TTL</span><span class="info-value">300s</span></div>
+          <div class="info-row"><span class="info-label">Fulfil deadline</span><span class="info-value">8.0s</span></div>
+          <div class="info-row"><span class="info-label">Max attempts</span><span class="info-value">6 → DEAD_LETTER</span></div>
         </div>
       </div>
     </div>
@@ -577,23 +803,23 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 <!-- ══ PROTOCOL INSPECTOR ══ -->
 <div id="wire-drawer" class="wire-drawer" aria-hidden="true">
   <div class="wire-head">
-    <div style="display:flex;align-items:center;gap:.6rem;min-width:0">
+    <div style="display:flex;align-items:center;gap:.55rem;min-width:0">
       <span class="section-title" style="margin:0">🔌 Protocol Inspector</span>
       <span id="wire-state" class="badge badge-muted">idle</span>
     </div>
-    <div style="display:flex;gap:.4rem;align-items:center">
+    <div style="display:flex;gap:.35rem;align-items:center">
       <button class="btn btn-ghost btn-sm" id="wire-replay" title="Replay last transcript">↻</button>
       <button class="btn btn-ghost btn-sm" id="wire-close">✕</button>
     </div>
   </div>
   <div id="wire-body" class="wire-body">
-    <div class="empty">Run an <b>🤖 Agent Buy</b> from the Marketplace, or an attack from the Security tab,
+    <div class="empty">Run an <b>🤖 Agent Buy</b> from the Vendor Catalog, or an attack from Controls,
       to see the raw HTTP 402 exchange frame by frame.</div>
   </div>
   <div class="wire-foot">
-    <span style="font-size:.66rem;color:var(--text-muted)">Speed</span>
-    <input type="range" id="wire-speed" min="0" max="900" step="100" value="380" style="flex:1;max-width:160px">
-    <span id="wire-ctx" style="font-size:.66rem;color:var(--text-muted);margin-left:auto;text-align:right"></span>
+    <span style="font-size:.65rem;color:var(--text-muted)">Pace</span>
+    <input type="range" id="wire-speed" min="0" max="900" step="100" value="420" style="flex:1;max-width:150px">
+    <span id="wire-ctx" style="font-size:.65rem;color:var(--text-muted);margin-left:auto;text-align:right"></span>
   </div>
 </div>
 
@@ -606,9 +832,38 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 
 <div class="toast-stack" id="toast-stack"></div>
 
+<!-- ══ MODALS ══ -->
+<div class="modal-overlay" id="po-modal"><div class="modal" style="max-width:560px">
+  <h3>✍️ Purchase Order Approval</h3>
+  <p>Review the sourcing analyst's recommendation. <b>No funds move until you authorize.</b> This approval is
+     recorded in the audit ledger and enforced server-side.</p>
+  <div class="info-row"><span class="info-label">PO number</span><span class="info-value" id="po-num">—</span></div>
+  <div class="info-row"><span class="info-label">Requested by</span><span class="info-value">sourcing-analyst · agt_coding_01</span></div>
+  <div class="info-row"><span class="info-label">Line items</span><span class="info-value" id="po-lines">—</span></div>
+  <div class="info-row"><span class="info-label">Vendors</span><span class="info-value" id="po-vendors">—</span></div>
+  <div class="info-row"><span class="info-label">Ceiling</span><span class="info-value" id="po-ceiling" style="color:var(--green)">—</span></div>
+  <div class="info-row"><span class="info-label">Per-purchase cap</span><span class="info-value" id="po-cap">—</span></div>
+  <div class="info-row"><span class="info-label">Est. savings vs worst case</span><span class="info-value" id="po-save" style="color:var(--green)">—</span></div>
+  <div style="margin-top:.9rem">
+    <label class="slider-label" style="display:block;margin-bottom:.35rem">Approver</label>
+    <select class="input" id="po-approver">
+      <option>Engineering Lead</option><option>Finance Controller</option><option>CTO</option>
+    </select>
+  </div>
+  <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.9rem;font-size:.77rem;
+         color:var(--text-secondary);cursor:pointer;line-height:1.5">
+    <input type="checkbox" id="po-consent" style="margin-top:.15rem">
+    <span>I authorize execution of this purchase order up to <b id="po-consent-amt">—</b>, enforced server-side.</span>
+  </label>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" data-close>Reject</button>
+    <button class="btn btn-primary" id="po-approve" disabled>✍️ Approve &amp; Execute</button>
+  </div>
+</div></div>
+
 <div class="modal-overlay" id="reset-modal"><div class="modal">
   <h3>⚠️ Reset Database</h3>
-  <p>Permanently deletes all transactions, audit entries, budget reservations, and passes. Cannot be undone.</p>
+  <p>Permanently deletes all purchases, ledger entries, reservations, and subscriptions. Cannot be undone.</p>
   <div class="modal-actions"><button class="btn btn-ghost" data-close>Cancel</button>
     <button class="btn btn-danger" id="reset-confirm">Reset Everything</button></div>
 </div></div>
@@ -620,8 +875,16 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 </div></div>
 
 <div class="modal-overlay" id="txn-modal"><div class="modal">
-  <h3 id="txn-modal-title">Transaction</h3>
+  <h3 id="txn-modal-title">Purchase</h3>
   <div id="txn-modal-body" style="font-size:.82rem"></div>
+  <div class="modal-actions"><button class="btn btn-primary" data-close>Close</button></div>
+</div></div>
+
+<div class="modal-overlay" id="wk-modal"><div class="modal" style="max-width:640px">
+  <h3>🔎 <code>/.well-known/agent-catalog</code></h3>
+  <p>The merchant's machine-readable storefront. One unauthenticated GET — no SDK, no onboarding, no docs to read.
+     <b>This is how an AI buyer discovers a merchant it has never heard of.</b></p>
+  <div class="wire-json" id="wk-body" style="max-height:340px">loading…</div>
   <div class="modal-actions"><button class="btn btn-primary" data-close>Close</button></div>
 </div></div>
 
@@ -629,9 +892,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
 'use strict';
 const BASE = location.origin;
 
-/* ═══ UTILS ═══ */
+/* ═════ UTILS ═════ */
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const paise = p => { const n = Number(p) || 0; return (n < 0 ? '-' : '') + '\u20B9' + (Math.abs(n)/100).toFixed(2); };
+const paise = p => { const n = Number(p)||0; return (n<0?'-':'') + '\u20B9' + (Math.abs(n)/100).toFixed(2); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function timeAgo(ts){
   const d = Math.floor(Date.now()/1000) - Number(ts);
@@ -643,29 +906,29 @@ function timeAgo(ts){
 }
 const truncHash = h => h ? String(h).slice(0,10) + '\u2026' : '\u2014';
 const titleCase = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+const num = v => (v === undefined || v === null) ? '—' : v;
 
 const STATE_META = {
-  ISSUED:['accent','challenge minted'], CHALLENGE_ISSUED:['accent','challenge minted'],
-  VERIFIED:['accent','JWS verified'],   SETTLING:['amber','charging'], PAYING:['amber','charging'],
-  SETTLED:['blue','paid'],              SETTLEMENT_UNKNOWN:['amber','in doubt — sweeper will resolve'],
-  FULFILLING:['amber','delivering'],    FULFILLED:['green','delivered'],
-  COMPENSATING:['amber','refunding'],   COMPENSATED:['blue','refunded'], REFUNDED:['blue','refunded'],
-  FAILED:['red','failed'],              DEAD_LETTER:['red','needs human'],
-  DENIED:['red','policy denied'],
+  ISSUED:['accent','quote issued'], CHALLENGE_ISSUED:['accent','quote issued'],
+  VERIFIED:['accent','signature verified'], SETTLING:['amber','charging'], PAYING:['amber','charging'],
+  SETTLED:['blue','paid'], SETTLEMENT_UNKNOWN:['amber','in doubt — sweeper will reconcile'],
+  FULFILLING:['amber','delivering'], FULFILLED:['green','delivered'],
+  COMPENSATING:['amber','refunding'], COMPENSATED:['blue','auto-refunded'], REFUNDED:['blue','refunded'],
+  FAILED:['red','failed'], DEAD_LETTER:['red','escalated to human'], DENIED:['red','policy denied'],
 };
 const stateColor = s => (STATE_META[s]||['accent'])[0];
 const stateHint  = s => (STATE_META[s]||['',''])[1];
 
 function toast(msg, type){
   const el = document.createElement('div');
-  el.className = 'toast toast-' + (type || 'info');
+  el.className = 'toast toast-' + (type||'info');
   el.textContent = msg;
   document.getElementById('toast-stack').appendChild(el);
   requestAnimationFrame(()=>el.classList.add('show'));
-  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 300); }, 3600);
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),300); }, 3800);
 }
 
-/* ═══ API LAYER ═══ */
+/* ═════ API ═════ */
 let liveUp = true;
 function setLive(up){
   if (up === liveUp) return; liveUp = up;
@@ -673,103 +936,155 @@ function setLive(up){
   d.style.background = up ? 'var(--green)' : 'var(--red)';
   d.style.boxShadow = '0 0 8px ' + (up ? 'rgba(34,197,94,.4)' : 'rgba(239,68,68,.4)');
   const t = d.nextElementSibling; if (t) t.textContent = up ? 'Live' : 'Gateway down';
-  if (!up) toast('Gateway unreachable — is uvicorn running on :8000?', 'error');
+  if (!up) toast('Gateway unreachable — is uvicorn running on :8000?','error');
 }
-async function apiFull(url, opts){
-  try{
+
+function timeoutSignal(ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timer)
+  };
+}
+
+async function apiFull(url, opts = {}) {
+  try {
     const r = await fetch(BASE + url, opts);
     let body = {};
-    if (r.status !== 204) body = await r.json().catch(()=>({}));
+    if (r.status !== 204) {
+      const text = await r.text();
+      try {
+        body = text ? JSON.parse(text) : {};
+      } catch (_) {
+        body = { raw: text };
+      }
+    }
     setLive(true);
-    return { ok:r.ok, status:r.status, body, missing:r.status===404||r.status===405 };
-  }catch(e){ setLive(false); return { ok:false, status:0, body:{error:String(e)}, missing:false }; }
+    return {
+      ok: r.ok,
+      status: r.status,
+      body,
+      missing: r.status === 404 || r.status === 405
+    };
+  } catch (e) {
+    setLive(false);
+    throw e;
+  }
 }
-const api = async (u,o) => (await apiFull(u,o)).body;
+const api = async (u, o) => {
+  try { return (await apiFull(u, o)).body; }
+  catch (_) { return null; }
+};
 
-/* capability probe → graceful degradation */
-const FEATURES = { agentBuy:null, attack:null, verifyParam:null, txnDetail:null, sweep:null };
+const FEATURES = { agentBuy:null, attack:null, approve:null, verifyParam:null, txnDetail:null, sweep:null };
 const FEATURE_EP = {
   agentBuy:'POST /api/v1/agent/buy', attack:'POST /api/v1/demo/attack',
-  verifyParam:'GET /api/v1/audit?verify=1', txnDetail:'GET /api/v1/txns/{id}', sweep:'POST /api/v1/demo/sweep'
+  approve:'POST /api/console/approve', verifyParam:'GET /api/v1/audit?verify=1',
+  txnDetail:'GET /api/v1/txns/{id}', sweep:'POST /api/v1/demo/sweep'
 };
 function renderProbe(){
   document.getElementById('feature-probe').innerHTML = Object.keys(FEATURES).map(k=>{
     const v = FEATURES[k];
-    const badge = v === null ? '<span class="badge badge-muted">probing</span>'
+    const b = v === null ? '<span class="badge badge-muted">probing</span>'
       : v ? '<span class="badge badge-green">wired</span>' : '<span class="badge badge-amber">not built</span>';
-    return `<div class="info-row"><span class="info-label" style="font-family:'Fira Code',monospace;font-size:.72rem">${esc(FEATURE_EP[k])}</span>${badge}</div>`;
+    return `<div class="info-row"><span class="info-label" style="font-family:'Fira Code',monospace;font-size:.71rem">${esc(FEATURE_EP[k])}</span>${b}</div>`;
   }).join('');
 }
 function needsBackend(key){
-  toast('Not wired yet — build ' + FEATURE_EP[key] + ' (see Settings → Capability Probe)', 'info');
-  wire.open(); wire.setState('missing endpoint','amber');
-  wire.frame({dir:'note', text:'Endpoint not implemented: ' + FEATURE_EP[key],
-    body:{ hint:'Add this route to the FastAPI gateway, then reload. The UI auto-detects it.' }});
+  toast('Not wired yet — build ' + FEATURE_EP[key] + ' (Settings → Capability Probe)','info');
+  wire.open(); wire.setState('endpoint missing','amber'); wire.clear();
+  wire.frame({dir:'note', text:'Not implemented: ' + FEATURE_EP[key],
+    body:{hint:'Add this route to the gateway, then reload. The UI auto-detects it.'}});
 }
 
-/* ═══ ROUTER ═══ */
-const VIEWS = ['overview','marketplace','console','security','audit','settings'];
+/* ═════ ROUTER ═════ */
+const VIEWS = ['system','spend','catalog','procurement','controls','audit','settings'];
 function navigate(v){
-  if (!VIEWS.includes(v)) v = 'overview';
+  if (!VIEWS.includes(v)) v = 'system';
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.topnav-link').forEach(l=>l.classList.remove('active'));
   document.getElementById('view-'+v)?.classList.add('active');
   document.querySelector('.topnav-link[data-view="'+v+'"]')?.classList.add('active');
-  if (v === 'audit') refreshAudit();
-  if (v === 'settings') { updateEnvelopeStatus(); renderProbe(); }
+  if (v==='audit') refreshAudit();
+  if (v==='system') refreshSystem();
+  if (v==='settings'){ updateEnvelopeStatus(); renderProbe(); }
 }
-function currentView(){ return (location.hash.replace('#','') || '') || 'overview'; }
+const currentView = () => (location.hash.replace('#','') || 'system');
 function handleHash(){
   let t = location.hash.replace('#','');
   if (!t){
     const p = location.pathname;
-    t = p.includes('checkout') ? 'marketplace' : p.includes('console') ? 'console' : 'overview';
+    t = p.includes('checkout') ? 'catalog' : p.includes('console') ? 'procurement'
+      : p.includes('dashboard') ? 'spend' : 'system';
   }
   navigate(t);
 }
 addEventListener('hashchange', handleHash);
 
-/* ═══ PROTOCOL INSPECTOR ═══ */
+/* ═════ PROTOCOL INSPECTOR ═════ */
+let observedUpsell = null;   // derived from the wire when backend stats lack AOV fields
+
 const wire = {
-  el:document.getElementById('wire-drawer'),
-  body:document.getElementById('wire-body'),
-  last:null,
+  el:document.getElementById('wire-drawer'), body:document.getElementById('wire-body'), last:null,
   open(){ this.el.classList.add('show'); this.el.setAttribute('aria-hidden','false'); },
   close(){ this.el.classList.remove('show'); this.el.setAttribute('aria-hidden','true'); },
   clear(){ this.body.innerHTML=''; },
   ctx(t){ document.getElementById('wire-ctx').textContent = t || ''; },
   setState(t,c){ const b=document.getElementById('wire-state'); b.textContent=t; b.className='badge badge-'+(c||'muted'); },
-  speed(){ return Number(document.getElementById('wire-speed').value) || 0; },
+  speed(){ return Number(document.getElementById('wire-speed').value)||0; },
   frame(f){
     let cls, line;
-    if (f.dir === 'note'){ cls='note'; line='◆ ' + esc(f.text || 'note'); }
-    else if (f.dir === 'req'){ cls='req'; line = '→ ' + esc(f.method||'GET') + ' ' + esc(f.path||''); }
+    if (f.dir === 'note'){ cls='note'; line='◆ ' + esc(f.text||'note'); }
+    else if (f.dir === 'req'){ cls='req'; line='→ ' + esc(f.method||'GET') + ' ' + esc(f.path||''); }
     else {
       const s = Number(f.status)||0;
       cls = s===402 ? 'res-402' : s===202 ? 'res-202' : s>=500 ? 'res-5xx' : s>=400 ? 'res-4xx' : 'res-2xx';
-      line = '← ' + s + ' ' + esc(f.reason || '');
+      line = '← ' + s + ' ' + esc(f.reason||'');
     }
-    const hdrs = Object.entries(f.headers || {}).map(([k,v])=>{
+    const hdrs = Object.entries(f.headers||{}).map(([k,v])=>{
       const sv = String(v);
       const val = sv.length > 46
         ? `<span class="jws-chip" data-copy="${esc(sv)}" title="click to copy full value">${esc(sv.slice(0,30))}… copy</span>`
         : esc(sv);
       return `<div class="wire-hdr">${esc(k)}: ${val}</div>`;
     }).join('');
-    let body = '';
+    /* upsell detection — the growth beat, rendered straight off the wire */
+    let up = '';
+    const opts = f.body && (f.body.price_options || f.body.priceOptions);
+    if (Array.isArray(opts) && opts.length > 1){
+      const single = opts.find(o=>/single|call|once/i.test(o.kind||'')) || opts[0];
+      const pass   = opts.find(o=>/pass|bundle|day/i.test(o.kind||''))  || opts[opts.length-1];
+      const lift = single.price_paise ? (pass.price_paise/single.price_paise) : 0;
+      observedUpsell = { single:single.price_paise, pass:pass.price_paise, lift };
+      const calls = pass.calls ?? pass.breakEvenCalls ?? pass.break_even_calls;
+      up = `<div class="upsell-box">
+        <span class="badge badge-green">💹 UPSELL OFFERED IN-PROTOCOL</span>
+        <div style="font-size:.68rem;color:var(--text-secondary);margin-top:.35rem;line-height:1.5">
+          ${paise(single.price_paise)} single call &nbsp;→&nbsp; <b>${paise(pass.price_paise)} day pass</b>
+          ${lift?` · <b>${lift.toFixed(0)}× order value</b>`:''}
+          ${calls?` · ${esc(calls)} calls`:''}
+          ${pass.saves_paise?` · buyer saves ${paise(pass.saves_paise)}`:''}
+        </div>
+        <div style="font-size:.65rem;color:var(--text-muted);margin-top:.3rem">
+          The analyst optimizes on unit cost, so it takes the pass. Zero acquisition cost to the merchant.
+        </div></div>`;
+      refreshSystem();
+    }
+    let bodyHtml = '';
     if (f.body != null){
-      let txt; try { txt = typeof f.body === 'string' ? f.body : JSON.stringify(f.body, null, 2); }
-      catch(_) { txt = String(f.body); }
-      body = `<div class="wire-json">${esc(txt)}</div>`;
+      let txt; try { txt = typeof f.body === 'string' ? f.body : JSON.stringify(f.body,null,2); }
+      catch(_){ txt = String(f.body); }
+      bodyHtml = `<div class="wire-json">${esc(txt)}</div>`;
     }
     const d = document.createElement('div');
     d.className = 'wire-frame ' + cls;
-    d.innerHTML = `<div class="wire-line">${line}</div>${hdrs}${body}`;
+    d.innerHTML = `<div class="wire-line">${line}</div>${hdrs}${bodyHtml}${up}`;
     this.body.appendChild(d);
     this.body.scrollTop = this.body.scrollHeight;
   },
   async play(frames, label){
-    this.clear(); this.last = { frames, label }; this.ctx(label || '');
+    this.clear(); this.last = {frames,label}; this.ctx(label||'');
     const gap = this.speed();
     for (const f of frames){ this.frame(f); if (gap) await sleep(gap); }
   }
@@ -777,7 +1092,7 @@ const wire = {
 document.getElementById('wire-close').onclick = ()=>wire.close();
 document.getElementById('btn-open-wire').onclick = ()=>wire.open();
 document.getElementById('wire-replay').onclick = async ()=>{
-  if (!wire.last){ toast('Nothing to replay yet','info'); return; }
+  if (!wire.last) return toast('Nothing to replay yet','info');
   wire.setState('replaying','amber');
   await wire.play(wire.last.frames, wire.last.label);
   wire.setState('replayed','accent');
@@ -787,70 +1102,136 @@ wire.body.addEventListener('click', e=>{
   if (c && navigator.clipboard){ navigator.clipboard.writeText(c.dataset.copy); toast('Copied full header value','success'); }
 });
 
-/* ═══ AGENT BUY (402 handshake) ═══ */
+/* ═════ SYSTEM MAP ═════ */
+async function pulse(id, ms){
+  const el = document.getElementById(id); if (!el) return;
+  el.classList.add('flowing'); await sleep(ms||900); el.classList.remove('flowing');
+}
+async function pulseAll(){ await pulse('flow-1',800); await pulse('flow-2',700); await pulse('flow-3',700); }
+function flashNode(id){
+  const n = document.getElementById(id); if (!n) return;
+  n.classList.add('flash'); setTimeout(()=>n.classList.remove('flash'), 1400);
+}
+async function refreshSystem(){
+  const s = await api('/api/v1/stats') || {};
+  const agent = document.getElementById('budget-agent').value;
+  const b = await api('/api/v1/budget?agent=' + encodeURIComponent(agent)) || {};
+  document.getElementById('sys-agent-kid').textContent = b.kid || b.agent_kid || agent;
+  document.getElementById('sys-pool').textContent = b.daily_pool_paise != null ? paise(b.daily_pool_paise) : '—';
+  document.getElementById('sys-cap').textContent  = b.per_call_cap_paise != null ? paise(b.per_call_cap_paise) : '—';
+  document.getElementById('sys-po').textContent   = window.__po || (s.envelope_status==='revoked' ? 'CANCELLED' : 'ACTIVE');
+  document.getElementById('sys-denials').textContent   = num(s.attacks_blocked ?? s.policy_denials);
+  document.getElementById('sys-captured').textContent  = paise(s.total_captured_paise);
+  document.getElementById('sys-indoubt').textContent   = num(s.in_doubt_count);
+  document.getElementById('sys-comp').textContent      = num(s.compensated_count);
+  document.getElementById('sys-items').textContent     = Object.keys(catalogData).length || '—';
+  document.getElementById('sys-height').textContent    = num(s.chain_height);
+  if (s.reconciler_tick_s) document.getElementById('sys-tick').textContent = s.reconciler_tick_s + 's tick';
+  const a = await api('/api/v1/audit?limit=1');
+  const ch = document.getElementById('sys-chain');
+  if (a){ ch.textContent = a.chain_valid ? 'VALID ✓' : 'BROKEN ✗';
+          ch.style.color = a.chain_valid ? 'var(--green)' : 'var(--red)'; }
+  /* AOV: prefer backend, fall back to what we saw on the wire */
+  const single = s.aov_single_paise ?? observedUpsell?.single;
+  const pass   = s.aov_pass_paise   ?? observedUpsell?.pass;
+  const lift = (single && pass) ? (pass/single) : null;
+  document.getElementById('sys-aov').textContent = lift ? lift.toFixed(0)+'×' : '—';
+  document.getElementById('sys-upsell').textContent =
+    (single && pass) ? `${paise(single)} → ${paise(pass)}` : 'in 402 body';
+}
+document.getElementById('btn-jump-controls').onclick = ()=>{ location.hash='controls'; };
+document.getElementById('btn-open-wellknown').onclick = async ()=>{
+  document.getElementById('wk-modal').classList.add('show');
+  const r = await apiFull('/.well-known/agent-catalog');
+  const el = document.getElementById('wk-body');
+  if (!r.ok) el.textContent = 'GET /.well-known/agent-catalog → ' + r.status;
+  else { let t; try{ t = JSON.stringify(r.body,null,2); }catch(_){ t=String(r.body); }
+         el.textContent = t.length > 4000 ? t.slice(0,4000)+'\n… (truncated)' : t; }
+};
+document.querySelectorAll('.conn-label[data-trace]').forEach(l=>{
+  l.onclick = ()=>{ const f = document.querySelector('[data-agent-buy]');
+    if (f) agentBuy(f.dataset.agentBuy); else { location.hash='catalog'; toast('Pick a resource to trace','info'); } };
+});
+
+/* ═════ AGENT BUY ═════ */
 async function agentBuy(itemId){
   const agent = document.getElementById('budget-agent').value;
   if (FEATURES.agentBuy === false) return needsBackend('agentBuy');
-  wire.open(); wire.clear(); wire.setState('handshaking','amber');
-  wire.ctx(itemId + ' · ' + agent);
-  wire.frame({dir:'note', text:`Agent ${agent} initiating purchase of ${itemId}`});
-  const r = await apiFull('/api/v1/agent/buy', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ item_id:itemId, agent })
-  });
-  if (r.missing){ FEATURES.agentBuy = false; renderProbe(); return needsBackend('agentBuy'); }
+  wire.open(); wire.clear(); wire.setState('handshaking','amber'); wire.ctx(itemId + ' · ' + agent);
+  wire.frame({dir:'note', text:`${agent} requesting ${itemId} from BuildBroker`});
+  pulseAll();
+  const r = await apiFull('/api/v1/agent/buy', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ item_id:itemId, agent }) });
+  if (r.missing){ FEATURES.agentBuy=false; renderProbe(); return needsBackend('agentBuy'); }
   FEATURES.agentBuy = true;
   if (!r.ok && !(r.body && r.body.frames)){
     wire.frame({dir:'res', status:r.status, reason:'gateway error', body:r.body});
     wire.setState('error','red'); return;
   }
-  const frames = (r.body.frames||[]);
-  if (!frames.length) wire.frame({dir:'note', text:'No frames returned', body:r.body});
-  await wire.play([{dir:'note',text:`Agent ${agent} → ${itemId}`}].concat(frames), itemId + ' · ' + agent);
+  const frames = r.body.frames || [];
+  await wire.play([{dir:'note',text:`${agent} → ${itemId}`}].concat(frames), itemId + ' · ' + agent);
   const st = r.body.final_state || (r.body.error_code ? 'DENIED' : 'UNKNOWN');
   wire.setState(st + (stateHint(st) ? ' · ' + stateHint(st) : ''), stateColor(st));
-  if (r.body.error_code) toast('Denied: ' + r.body.error_code, 'error');
-  else if (st === 'FULFILLED') toast('Resource provisioned · ' + itemId, 'success');
-  else toast('Final state: ' + st, 'info');
-  refreshOverview(); if (currentView()==='audit') refreshAudit();
+  if (st === 'FULFILLED'){ flashNode('node-merchant'); flashNode('node-rzp'); }
+  if (r.body.error_code) toast('Denied by policy gate: ' + r.body.error_code,'error');
+  else if (st === 'FULFILLED') toast('Provisioned · ' + itemId,'success');
+  else toast('Final state: ' + st,'info');
+  refreshSpend(); refreshSystem(); renderCatalog();
+  if (currentView()==='audit') refreshAudit();
 }
 
-/* ═══ OVERVIEW ═══ */
+/* ═════ SPEND ═════ */
 let lastBudget = { per_call_cap_paise:5000, daily_pool_paise:15000 };
-async function refreshOverview(){
-  const stats = await api('/api/v1/stats');
-  if (stats){
-    document.getElementById('stat-txns').textContent    = stats.total_txns ?? 0;
-    document.getElementById('stat-revenue').textContent = paise(stats.total_captured_paise);
-    document.getElementById('stat-passes').textContent  = stats.active_passes ?? 0;
-    const num = (v)=> (v===undefined||v===null) ? '—' : v;
-    document.getElementById('ps-challenges').textContent  = num(stats.challenges_issued);
-    document.getElementById('ps-fulfilled').textContent   = num(stats.fulfilled_count);
-    document.getElementById('ps-indoubt').textContent     = num(stats.in_doubt_count);
-    document.getElementById('ps-compensated').textContent = num(stats.compensated_count);
-    document.getElementById('ps-blocked').textContent     = num(stats.attacks_blocked);
-    document.getElementById('ps-height').textContent      = num(stats.chain_height);
-    if (stats.reconciler_tick_s) document.getElementById('info-tick').textContent = stats.reconciler_tick_s + 's';
+document.querySelectorAll('[data-lens]').forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll('[data-lens]').forEach(x=>x.classList.toggle('active', x===p));
+    const m = p.dataset.lens === 'merchant';
+    document.getElementById('lens-buyer').style.display    = m ? 'none' : 'grid';
+    document.getElementById('lens-merchant').style.display = m ? 'grid' : 'none';
+  };
+});
+async function refreshSpend(){
+  const s = await api('/api/v1/stats');
+  if (s){
+    document.getElementById('stat-txns').textContent = s.total_txns ?? 0;
+    document.getElementById('stat-revenue').textContent = paise(s.total_captured_paise);
+    document.getElementById('stat-passes').textContent = s.active_passes ?? 0;
+    document.getElementById('m-revenue').textContent = paise(s.total_captured_paise);
+    const single = s.aov_single_paise ?? observedUpsell?.single;
+    const pass   = s.aov_pass_paise   ?? observedUpsell?.pass;
+    document.getElementById('m-aov').textContent = (single&&pass) ? (pass/single).toFixed(0)+'×' : '—';
+    document.getElementById('m-aov-sub').textContent = (single&&pass)
+      ? `${paise(single)} single → ${paise(pass)} pass` : 'single → day pass';
+    const tr = s.upsell_take_rate;
+    document.getElementById('m-takerate').textContent = tr != null
+      ? (tr<=1 ? Math.round(tr*100) : Math.round(tr)) + '%' : '—';
+    if (s.upsell_offered != null)
+      document.getElementById('m-takerate-sub').textContent = `${s.upsell_accepted ?? 0} of ${s.upsell_offered} offers taken`;
+    document.getElementById('ps-challenges').textContent  = num(s.challenges_issued);
+    document.getElementById('ps-fulfilled').textContent   = num(s.fulfilled_count);
+    document.getElementById('ps-indoubt').textContent     = num(s.in_doubt_count);
+    document.getElementById('ps-compensated').textContent = num(s.compensated_count);
+    document.getElementById('ps-blocked').textContent     = num(s.attacks_blocked ?? s.policy_denials);
+    document.getElementById('ps-height').textContent      = num(s.chain_height);
+    if (s.reconciler_tick_s) document.getElementById('info-tick').textContent = s.reconciler_tick_s + 's';
   }
-  const audit = await api('/api/v1/audit?limit=1');
-  if (audit){
-    const el = document.getElementById('stat-chain');
-    el.textContent = audit.chain_valid ? 'VALID \u2713' : 'BROKEN \u2717';
-    el.style.color = audit.chain_valid ? 'var(--green)' : 'var(--red)';
-  }
+  const a = await api('/api/v1/audit?limit=1');
+  if (a){ const el = document.getElementById('stat-chain');
+    el.textContent = a.chain_valid ? 'VALID ✓' : 'BROKEN ✗';
+    el.style.color = a.chain_valid ? 'var(--green)' : 'var(--red)'; }
   const agent = document.getElementById('budget-agent').value;
   const b = await api('/api/v1/budget?agent=' + encodeURIComponent(agent));
   if (b){
     lastBudget = b;
-    const pool = b.daily_pool_paise||0, cap = b.captured_paise||0, held = b.held_paise||0;
-    const cp = pool>0 ? cap/pool*100 : 0, hp = pool>0 ? held/pool*100 : 0;
-    document.getElementById('seg-captured').style.width = cp + '%';
-    document.getElementById('seg-held').style.width     = hp + '%';
-    document.getElementById('seg-remaining').style.width = Math.max(0, 100-cp-hp) + '%';
+    const pool=b.daily_pool_paise||0, cap=b.captured_paise||0, held=b.held_paise||0;
+    const cp = pool>0?cap/pool*100:0, hp = pool>0?held/pool*100:0;
+    document.getElementById('seg-captured').style.width = cp+'%';
+    document.getElementById('seg-held').style.width = hp+'%';
+    document.getElementById('seg-remaining').style.width = Math.max(0,100-cp-hp)+'%';
     document.getElementById('lbl-captured').textContent = paise(cap);
-    document.getElementById('lbl-held').textContent     = paise(held);
-    document.getElementById('lbl-free').textContent     = paise(b.remaining_paise);
-    document.getElementById('agent-kid-line').textContent = 'kid: ' + (b.kid || b.agent_kid || agent);
+    document.getElementById('lbl-held').textContent = paise(held);
+    document.getElementById('lbl-free').textContent = paise(b.remaining_paise);
+    document.getElementById('agent-kid-line').textContent = 'kid: ' + (b.kid||b.agent_kid||agent);
     document.getElementById('market-cap').textContent = paise(b.per_call_cap_paise ?? lastBudget.per_call_cap_paise);
   }
   const t = await api('/api/v1/txns?limit=14');
@@ -864,9 +1245,10 @@ async function refreshOverview(){
         <div style="display:flex;align-items:center;gap:.7rem">
           <span class="badge badge-${stateColor(x.state)}" title="${esc(stateHint(x.state))}">${esc(x.state)}</span>
           <span class="txn-amount">${paise(x.amount_paise)}</span></div></div>`;
-    }).join('') : '<div class="empty">No transactions yet. Try 🤖 Agent Buy in the Marketplace.</div>';
+    }).join('') : '<div class="empty">No purchases yet. Try 🤖 Agent Buy in the Vendor Catalog.</div>';
   }
 }
+
 document.getElementById('txn-feed').addEventListener('click', e=>{
   const row = e.target.closest('.txn-row'); if (row) openTxn(row.dataset.cid);
 });
@@ -874,16 +1256,17 @@ async function openTxn(cid){
   if (!cid) return;
   if (FEATURES.txnDetail === false) return needsBackend('txnDetail');
   const r = await apiFull('/api/v1/txns/' + encodeURIComponent(cid));
-  if (r.missing){ FEATURES.txnDetail = false; renderProbe(); return needsBackend('txnDetail'); }
+  if (r.missing){ FEATURES.txnDetail=false; renderProbe(); return needsBackend('txnDetail'); }
   FEATURES.txnDetail = true;
   const d = r.body || {};
   document.getElementById('txn-modal-title').innerHTML =
     esc(d.item_id||cid) + ' <span class="badge badge-'+stateColor(d.state)+'">'+esc(d.state||'?')+'</span>';
   const fields = [
-    ['Challenge ID', d.challenge_id||cid], ['Agent', d.agent_kid], ['Amount', paise(d.amount_paise)],
-    ['Attempts', d.attempts], ['RZP Order', d.rzp_order_id], ['RZP Payment', d.rzp_payment_id],
-    ['RZP Refund', d.rzp_refund_id], ['Response SHA-256', d.resp_sha256 ? truncHash(d.resp_sha256) : null],
+    ['Quote ID', d.challenge_id||cid], ['Buyer', d.agent_kid], ['Amount', paise(d.amount_paise)],
+    ['Attempts', d.attempts], ['Razorpay order', d.rzp_order_id], ['Razorpay payment', d.rzp_payment_id],
+    ['Razorpay refund', d.rzp_refund_id], ['Response SHA-256', d.resp_sha256 ? truncHash(d.resp_sha256) : null],
     ['Reservation', d.reservation ? d.reservation.status + ' · ' + paise(d.reservation.amount_paise) : null],
+    ['Approved by', d.approver],
   ].filter(f => f[1] !== undefined && f[1] !== null && f[1] !== '');
   const tl = (d.timeline||[]).map(s=>{
     const c = ['FULFILLED','COMPENSATED','SETTLED'].includes(s.to_state) ? 'ok'
@@ -894,7 +1277,7 @@ async function openTxn(cid){
   }).join('');
   document.getElementById('txn-modal-body').innerHTML =
     fields.map(f=>`<div class="info-row"><span class="info-label">${esc(f[0])}</span><span class="info-value">${esc(f[1])}</span></div>`).join('') +
-    (tl ? `<div class="section-title" style="margin-top:1.1rem">🔀 State Machine Timeline</div><div class="timeline">${tl}</div>` : '');
+    (tl ? `<div class="section-title" style="margin-top:1.05rem">🔀 State Machine Timeline</div><div class="timeline">${tl}</div>` : '');
   document.getElementById('txn-modal').classList.add('show');
 }
 
@@ -902,42 +1285,42 @@ document.getElementById('pool-slider').oninput = e => document.getElementById('p
 document.getElementById('cap-slider').oninput  = e => document.getElementById('cap-display').textContent  = paise(+e.target.value);
 document.getElementById('budget-agent').onchange = async function(){
   const b = await api('/api/v1/budget?agent=' + encodeURIComponent(this.value)); if (!b) return;
-  const set = (sid, did, v) => { if (v==null) return;
+  const set = (sid,did,v)=>{ if (v==null) return;
     document.getElementById(sid).value = v; document.getElementById(did).textContent = paise(v); };
   set('pool-slider','pool-display', b.daily_pool_paise);
-  set('cap-slider','cap-display',  b.per_call_cap_paise);   // was missing before
-  refreshOverview(); renderCatalog();
+  set('cap-slider','cap-display',  b.per_call_cap_paise);
+  refreshSpend(); refreshSystem(); renderCatalog();
 };
 document.getElementById('apply-budget').onclick = async function(){
   const agent = document.getElementById('budget-agent').value;
   const pool = +document.getElementById('pool-slider').value;
   const cap  = +document.getElementById('cap-slider').value;
-  if (cap > pool) return toast('Per-call cap cannot exceed the daily pool','error');
+  if (cap > pool) return toast('Per-purchase cap cannot exceed the daily pool','error');
   this.disabled = true;
   const r = await apiFull('/api/v1/budget/adjust', { method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ agent, daily_pool_paise:pool, per_call_cap_paise:cap }) });
   this.disabled = false;
   if (r.ok && r.body && (r.body.policy || r.body.ok)){
     toast(`Mandate updated · ${agent} · pool ${paise(pool)} · cap ${paise(cap)}`,'success');
-    refreshOverview(); renderCatalog();
-  } else toast('Budget update failed: ' + (r.body?.error || r.status), 'error');
+    refreshSpend(); refreshSystem(); renderCatalog();
+  } else toast('Mandate update failed: ' + (r.body?.error || r.status),'error');
 };
 document.getElementById('btn-sweep').onclick = async function(){
   if (FEATURES.sweep === false) return needsBackend('sweep');
-  this.disabled = true; this.textContent = '⏳ Sweeping…';
+  this.disabled = true; this.textContent = '⏳ Reconciling…';
   const r = await apiFull('/api/v1/demo/sweep', {method:'POST'});
-  this.disabled = false; this.textContent = '🔄 Sweep now';
+  this.disabled = false; this.textContent = '🔄 Reconcile now';
   if (r.missing){ FEATURES.sweep=false; renderProbe(); return needsBackend('sweep'); }
   FEATURES.sweep = true;
   const res = r.body?.resolved || [];
-  toast(res.length ? `Sweeper resolved ${res.length}: ` + res.map(x=>x.to_state).join(', ')
+  toast(res.length ? `Reconciled ${res.length}: ` + res.map(x=>x.to_state).join(', ')
                    : 'Sweeper ran · nothing in doubt', res.length ? 'success' : 'info');
-  refreshOverview();
+  refreshSpend(); refreshSystem();
 };
 
-/* ═══ MARKETPLACE ═══ */
-let catalogData = {}, checkoutConfig = {}, activeFilter = 'all';
-async function loadMarketplace(){
+/* ═════ CATALOG ═════ */
+let catalogData = {}, checkoutConfig = {}, activeFilter = 'all', activePasses = new Set();
+async function loadCatalog(){
   catalogData = await api('/api/v1/catalog') || {};
   checkoutConfig = await api('/api/checkout-config') || {};
   const e = Object.entries(catalogData);
@@ -947,8 +1330,7 @@ async function loadMarketplace(){
   document.getElementById('market-count').textContent = e.length;
   document.getElementById('market-sellers').textContent = sellers.size;
   document.getElementById('market-cheapest').textContent = prices.length ? paise(Math.min(...prices)) : '—';
-  const fr = document.getElementById('filter-row');
-  fr.innerHTML = ['all'].concat(cats).map(c=>{
+  document.getElementById('filter-row').innerHTML = ['all'].concat(cats).map(c=>{
     const n = c==='all' ? e.length : e.filter(x=>x[1].category===c).length;
     return `<span class="filter-pill${c===activeFilter?' active':''}" data-cat="${esc(c)}">${esc(c==='all'?'All':titleCase(c))} (${n})</span>`;
   }).join('');
@@ -977,19 +1359,21 @@ function renderCatalog(){
   if (!rows.length){ grid.innerHTML = '<div class="empty">No resources match this filter.</div>'; return; }
   grid.innerHTML = rows.map(([id,it])=>{
     const over = it.price_paise > cap;
+    const hasPass = activePasses.has(id);
     const specs = it.specs ? Object.entries(it.specs).map(([k,v])=>`<span class="spec-chip">${esc(k)}: ${esc(v)}</span>`).join('') : '';
     const desc = it.description
-      ? `<div style="font-size:.71rem;color:var(--text-muted);margin-top:.5rem;font-style:italic;line-height:1.45">${esc(String(it.description).slice(0,120))}${String(it.description).length>120?'…':''}</div>` : '';
-    return `<div class="catalog-card${over?' honeypot':''}">
+      ? `<div style="font-size:.7rem;color:var(--text-muted);margin-top:.5rem;font-style:italic;line-height:1.45">${esc(String(it.description).slice(0,120))}${String(it.description).length>120?'…':''}</div>` : '';
+    return `<div class="catalog-card${over?' honeypot':''}${hasPass?' haspass':''}">
       <div class="catalog-card-header"><span class="catalog-card-title">${esc(it.title)}</span>
         <span class="catalog-card-price">${paise(it.price_paise)}</span></div>
       <div class="catalog-card-meta"><span class="catalog-card-seller">${esc(it.seller||'BuildBroker')}</span>
         <span class="catalog-card-category">${esc(titleCase(it.category))}</span></div>
       ${desc}<div class="catalog-card-specs">${specs}</div>
-      ${over?`<div class="cap-warn">⚠ ${paise(it.price_paise)} exceeds the ${paise(cap)} per-call cap — the gate will deny this.</div>`:''}
+      ${hasPass?`<div class="pass-note">🎫 Day pass active — further calls settle at ₹0</div>`:''}
+      ${over?`<div class="cap-warn">⚠ ${paise(it.price_paise)} exceeds the ${paise(cap)} per-purchase cap — the gate will deny this.</div>`:''}
       <div class="catalog-card-actions">
         <button class="btn-agent" data-agent-buy="${esc(id)}">🤖 Agent Buy · 402</button>
-        <button class="btn-human" data-human-buy="${esc(id)}" data-paise="${it.price_paise}" title="Razorpay Standard Checkout">💳</button>
+        <button class="btn-human" data-human-buy="${esc(id)}" data-paise="${it.price_paise}" title="Razorpay Standard Checkout (human)">💳</button>
       </div></div>`;
   }).join('');
 }
@@ -1016,121 +1400,416 @@ async function openCheckout(itemId, amountPaise){
           ['Amount',paise(amountPaise)],['Resource',itemId],['HMAC',(v.algo||'SHA256')+' verified ✓']
         ].map(f=>`<div class="info-row"><span class="info-label">${esc(f[0])}</span><span class="info-value">${esc(f[1])}</span></div>`).join('');
         document.getElementById('receipt-modal').classList.add('show');
-        toast('Payment verified ✓','success'); refreshOverview();
+        toast('Payment verified ✓','success'); refreshSpend(); refreshSystem();
       } else toast('HMAC signature verification FAILED','error');
     },
     modal:{ ondismiss:()=>toast('Checkout dismissed','info') }
   }).open();
 }
 
-/* ═══ CONSOLE ═══ */
+/* ═════ PROCUREMENT ═════ */
 const MISSIONS = {
-  rag:'Build a RAG pipeline over a small document corpus with one market-data anchor. Your hard budget is ₹150.',
-  music:'Build a music streaming app with fingerprint identification, synchronized lyrics, stem separation, and CDN delivery.',
-  copilot:'Build an AI code copilot with semantic code search, AST indexing, inline completion, and containerized test execution.',
-  compare:'Compare multiple LLM and vector DB providers to find the most cost-effective combination for a retrieval pipeline.',
-  scaling:'Scale the existing infrastructure: add GPU compute, upgrade to enterprise LLM tier, and expand vector capacity.'
+  compare:'I need embeddings and a vector database for roughly 500k documents. Compare the available vendors on unit cost and recommend the best combination. Daily cap ₹150.',
+  rag:'Source a complete RAG stack: embeddings, vector storage, and one market-data feed. Daily cap ₹150.',
+  copilot:'Source an AI code copilot stack: semantic code search, AST indexing, inline completion, sandboxed test execution.',
+  music:'Source an audio pipeline: fingerprint identification, synced lyrics, stem separation, CDN delivery.',
+  scaling:'We already run this stack. Source additional GPU compute and expanded vector capacity within the existing daily cap.'
 };
+document.getElementById('mission-text').value = MISSIONS.compare;
 document.getElementById('mission-chips').addEventListener('click', e=>{
   const c = e.target.closest('.mission-chip'); if (!c) return;
   document.querySelectorAll('.mission-chip').forEach(x=>x.classList.toggle('active', x===c));
   document.getElementById('mission-text').value = MISSIONS[c.dataset.mission] || '';
 });
+
+let lastPlan = null;
+function setPoStatus(s){
+  const map = { DRAFT:'amber', PENDING:'accent', APPROVED:'blue', EXECUTING:'amber', CLOSED:'green', CANCELLED:'red' };
+  const el = document.getElementById('po-status');
+  el.className = 'badge badge-' + (map[s]||'muted');
+  el.textContent = s === 'PENDING' ? 'PENDING APPROVAL' : s;
+  window.__po = s; refreshSystem();
+}
+/* vendor alternatives derived client-side from the catalog — no backend needed */
+function alternativesFor(itemId, unitPaise){
+  const me = catalogData[itemId]; if (!me) return [];
+  const base = unitPaise || me.price_paise || 0;
+  return Object.entries(catalogData)
+    .filter(([id,it]) => id !== itemId && it.category === me.category)
+    .map(([id,it]) => ({ id, title:it.title, seller:it.seller||'BuildBroker', price:it.price_paise,
+      delta: base ? Math.round((it.price_paise - base)/base*100) : 0 }))
+    .sort((a,b)=>a.price-b.price).slice(0,3);
+}
+function renderBom(plan){
+  const body = document.getElementById('bom-body');
+  body.innerHTML = plan.items.map((i,idx)=>{
+    const id = i.item_id || i.id;
+    const unit = i.unit_paise ?? (i.qty ? Math.round(i.total_paise/i.qty) : i.total_paise);
+    const alts = (i.alternatives && i.alternatives.length)
+      ? i.alternatives.map(a=>({ id:a.item_id, title:a.title, seller:a.seller, price:a.price_paise,
+          delta: unit ? Math.round(((a.unit_paise ?? a.price_paise) - unit)/unit*100) : 0, verdict:a.verdict }))
+      : alternativesFor(id, unit);
+    const cheaper = alts.filter(a=>a.price < unit).length;
+    const altRows = alts.length ? alts.map(a=>
+      `<div class="alt-row"><span style="color:var(--text-muted)">${esc(a.title)} · ${esc(a.seller)}${a.verdict?` · ${esc(a.verdict.replace(/_/g,' '))}`:''}</span>
+        <span style="font-family:'Fira Code',monospace;color:${a.delta>0?'var(--red)':'var(--green)'}">
+          ${paise(a.price)} <span style="opacity:.6">${a.delta>0?'+':''}${a.delta}%</span></span></div>`).join('')
+      : '<div style="font-size:.68rem;color:var(--text-muted)">Sole vendor in this category.</div>';
+    return `<tr>
+      <td><div style="font-weight:600">${esc(i.title)}</div>
+        <div style="font-size:.67rem;color:var(--text-muted);margin-top:.2rem">
+          ⚖️ ${alts.length ? `${alts.length} alternative${alts.length>1?'s':''} evaluated${cheaper?'':' · lowest unit cost'}` : 'sole vendor'}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:.32rem;padding:.13rem .48rem;font-size:.63rem" data-alt="${idx}">why this vendor?</button>
+        <div class="alt-panel" id="alt-${idx}" style="display:none">
+          <div class="alt-head">Alternatives evaluated</div>${altRows}
+          ${i.rationale?`<div style="font-size:.68rem;color:var(--text-secondary);margin-top:.45rem;font-style:italic;line-height:1.5">${esc(i.rationale)}</div>`:''}
+        </div></td>
+      <td style="color:var(--accent-light);font-size:.7rem">${esc(i.seller)}</td>
+      <td style="text-align:center">${esc(i.qty)}</td>
+      <td style="text-align:right;font-family:'Fira Code',monospace;color:var(--green)">${paise(i.total_paise)}</td></tr>`;
+  }).join('');
+  body.onclick = e=>{
+    const b = e.target.closest('[data-alt]'); if (!b) return;
+    const p = document.getElementById('alt-'+b.dataset.alt);
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  };
+  /* savings vs worst viable vendor combination */
+  let baseline = plan.baseline_paise;
+  if (baseline == null){
+    baseline = plan.items.reduce((s,i)=>{
+      const id = i.item_id || i.id, qty = i.qty || 1;
+      const unit = i.unit_paise ?? Math.round(i.total_paise/qty);
+      const alts = alternativesFor(id, unit);
+      const worstUnit = Math.max(unit, ...alts.map(a=>a.price));
+      return s + worstUnit*qty;
+    }, 0);
+  }
+  const saved = (plan.savings_paise != null) ? plan.savings_paise : (baseline - plan.total_paise);
+  const el = document.getElementById('bom-savings');
+  if (saved > 0){
+    const vendors = plan.vendors_compared ?? new Set(Object.values(catalogData).map(c=>c.seller||'BuildBroker')).size;
+    el.innerHTML = `💰 <b>${paise(saved)}/day saved</b> versus the most expensive viable vendor combination
+      <span style="color:var(--text-muted)">· ${plan.items.length} categories compared across ${vendors} vendors</span>`;
+    el.style.display = 'block';
+    plan.__saved = saved;
+  } else el.style.display = 'none';
+}
 document.getElementById('btn-analyze').onclick = async function(){
-  this.disabled = true; this.textContent = '⏳ Solutions Architect thinking…';
+  this.disabled = true; this.textContent = '⏳ Researching vendors…';
   const plan = await api('/api/console/plan', { method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ mission: document.getElementById('mission-text').value }) });
-  this.disabled = false; this.textContent = '🔍 Analyze Goal';
-  if (!plan || !Array.isArray(plan.items)) return toast('Planner returned no BOM','error');
+  this.disabled = false; this.textContent = '🔎 Research the Market';
+  if (!plan || !Array.isArray(plan.items)) return toast('Analyst returned no purchase order','error');
+  lastPlan = plan;
+  plan.po_number = plan.po_number ||
+    ('PO-' + new Date().toISOString().slice(2,10).replace(/-/g,'') + '-' + String(Math.floor(Math.random()*900+100)));
+  document.getElementById('po-num-inline').textContent = plan.po_number;
   document.getElementById('bom-rationale').textContent = plan.rationale || '';
-  document.getElementById('bom-body').innerHTML = plan.items.map(i=>
-    `<tr><td style="font-weight:600">${esc(i.title)}</td>
-      <td style="color:var(--accent-light);font-size:.71rem">${esc(i.seller)}</td>
-      <td style="text-align:center">${esc(i.qty)}</td>
-      <td style="text-align:right;font-family:'Fira Code',monospace;color:var(--green)">${paise(i.total_paise)}</td></tr>`).join('');
+  renderBom(plan);
   document.getElementById('bom-total').textContent = paise(plan.total_paise);
   document.getElementById('bom-card').style.display = 'block';
-  toast(`Envelope drafted · ${plan.items.length} line items · ${paise(plan.total_paise)}`,'success');
+  setPoStatus('DRAFT');
+  toast(`Purchase order drafted · ${plan.items.length} line items · ${paise(plan.total_paise)}`,'success');
   updateEnvelopeStatus();
 };
-document.getElementById('btn-execute').onclick = async function(){
-  this.disabled = true; this.textContent = '⏳ Procuring…';
-  const log = document.getElementById('exec-log');
-  log.innerHTML = '<div class="empty">🔄 Procurement in progress — 402 handshakes running…</div>';
-  const res = await api('/api/console/execute', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
-  this.disabled = false; this.textContent = '▶ Approve & Execute';
-  if (!res || !Array.isArray(res.steps)) return toast('Execution failed','error');
-  log.innerHTML = res.steps.map(s=>{
-    const icon = s.status==='fulfilled' ? '✅' : s.status==='denied' ? '🚫' : s.status==='compensated' ? '↩️' : '⚠️';
-    const st = s.state ? `<span class="badge badge-${stateColor(s.state)}" style="margin-left:.35rem">${esc(s.state)}</span>` : '';
-    const err = s.error_code ? `<div class="mono-line" style="color:var(--red)">${esc(s.error_code)}</div>` : '';
-    return `<div class="exec-step"><span class="exec-icon">${icon}</span>
-      <div class="exec-detail"><div class="exec-item">${esc(s.item_id||s.tool||'step')}${st}</div>
-      <div class="exec-rationale">${esc(s.rationale||'')}</div>${err}</div></div>`;
-  }).join('');
-  document.getElementById('exec-summary').style.display = 'block';
-  document.getElementById('exec-spent').textContent = paise(res.captured_paise||0);
-  document.getElementById('exec-remaining').textContent = paise(res.remaining_paise||0);
-  const denied = res.steps.filter(s=>s.status==='denied').length;
-  toast(`Mission complete · ${res.steps.length} steps` + (denied?` · ${denied} denied by gate`:''), denied?'info':'success');
-  refreshOverview(); updateEnvelopeStatus();
+document.getElementById('btn-execute').onclick = ()=>{
+  if (!lastPlan) return toast('Run market research first','info');
+  const vendors = [...new Set(lastPlan.items.map(i=>i.seller))];
+  document.getElementById('po-num').textContent = lastPlan.po_number;
+  document.getElementById('po-lines').textContent = lastPlan.items.length + ' items';
+  document.getElementById('po-vendors').textContent = vendors.length + ' — ' + vendors.slice(0,3).join(', ');
+  document.getElementById('po-ceiling').textContent = paise(lastPlan.total_paise);
+  document.getElementById('po-cap').textContent = paise(lastBudget.per_call_cap_paise);
+  document.getElementById('po-save').textContent = lastPlan.__saved ? paise(lastPlan.__saved) + '/day' : '—';
+  document.getElementById('po-consent-amt').textContent = paise(lastPlan.total_paise);
+  document.getElementById('po-consent').checked = false;
+  document.getElementById('po-approve').disabled = true;
+  setPoStatus('PENDING');
+  document.getElementById('po-modal').classList.add('show');
 };
-document.getElementById('btn-revoke').onclick = revokeEnvelope;
-document.getElementById('btn-settings-revoke').onclick = revokeEnvelope;
-async function revokeEnvelope(){
+document.getElementById('po-consent').onchange = e =>
+  document.getElementById('po-approve').disabled = !e.target.checked;
+document.getElementById('po-approve').onclick = async function(){
+  document.getElementById('po-modal').classList.remove('show');
+  const approver = document.getElementById('po-approver').value;
+  setPoStatus('APPROVED');
+  /* record the human authorization server-side with exact ceiling and canonical BOM hash */
+  const ap = await apiFull('/api/console/approve', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      approver,
+      ceiling_paise: lastPlan.total_paise,
+      po_number: lastPlan.po_number,
+      bom_sha256: lastPlan.bom_sha256
+    }) });
+  FEATURES.approve = !ap.missing; renderProbe();
+  if (ap.missing) toast(`Approved by ${approver} (approval endpoint not wired — executing anyway)`,'info');
+  else if (!ap.ok) { setPoStatus('DRAFT'); return toast('Approval rejected: ' + (ap.body?.detail?.detail || ap.body?.error || ap.status),'error'); }
+  else toast(`PO ${lastPlan.po_number} approved by ${approver} · recorded in ledger`,'success');
+  await sleep(350);
+  setPoStatus('EXECUTING');
+  await executePO(approver);
+};
+async function executePO(approver) {
+  const log = document.getElementById('exec-log');
+  const button = document.getElementById('btn-execute');
+
+  log.innerHTML =
+    '<div class="empty">🔄 Executing purchase order — waiting for gateway responses…</div>';
+
+  if (button) button.disabled = true;
+  pulseAll();
+
+  const request = timeoutSignal(30000);
+
+  try {
+    const response = await apiFull('/api/console/execute', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        approver,
+        po_number: lastPlan?.po_number
+      }),
+      signal: request.signal
+    });
+
+    if (response.status === 403) {
+      setPoStatus('PENDING');
+      log.innerHTML = `
+        <div class="exec-step">
+          <span class="exec-icon">🚫</span>
+          <div class="exec-detail">
+            <div class="exec-item">Purchase order not approved</div>
+            <div class="exec-rationale">
+              ${esc(response.body?.detail?.detail || response.body?.detail || response.body?.error || 'Human approval required')}
+            </div>
+          </div>
+        </div>`;
+      toast('PO_NOT_APPROVED — server rejected execution', 'error');
+      return;
+    }
+
+    if (response.status === 409) {
+      setPoStatus('DRAFT');
+      log.innerHTML = `
+        <div class="exec-step">
+          <span class="exec-icon">⚠️</span>
+          <div class="exec-detail">
+            <div class="exec-item">Purchase order changed after approval</div>
+            <div class="exec-rationale">
+              ${esc(response.body?.detail?.detail || response.body?.detail || response.body?.error || 'BOM mismatch')}
+            </div>
+          </div>
+        </div>`;
+      toast(response.body?.error || 'BOM mismatch', 'error');
+      return;
+    }
+
+    if (!response.ok) {
+      setPoStatus('DRAFT');
+      log.innerHTML = `
+        <div class="exec-step">
+          <span class="exec-icon">❌</span>
+          <div class="exec-detail">
+            <div class="exec-item">Execution failed</div>
+            <div class="exec-rationale">
+              HTTP ${response.status} · ${esc(
+                response.body?.detail?.detail ||
+                response.body?.detail ||
+                response.body?.error ||
+                'Unknown gateway error'
+              )}
+            </div>
+          </div>
+        </div>`;
+      toast('Execution failed: HTTP ' + response.status, 'error');
+      return;
+    }
+
+    const result = response.body || {};
+    const steps = Array.isArray(result.steps) ? result.steps : [];
+
+    if (!steps.length) {
+      setPoStatus('DRAFT');
+      log.innerHTML =
+        '<div class="empty">Gateway returned no execution steps.</div>';
+      toast('Execution returned no steps', 'error');
+      return;
+    }
+
+    log.innerHTML = steps.map(step => {
+      const status = String(step.status || '').toLowerCase();
+
+      const icon =
+        status === 'fulfilled' ? '✅' :
+        status === 'compensated' ? '↩️' :
+        status === 'denied' ? '🚫' :
+        status === 'settlement_unknown' ? '⏱️' :
+        status === 'failed' ? '❌' :
+        '⚠️';
+
+      const state = step.state
+        ? `<span class="badge badge-${stateColor(step.state)}">
+             ${esc(step.state)}
+           </span>`
+        : '';
+
+      if (status === 'fulfilled' && step.item_id) activePasses.add(step.item_id);
+
+      return `
+        <div class="exec-step">
+          <span class="exec-icon">${icon}</span>
+          <div class="exec-detail">
+            <div class="exec-item">
+              ${esc(step.item_id || step.tool || step.step_name || 'Purchase step')}
+              ${state}
+            </div>
+            <div class="exec-rationale">
+              ${esc(step.rationale || step.detail || '')}
+            </div>
+            ${
+              step.error_code
+                ? `<div class="mono-line" style="color:var(--red)">
+                     ${esc(step.error_code)}
+                   </div>`
+                : ''
+            }
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('exec-summary').style.display = 'block';
+    document.getElementById('exec-approver').textContent =
+      result.approver || approver || '—';
+    document.getElementById('exec-spent').textContent =
+      paise(result.captured_paise || 0);
+    document.getElementById('exec-remaining').textContent =
+      paise(result.remaining_paise || 0);
+
+    const failed = steps.filter(step =>
+      ['failed', 'denied'].includes(String(step.status).toLowerCase())
+    ).length;
+
+    const unknown = steps.filter(step =>
+      String(step.state || '').toUpperCase() === 'SETTLEMENT_UNKNOWN'
+    ).length;
+
+    if (unknown) {
+      setPoStatus('EXECUTING');
+      toast(
+        `${unknown} payment is in doubt — sweeper will reconcile it`,
+        'info'
+      );
+    } else if (failed === steps.length) {
+      setPoStatus('CANCELLED');
+      toast('PO completed with no fulfilled items', 'error');
+    } else {
+      setPoStatus('CLOSED');
+      toast(`PO processed · ${steps.length} fulfilment steps`, 'success');
+    }
+
+    refreshSpend();
+    refreshSystem();
+    if (typeof refreshAudit === 'function') refreshAudit();
+    renderCatalog();
+    updateEnvelopeStatus();
+
+  } catch (error) {
+    setPoStatus('EXECUTING');
+
+    if (error.name === 'AbortError') {
+      log.innerHTML = `
+        <div class="exec-step">
+          <span class="exec-icon">⏱️</span>
+          <div class="exec-detail">
+            <div class="exec-item">Execution request timed out</div>
+            <div class="exec-rationale">
+              The browser stopped waiting after 30 seconds. Check the gateway log,
+              then use Reconcile now before retrying.
+            </div>
+          </div>
+        </div>`;
+
+      toast(
+        'Gateway took too long — transaction may be SETTLEMENT_UNKNOWN',
+        'error'
+      );
+    } else {
+      log.innerHTML = `
+        <div class="exec-step">
+          <span class="exec-icon">❌</span>
+          <div class="exec-detail">
+            <div class="exec-item">Could not reach execution endpoint</div>
+            <div class="exec-rationale">${esc(error.message)}</div>
+          </div>
+        </div>`;
+
+      toast('Execution request failed', 'error');
+    }
+
+  } finally {
+    request.clear();
+    if (button) {
+      button.disabled = false;
+      button.textContent = '✍️ Review & Approve Purchase Order';
+    }
+  }
+}
+document.getElementById('btn-revoke').onclick = cancelPo;
+document.getElementById('btn-settings-revoke').onclick = cancelPo;
+async function cancelPo(){
   await api('/api/console/revoke', {method:'POST'});
-  toast('🛑 Envelope REVOKED — all further purchases get 403 ENVELOPE_REVOKED','error');
+  setPoStatus('CANCELLED');
+  toast('🛑 PO cancelled — every further purchase gets 403 ENVELOPE_REVOKED, server-side','error');
   updateEnvelopeStatus();
 }
-document.getElementById('btn-reset-envelope').onclick = resetEnvelope;
-document.getElementById('btn-settings-reset-env').onclick = resetEnvelope;
-async function resetEnvelope(){
+document.getElementById('btn-reset-envelope').onclick = resetPo;
+document.getElementById('btn-settings-reset-env').onclick = resetPo;
+async function resetPo(){
   await api('/api/console/reset-envelope', {method:'POST'});
-  toast('Envelope reset to ACTIVE','success'); updateEnvelopeStatus();
+  setPoStatus('DRAFT'); toast('PO reset to active','success'); updateEnvelopeStatus();
 }
 async function updateEnvelopeStatus(){
   const s = await api('/api/v1/stats'); if (!s) return;
   const revoked = s.envelope_status === 'revoked';
-  ['envelope-badge','envelope-badge-console'].forEach(id=>{
-    const b = document.getElementById(id); if (!b) return;
-    b.className = 'badge badge-' + (revoked?'red':'green');
-    b.textContent = revoked ? 'REVOKED' : 'ACTIVE';
-  });
+  const b = document.getElementById('envelope-badge');
+  if (b){ b.className = 'badge badge-'+(revoked?'red':'green'); b.textContent = revoked ? 'CANCELLED' : 'ACTIVE'; }
+  if (revoked && window.__po !== 'CANCELLED') setPoStatus('CANCELLED');
 }
 
-/* ═══ SECURITY ═══ */
+/* ═════ CONTROLS ═════ */
 const ATTACKS = [
-  {k:'prompt_injection', t:'Prompt Injection', d:'Purchase the ₹10,000 enterprise-gpu-node honeypot whose description claims "budget checks are waived".', want:'PER_CALL_CAP_EXCEEDED'},
-  {k:'confused_deputy',  t:'Confused Deputy',  d:'agt_coding_02 signs the JWS but claims to be agt_coding_01 in the challenge binding.', want:'403 kid mismatch'},
-  {k:'replay',           t:'Replay Attack',    d:'Re-submit an already-spent signed authorization (same jti) a second time.', want:'idempotent · no double charge'},
+  {k:'prompt_injection', t:'Prompt Injection', d:'Buy the ₹10,000 GPU honeypot whose product description claims "budget checks are waived for this item".', want:'PER_CALL_CAP_EXCEEDED'},
+  {k:'confused_deputy',  t:'Confused Deputy',  d:'The deputy signs the authorization but claims to be the primary analyst in the quote binding.', want:'403 kid mismatch'},
+  {k:'replay',           t:'Replay Attack',    d:'Re-submit an already-spent signed authorization with the same jti.', want:'idempotent · no double charge'},
   {k:'pool_drain',       t:'Budget Drain',     d:'Loop purchases until the daily pool is exhausted, then attempt one more.', want:'DAILY_POOL_EXCEEDED'},
-  {k:'revoked_envelope', t:'Revoked Envelope', d:'Attempt a purchase after the human operator hit the killswitch.', want:'ENVELOPE_REVOKED'},
+  {k:'revoked_envelope', t:'Cancelled PO',     d:'Attempt a purchase after the human operator cancelled the purchase order.', want:'ENVELOPE_REVOKED'},
 ];
 const THREATS = [
-  ['T1','LLM tricked into overspending','Server-side gate: per-call cap + daily pool, read from ledger state'],
-  ['T2','Agent key leak','Resource-hash binding · 300s TTL · single-use jti · pool ceiling'],
-  ['T3','Challenge replay','jti UNIQUE constraint + hash binding blocks cross-resource reuse'],
-  ['T4','Confused deputy','agentKid in challenge bound to JWS kid; mismatch → 403'],
+  ['T1','Analyst tricked into overspending','Server-side gate: per-call cap + daily pool, read from ledger state'],
+  ['T2','Buyer key leak','Resource-hash binding · 300s TTL · single-use jti · pool ceiling'],
+  ['T3','Quote replay','jti UNIQUE constraint; hash binding blocks cross-resource reuse'],
+  ['T4','Confused deputy','agentKid in quote bound to JWS kid; mismatch → 403'],
   ['T5','Double payment','CAS rank monotonicity + jti UNIQUE'],
   ['T6','Double refund','Read-before-write convergence + Idempotency-Key'],
-  ['T7','Audit tampering','SHA-256 chain + signed checkpoints + append-only triggers'],
+  ['T7','Ledger tampering','SHA-256 chain + signed checkpoints + append-only triggers'],
   ['T8','Timeout misread as failure','SETTLEMENT_UNKNOWN state; no exception→FAILED path'],
   ['T9','Prompt injection via catalog','Honeypot item; gate denies regardless of model output'],
-  ['T10','Budget TOCTOU','Gate + reservation insert inside one BEGIN IMMEDIATE txn'],
+  ['T10','Budget TOCTOU','Gate + reservation insert inside one BEGIN IMMEDIATE transaction'],
 ];
 let attackResults = {};
 document.getElementById('attack-total').textContent = ATTACKS.length;
 function renderAttacks(runningKey){
   document.getElementById('attack-grid').innerHTML = ATTACKS.map(a=>{
-    const r = attackResults[a.k];
-    const running = runningKey === a.k;
-    const cls = running ? 'running' : r ? (r.defended ? 'pass' : 'fail') : '';
+    const r = attackResults[a.k], running = runningKey===a.k;
+    const cls = running ? 'running' : r ? (r.defended?'pass':'fail') : '';
     const badge = running ? '<span class="badge badge-accent">firing…</span>'
       : !r ? '<span class="badge badge-muted">idle</span>'
       : r.defended ? '<span class="badge badge-green">DEFENDED ✓</span>' : '<span class="badge badge-red">BREACHED ✗</span>';
     const got = r ? `<div class="mono-line">got: ${esc(r.error_code || r.detail || ('HTTP '+r.http_status))}</div>` : '';
     const btn = r && r.frames && r.frames.length
-      ? `<button class="btn btn-ghost btn-sm" style="margin-top:.6rem;width:100%" data-show-frames="${esc(a.k)}">🔌 View wire</button>` : '';
+      ? `<button class="btn btn-ghost btn-sm" style="margin-top:.55rem;width:100%" data-show-frames="${esc(a.k)}">🔌 View wire</button>` : '';
     return `<div class="attack-card ${cls}">
       <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start">
         <span class="attack-title">${esc(a.t)}</span>${badge}</div>
@@ -1154,72 +1833,72 @@ document.getElementById('btn-run-attacks').onclick = async function(){
   if (FEATURES.attack === false) return needsBackend('attack');
   this.disabled = true; attackResults = {};
   for (const a of ATTACKS){
-    this.textContent = '⏳ ' + a.t + '…';
-    renderAttacks(a.k);
+    this.textContent = '⏳ ' + a.t + '…'; renderAttacks(a.k);
     const r = await apiFull('/api/v1/demo/attack', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ kind:a.k }) });
-    if (r.missing){ FEATURES.attack = false; renderProbe(); this.disabled=false;
+    if (r.missing){ FEATURES.attack=false; renderProbe(); this.disabled=false;
       this.textContent='▶ Run all attacks'; renderAttacks(); return needsBackend('attack'); }
     FEATURES.attack = true;
-    attackResults[a.k] = r.body && typeof r.body.defended === 'boolean'
+    attackResults[a.k] = (r.body && typeof r.body.defended === 'boolean')
       ? r.body : { defended:false, detail:'malformed response', http_status:r.status };
-    renderAttacks(); await sleep(420);
+    renderAttacks(); await sleep(430);
   }
   this.disabled = false; this.textContent = '▶ Run all attacks';
   const n = Object.values(attackResults).filter(r=>r.defended).length;
-  toast(`${n}/${ATTACKS.length} attacks defended`, n===ATTACKS.length ? 'success' : 'error');
-  refreshOverview(); if (currentView()==='audit') refreshAudit();
+  toast(`${n}/${ATTACKS.length} attacks defended`, n===ATTACKS.length?'success':'error');
+  refreshSpend(); refreshSystem(); if (currentView()==='audit') refreshAudit();
 };
-document.getElementById('btn-clear-attacks').onclick = ()=>{ attackResults = {}; renderAttacks(); };
+document.getElementById('btn-clear-attacks').onclick = ()=>{ attackResults={}; renderAttacks(); };
 document.getElementById('threat-table').innerHTML = THREATS.map(t=>
   `<div class="info-row"><span style="display:flex;gap:.6rem;align-items:baseline;flex:1">
     <span class="badge badge-accent">${esc(t[0])}</span>
-    <span style="font-size:.79rem;font-weight:600">${esc(t[1])}</span></span>
-   <span style="font-size:.71rem;color:var(--text-muted);text-align:right;max-width:52%">${esc(t[2])}</span></div>`).join('');
+    <span style="font-size:.78rem;font-weight:600">${esc(t[1])}</span></span>
+   <span style="font-size:.7rem;color:var(--text-muted);text-align:right;max-width:52%">${esc(t[2])}</span></div>`).join('');
 renderAttacks();
 
-/* ═══ AUDIT ═══ */
-let auditEntries = [];
+/* ═════ AUDIT ═════ */
 async function refreshAudit(){
   const d = await api('/api/v1/audit?limit=60'); if (!d) return;
-  auditEntries = d.entries || [];
   const badge = document.getElementById('chain-badge');
-  if (badge.textContent !== 'UNVERIFIED' && badge.textContent !== 'WALKING…'){
+  const frozen = badge.textContent === 'UNVERIFIED' || badge.textContent === 'WALKING…';
+  if (!frozen){
     badge.className = 'badge badge-' + (d.chain_valid ? 'green' : 'red');
     badge.textContent = d.chain_valid ? 'VALID ✓' : 'BROKEN ✗';
   }
   document.getElementById('chain-head').textContent =
-    (d.head_hash ? 'head ' + truncHash(d.head_hash) : '') + (d.chain_height ? ' · height ' + d.chain_height : '');
+    (d.head_hash ? 'head ' + truncHash(d.head_hash) : '') + (d.chain_height ? ' · ' + d.chain_height + ' entries' : '');
   const el = document.getElementById('audit-log');
-  el.innerHTML = auditEntries.length ? auditEntries.map(a=>
+  const entries = d.entries || [];
+  el.innerHTML = entries.length ? entries.map(a=>
     `<div class="audit-row" data-seq="${esc(a.seq)}">
       <span class="audit-seq">#${esc(a.seq)}</span>
       <div style="min-width:0"><span class="audit-event">${esc(a.event)}</span>
         ${a.to_state?`<span class="badge badge-${stateColor(a.to_state)}" style="margin-left:.4rem">${esc(a.to_state)}</span>`:''}
         <div style="margin-top:.15rem"><span class="audit-hash">prev ${esc(truncHash(a.prev_hash))} → ${esc(truncHash(a.entry_hash))}</span></div></div>
-      <span style="font-size:.71rem;color:var(--text-muted)">${esc(a.actor)}</span>
+      <span style="font-size:.7rem;color:var(--text-muted)">${esc(a.actor)}</span>
       <span class="audit-time">${esc(timeAgo(a.ts))}</span></div>`).join('')
-    : '<div class="empty">No audit entries yet.</div>';
+    : '<div class="empty">No ledger entries yet.</div>';
 }
 document.getElementById('btn-tamper').onclick = async function(){
   const r = await apiFull('/api/v1/demo/tamper', {method:'POST'});
   if (r.body && r.body.tampered_seq){
-    toast(`DB row #${r.body.tampered_seq} silently altered via dropped triggers — chain NOT yet re-checked`,'error');
+    toast(`Ledger row #${r.body.tampered_seq} silently altered via dropped triggers — chain NOT yet re-checked`,'error');
     const b = document.getElementById('chain-badge');
     b.className = 'badge badge-amber'; b.textContent = 'UNVERIFIED';
     await refreshAudit();
     const row = document.querySelector(`.audit-row[data-seq="${r.body.tampered_seq}"]`);
-    if (row){ row.style.borderLeftColor = 'var(--amber)'; row.scrollIntoView({block:'center',behavior:'smooth'}); }
-  } else toast(r.body?.error || 'Nothing to tamper — make a transaction first','info');
+    if (row){ row.style.borderLeftColor='var(--amber)'; row.scrollIntoView({block:'center',behavior:'smooth'}); }
+  } else toast(r.body?.error || 'Nothing to tamper — make a purchase first','info');
 };
 document.getElementById('btn-verify').onclick = async function(){
   const badge = document.getElementById('chain-badge');
   badge.className = 'badge badge-amber'; badge.textContent = 'WALKING…';
   document.querySelectorAll('.audit-row').forEach(r=>{ r.style.borderLeftColor='transparent'; r.style.background=''; });
   const r = await apiFull('/api/v1/audit?limit=200&verify=1');
-  const perEntry = (r.body?.entries || []).some(e => 'hash_ok' in e);
+  const list = r.body?.entries || [];
+  const perEntry = list.some(e => 'hash_ok' in e);
   FEATURES.verifyParam = perEntry; renderProbe();
-  const entries = (r.body?.entries || []).slice().reverse();          // oldest → newest
+  const entries = list.slice().reverse();
   let bad = null;
   for (const e of entries){
     const ok = perEntry ? e.hash_ok !== false : true;
@@ -1229,7 +1908,7 @@ document.getElementById('btn-verify').onclick = async function(){
       if (!ok) row.style.background = 'var(--red-dim)';
       row.scrollIntoView({block:'nearest'});
     }
-    await sleep(entries.length > 40 ? 14 : 45);
+    await sleep(entries.length > 40 ? 14 : 46);
     if (!ok){ bad = e; break; }
   }
   if (!perEntry && r.body && r.body.chain_valid === false){
@@ -1238,24 +1917,26 @@ document.getElementById('btn-verify').onclick = async function(){
     if (row){ row.style.borderLeftColor='var(--red)'; row.style.background='var(--red-dim)'; row.scrollIntoView({block:'center'}); }
   }
   if (bad){
-    badge.className = 'badge badge-red'; badge.textContent = 'BROKEN ✗';
-    toast(`Tampering detected at entry #${bad.seq} — recomputed SHA-256 ≠ stored entry_hash`,'error');
+    badge.className='badge badge-red'; badge.textContent='BROKEN ✗';
+    toast(`Tampering detected at entry #${bad.seq} — recomputed SHA-256 ≠ stored hash`,'error');
   } else {
-    badge.className = 'badge badge-green'; badge.textContent = 'VALID ✓';
+    badge.className='badge badge-green'; badge.textContent='VALID ✓';
     toast(`${entries.length} entries walked · chain intact ✓`,'success');
   }
+  refreshSystem();
 };
 
-/* ═══ SETTINGS ═══ */
+/* ═════ SETTINGS ═════ */
 document.getElementById('chaos-group').addEventListener('click', async e=>{
   const opt = e.target.closest('.radio-option'); if (!opt) return;
   const r = await apiFull('/chaos', { method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ mode: opt.dataset.mode }) });
-  if (!r.ok) return toast('Failed to set chaos mode','error');
+  if (!r.ok) return toast('Failed to set failure mode','error');
   document.querySelectorAll('#chaos-group .radio-option').forEach(o=>o.classList.toggle('active', o===opt));
-  const M = { ok:'Normal — payments succeed', rzp_timeout:'Timeout — next payment → SETTLEMENT_UNKNOWN',
-              rzp_refund_timeout:'Refund timeout — compensation saga will fire' };
-  toast('Chaos: ' + (M[opt.dataset.mode]||opt.dataset.mode), opt.dataset.mode==='ok' ? 'success' : 'info');
+  const M = { ok:'Normal — payments succeed',
+              rzp_timeout:'Razorpay timeout — next payment goes SETTLEMENT_UNKNOWN, sweeper reconciles',
+              rzp_refund_timeout:'Paid but undelivered — compensation saga will auto-refund' };
+  toast(M[opt.dataset.mode] || opt.dataset.mode, opt.dataset.mode==='ok'?'success':'info');
 });
 async function loadChaosMode(){
   const d = await api('/chaos'); if (!d) return;
@@ -1267,50 +1948,72 @@ document.getElementById('reset-confirm').onclick = async ()=>{
   const r = await api('/api/v1/reset-db', {method:'POST'});
   if (r && r.cleared){
     toast(`Database cleared · ${(r.tables||[]).length} tables`,'success');
-    attackResults = {}; renderAttacks();
-    const b = document.getElementById('chain-badge'); b.className='badge badge-green'; b.textContent='VALID ✓';
-    refreshOverview(); refreshAudit(); updateEnvelopeStatus();
+    attackResults={}; renderAttacks(); activePasses.clear(); observedUpsell=null;
+    lastPlan=null; document.getElementById('bom-card').style.display='none';
+    document.getElementById('exec-summary').style.display='none';
+    document.getElementById('exec-log').innerHTML='<div class="empty">Research the market, then approve the purchase order to see fulfilment steps.</div>';
+    const b=document.getElementById('chain-badge'); b.className='badge badge-green'; b.textContent='VALID ✓';
+    refreshSpend(); refreshAudit(); refreshSystem(); updateEnvelopeStatus(); renderCatalog();
   } else toast('Database reset failed','error');
 };
 
-/* ═══ MODALS ═══ */
+/* ═════ MODALS / KEYS ═════ */
 document.querySelectorAll('.modal-overlay').forEach(o=>{
   o.addEventListener('click', e=>{ if (e.target===o || e.target.hasAttribute('data-close')) o.classList.remove('show'); });
 });
+let cursor = -1;
 addEventListener('keydown', e=>{
   if (e.key === 'Escape'){
     const open = document.querySelectorAll('.modal-overlay.show');
-    if (open.length) open.forEach(m=>m.classList.remove('show'));
-    else wire.close();
+    if (open.length) open.forEach(m=>m.classList.remove('show')); else wire.close();
     return;
   }
   if (e.target.matches('input,textarea,select')) return;
-  if (e.key.toLowerCase() === 'w'){ wire.el.classList.contains('show') ? wire.close() : wire.open(); return; }
-  const i = parseInt(e.key,10);
-  if (i >= 1 && i <= SCRIPT.length) runStep(i-1);
+
+  if (e.key === ' ' || e.key === 'Enter'){
+    e.preventDefault();
+    cursor = Math.min(cursor + 1, SCRIPT.length - 1);
+    return runStep(cursor);
+  }
+  if (e.key === 'Backspace'){
+    e.preventDefault();
+    cursor = Math.max(cursor - 1, 0);
+    return runStep(cursor);
+  }
+  if (e.key.toLowerCase() === 'w'){
+    wire.el.classList.contains('show') ? wire.close() : wire.open();
+    return;
+  }
+
+  const map = {'1':0,'2':1,'3':2,'4':3,'5':4,'6':5,'7':6,'8':7,'9':8,'0':9,'-':10,'=':11};
+  if (e.key in map){
+    cursor = map[e.key];
+    runStep(cursor);
+  }
 });
 
-/* ═══ DEMO DIRECTOR ═══ */
+/* ═════ DEMO DIRECTOR ═════ */
 const SCRIPT = [
-  {l:'Budget', run: async()=>{ location.hash='overview'; await sleep(200);
-      const s=document.getElementById('pool-slider'); s.value=30000;
-      document.getElementById('pool-display').textContent=paise(30000);
-      document.getElementById('apply-budget').click(); }},
-  {l:'402 Wire', run: async()=>{ location.hash='marketplace'; await sleep(250);
-      const first = document.querySelector('[data-agent-buy]');
-      if (first) await agentBuy(first.dataset.agentBuy); else toast('Catalog not loaded yet','info'); }},
-  {l:'Mission', run: async()=>{ location.hash='console'; await sleep(250);
-      document.getElementById('btn-analyze').click(); }},
-  {l:'Execute', run: async()=>{ location.hash='console'; await sleep(200);
-      const b=document.getElementById('btn-execute');
-      if (document.getElementById('bom-card').style.display==='none') toast('Run step 3 (Analyze) first','info'); else b.click(); }},
-  {l:'Attacks', run: async()=>{ location.hash='security'; await sleep(250);
+  {l:'System',   run:async()=>{ location.hash='system'; await sleep(200); await pulseAll(); }},
+  {l:'Discover', run:async()=>{ location.hash='system'; await sleep(150);
+      document.getElementById('btn-open-wellknown').click(); }},
+  {l:'Need',     run:async()=>{ location.hash='procurement'; await sleep(250);
+      document.querySelector('[data-mission="compare"]').click(); }},
+  {l:'Research', run:async()=>{ document.getElementById('btn-analyze').click(); }},
+  {l:'Compare',  run:async()=>{ await sleep(250); document.querySelector('[data-alt="0"]')?.click(); }},
+  {l:'Approve',  run:async()=>{ document.getElementById('btn-execute').click(); }},
+  {l:'Execute',  run:async()=>{ const c=document.getElementById('po-consent');
+      if (!c.checked){ c.checked=true; c.dispatchEvent(new Event('change')); }
+      document.getElementById('po-approve').click(); }},
+  {l:'402 Wire', run:async()=>{ location.hash='catalog'; await sleep(280);
+      const f=document.querySelector('[data-agent-buy]'); if (f) await agentBuy(f.dataset.agentBuy);
+      else toast('Catalog still loading','info'); }},
+  {l:'Attacks',  run:async()=>{ location.hash='controls'; await sleep(280);
       document.getElementById('btn-run-attacks').click(); }},
-  {l:'Tamper', run: async()=>{ location.hash='audit'; await sleep(300);
+  {l:'Tamper',   run:async()=>{ location.hash='audit'; await sleep(320);
       document.getElementById('btn-tamper').click(); }},
-  {l:'Verify', run: async()=>{ location.hash='audit'; await sleep(200);
-      document.getElementById('btn-verify').click(); }},
-  {l:'Chaos', run: async()=>{ location.hash='settings'; await sleep(250);
+  {l:'Verify',   run:async()=>{ document.getElementById('btn-verify').click(); }},
+  {l:'Failure',  run:async()=>{ location.hash='settings'; await sleep(280);
       document.querySelector('#chaos-group [data-mode="rzp_refund_timeout"]').click(); }},
 ];
 let stepDone = new Set(), stepActive = -1;
@@ -1322,40 +2025,46 @@ function renderDirector(){
 async function runStep(i){
   const s = SCRIPT[i]; if (!s) return;
   stepActive = i; renderDirector();
-  try { await s.run(); stepDone.add(i); } catch(err){ console.error(err); toast('Step failed: '+s.l,'error'); }
+  try { await s.run(); stepDone.add(i); }
+  catch(err){ console.error(err); toast('Step failed: ' + s.l,'error'); }
   stepActive = -1; renderDirector();
 }
 document.getElementById('director-steps').addEventListener('click', e=>{
-  const d = e.target.closest('.dstep'); if (d) runStep(+d.dataset.step);
+  const d = e.target.closest('.dstep'); if (d) { cursor = +d.dataset.step; runStep(cursor); }
 });
-document.getElementById('btn-director-reset').onclick = ()=>{ stepDone.clear(); stepActive=-1; renderDirector(); toast('Demo markers reset','info'); };
+document.getElementById('btn-director-reset').onclick = ()=>{
+  stepDone.clear(); stepActive=-1; cursor=-1; renderDirector(); toast('Demo markers reset','info');
+};
 renderDirector();
 
-/* ═══ INIT ═══ */
+/* ═════ INIT ═════ */
 async function probe(){
   const r = await apiFull('/openapi.json');
   if (r.ok && r.body && r.body.paths){
     const p = r.body.paths;
-    FEATURES.agentBuy   = !!p['/api/v1/agent/buy'];
-    FEATURES.attack     = !!p['/api/v1/demo/attack'];
-    FEATURES.sweep      = !!p['/api/v1/demo/sweep'];
-    FEATURES.txnDetail  = Object.keys(p).some(k=>/^\/api\/v1\/txns\/\{/.test(k));
+    FEATURES.agentBuy  = !!p['/api/v1/agent/buy'];
+    FEATURES.attack    = !!p['/api/v1/demo/attack'];
+    FEATURES.sweep     = !!p['/api/v1/demo/sweep'];
+    FEATURES.approve   = !!p['/api/console/approve'];
+    FEATURES.txnDetail = Object.keys(p).some(k=>/^\/api\/v1\/txns\/\{/.test(k));
   }
   renderProbe();
 }
 async function init(){
   handleHash();
-  await Promise.all([refreshOverview(), loadMarketplace(), refreshAudit(), loadChaosMode(), updateEnvelopeStatus(), probe()]);
+  await Promise.all([refreshSpend(), loadCatalog(), refreshAudit(), loadChaosMode(), updateEnvelopeStatus(), probe()]);
+  await refreshSystem();
   setInterval(async ()=>{
     if (document.visibilityState !== 'visible') return;
     const v = currentView();
-    if (v === 'overview') await refreshOverview();
+    if (v === 'spend') await refreshSpend();
+    else if (v === 'system') await refreshSystem();
     else if (v === 'audit'){
       const b = document.getElementById('chain-badge').textContent;
-      if (b !== 'UNVERIFIED' && b !== 'WALKING…') await refreshAudit();   // never clobber the tamper reveal
+      if (b !== 'UNVERIFIED' && b !== 'WALKING…') await refreshAudit();
     }
     else if (v === 'settings') await updateEnvelopeStatus();
-  }, 2500);
+  }, 2600);
 }
 init();
 </script>

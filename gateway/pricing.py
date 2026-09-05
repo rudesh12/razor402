@@ -96,3 +96,46 @@ def build_accepts(conn, kid: str, item_id: str,
             accepts.append(pass_option)
 
     return accepts
+
+
+def get_price_options(conn, kid: str, item_id: str,
+                      now_ts: int | None = None) -> list[dict]:
+    """
+    Return available price options for 402 challenge:
+    - single call option
+    - day pass option (if item has a covering pass in CATALOG)
+    """
+    item = CATALOG.get(item_id)
+    if not item:
+        return []
+
+    unit_paise = item["price_paise"]
+    options = [
+        {
+            "kind": "single",
+            "price_paise": unit_paise,
+            "unit_paise": unit_paise,
+            "calls": 1,
+        }
+    ]
+
+    for pid, pdata in CATALOG.items():
+        if pdata.get("covers") == item_id:
+            pass_price = pdata["price_paise"]
+            break_even = pdata.get("specs", {}).get("break_even_calls", 10)
+            unit_in_pass = round(pass_price / break_even)
+            saves = max(0, (unit_paise * break_even) - pass_price)
+            options.append({
+                "kind": "day_pass",
+                "price_paise": pass_price,
+                "unit_paise": unit_in_pass,
+                "calls": break_even,
+                "breakEvenCalls": break_even,
+                "break_even_calls": break_even,
+                "saves_paise": saves,
+                "pass_item_id": pid,
+            })
+            break
+
+    return options
+

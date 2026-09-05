@@ -325,6 +325,16 @@ CATALOG = {
         "offer_after_paid_calls": 8,
         "specs": {"break_even_calls": 10},
     },
+    "llm-day-pass": {
+        "title": "DeepSeek Inference day pass — unlimited tokens, 24h",
+        "price_paise": 4000,
+        "category": "bundle",
+        "seller": "DeepSeek",
+        "covers": "deepseek-v4-flash",
+        "valid_seconds": 86400,
+        "offer_after_paid_calls": 8,
+        "specs": {"break_even_calls": 10},
+    },
 }
 
 AGENT_POLICY = {

@@ -6,6 +6,7 @@ import threading
 
 from dotenv import load_dotenv
 load_dotenv()
+import httpx
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -24,6 +25,16 @@ from gateway.demo_api import router as demo_router
 # Global adapter
 _adapter: PaymentAdapter | None = None
 _chaos_mode = "ok"  # ok | rzp_timeout | rzp_refund_timeout
+
+
+def get_chaos_mode() -> str:
+    global _chaos_mode
+    return _chaos_mode
+
+
+def set_chaos_mode(mode: str):
+    global _chaos_mode
+    _chaos_mode = mode
 
 
 def get_adapter() -> PaymentAdapter:
@@ -85,18 +96,18 @@ async def health():
 
 @app.get("/.well-known/agent-catalog")
 async def agent_catalog():
-    """Free, unpriced catalog endpoint."""
+    """Free, unpriced agent-readable discovery catalog endpoint."""
     items = []
     for item_id, item in CATALOG.items():
         entry = {
             "id": item_id,
             "title": item["title"],
             "pricePaise": item["price_paise"],
+            "unitPaise": item["price_paise"],
             "category": item["category"],
             "seller": item.get("seller", "BuildBroker"),
             "specs": item["specs"],
             "purchaseUrl": f"/provision/{item_id}",
-
         }
         if "description" in item:
             entry["description"] = item["description"]
@@ -106,6 +117,12 @@ async def agent_catalog():
 
     return {
         "protocol": "razor402/0.1",
+        "payment": {
+            "protocol": "razor402/0.1",
+            "scheme": "HTTP-402",
+            "signature": "Ed25519-JWS",
+            "settlement": "razorpay",
+        },
         "merchant": {
             "id": MERCHANT_ACCOUNT,
             "name": "BuildBroker",
@@ -126,8 +143,6 @@ async def provision(item_id: str, request: Request):
     global _chaos_mode
     if _chaos_mode == "rzp_timeout":
         adapter.fault = "timeout"
-    elif _chaos_mode == "rzp_refund_timeout":
-        adapter.fault = "refund_timeout"
     else:
         adapter.fault = None
 
@@ -145,12 +160,19 @@ async def set_chaos(request: Request):
     _chaos_mode = mode
 
     adapter = get_adapter()
-    if mode == "ok":
-        adapter.fault = None
-    elif mode == "rzp_timeout":
+    if mode == "rzp_timeout":
         adapter.fault = "timeout"
-    elif mode == "rzp_refund_timeout":
-        adapter.fault = "refund_timeout"
+    else:
+        adapter.fault = None
+
+    # Notify upstream merchant of chaos mode
+    upstream_url = os.environ.get("UPSTREAM_URL", "http://127.0.0.1:9000")
+    try:
+        merchant_mode = "500" if mode == "rzp_refund_timeout" else "ok"
+        async with httpx.AsyncClient(timeout=1.0) as m_client:
+            await m_client.post(f"{upstream_url}/chaos", json={"mode": merchant_mode})
+    except Exception:
+        pass
 
     return {"chaos": _chaos_mode}
 
@@ -369,6 +391,59 @@ async def api_stats():
 
     from gateway.console_api import is_envelope_revoked
 
+    # Merchant Lens metrics
+    upsell_offered_row = conn.execute(
+        "SELECT COUNT(*) as cnt FROM audit WHERE event='UPSELL_OFFERED'"
+    ).fetchone()
+    upsell_offered = upsell_offered_row["cnt"] if upsell_offered_row else 0
+
+    upsell_accepted_row = conn.execute(
+        "SELECT COUNT(*) as cnt FROM audit WHERE event='UPSELL_ACCEPTED'"
+    ).fetchone()
+    upsell_accepted = upsell_accepted_row["cnt"] if upsell_accepted_row else 0
+
+    upsell_take_rate = round(upsell_accepted / upsell_offered * 100) if upsell_offered > 0 else 0
+
+    single_txns = conn.execute(
+        "SELECT amount_paise FROM txn WHERE state IN ('FULFILLED', 'SETTLED') AND price_basis != 'volume_upsell.v1' "
+        "ORDER BY amount_paise"
+    ).fetchall()
+    if single_txns:
+        aov_single_paise = single_txns[len(single_txns) // 2]["amount_paise"]
+    else:
+        aov_single_paise = CATALOG.get("deepseek-v4-flash", {}).get("price_paise", 400)
+
+    pass_txns = conn.execute(
+        "SELECT amount_paise FROM txn WHERE state IN ('FULFILLED', 'SETTLED') AND (price_basis = 'volume_upsell.v1' OR item_id LIKE '%pass%') "
+        "ORDER BY amount_paise"
+    ).fetchall()
+    if pass_txns:
+        aov_pass_paise = pass_txns[len(pass_txns) // 2]["amount_paise"]
+    else:
+        aov_pass_paise = CATALOG.get("day-pass", {}).get("price_paise", 4900)
+
+    repeat_row = conn.execute(
+        "SELECT COUNT(*) as cnt FROM ("
+        "  SELECT item_id FROM txn WHERE state IN ('FULFILLED', 'SETTLED') GROUP BY item_id HAVING COUNT(*) > 1"
+        ")"
+    ).fetchone()
+    repeat_purchase_count = repeat_row["cnt"] if repeat_row else 0
+
+    transacted_items = conn.execute(
+        "SELECT DISTINCT item_id FROM txn WHERE state IN ('FULFILLED', 'SETTLED')"
+    ).fetchall()
+    transacted_sellers = set(CATALOG.get(r["item_id"], {}).get("seller", "BuildBroker") for r in transacted_items if r["item_id"] in CATALOG)
+    vendors_transacted = len(transacted_sellers)
+
+    # Check if po_drafts table exists before querying
+    has_drafts = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='po_drafts'").fetchone()
+    savings_realised_paise = 0
+    if has_drafts:
+        savings_row = conn.execute(
+            "SELECT COALESCE(SUM(json_extract(plan_json, '$.savings_paise')), 0) as s FROM po_drafts"
+        ).fetchone()
+        savings_realised_paise = savings_row["s"] if savings_row else 0
+
     return {
         "total_txns": total_txns,
         "settled_count": state_map.get("SETTLED", 0),
@@ -388,6 +463,15 @@ async def api_stats():
         "reconciler_tick_s": RECONCILE_TICK_S,
         "chaos_mode": _chaos_mode,
         "envelope_status": "revoked" if is_envelope_revoked() else "active",
+        # Merchant lens additions
+        "aov_single_paise": aov_single_paise,
+        "aov_pass_paise": aov_pass_paise,
+        "upsell_offered": upsell_offered,
+        "upsell_accepted": upsell_accepted,
+        "upsell_take_rate": upsell_take_rate,
+        "repeat_purchase_count": repeat_purchase_count,
+        "vendors_transacted": vendors_transacted,
+        "savings_realised_paise": savings_realised_paise,
     }
 
 
@@ -409,7 +493,7 @@ async def api_reset_db():
 
     # Clear tables
     for table in ["txn", "audit", "budget_reservations", "jti_seen",
-                   "passes", "webhook_events", "mandates", "checkpoints"]:
+                   "passes", "webhook_events", "mandates", "checkpoints", "po_drafts"]:
         try:
             raw_conn.execute(f"DELETE FROM {table}")
             cleared.append(table)

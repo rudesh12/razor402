@@ -94,3 +94,26 @@ Integrated wire-level protocol visualization and automated adversarial test suit
 - **Tamper-to-Verify Narrative Fix**: Removed premature UI mutation on tampering; chain walk animates row-by-row with dynamic border coloring to locate the exact corrupted entry.
 - **Demo Director Bar**: Persistent 8-step presentation controller with keyboard shortcuts `1`–`8` for rehearsed, zero-fumble video recording.
 
+## D14 — AI Procurement Analyst Repositioning & System Hero Architecture
+
+Repositioned the core user story from "Autonomous AI Spending Money" to an "AI Sourcing & Procurement Analyst with Server-Enforced Human Sign-off and Merchant Revenue Growth":
+- **System Hero View (`#view-system`)**: Interactive 4-node architectural topology (AI Buyer -> Security Boundary -> Razorpay/Merchant -> Audit Ledger) featuring animated transaction flow lines, live metric badges, and dual argument panels: "Why the Merchant Wins" (zero-CAC demand, AOV lift) and "Why Finance Signs Off" (deterministic math, prompt injection immunity).
+- **Procurement Vocabulary Alignment**: Replaced tech/robot jargon with enterprise procurement vocabulary: Procurement (Console), Vendor Catalog (Marketplace), Spend (Overview), Controls (Security), Purchase Order Draft (Envelope), and Cancel PO (Revoke).
+- **12-Step Demo Director**: Extended the keyboard-driven rehearsal director (`1` through `12`) beginning at System topology and agent-catalog discovery, proceeding through market research, comparison, approval, execution, wire inspection, attack defense, breach simulation, and failure recovery.
+
+## D15 — Ledger-Bound Human Approval Gate & Canonical BOM Hash Enforcement
+
+Implemented formal human sign-off as an authoritative server control rather than client-side UI theatre:
+- **Ledger as the Single Source of Truth**: Approval state is recorded directly into the append-only SHA-256 audit chain (`PO_APPROVED`). `is_po_approved()` queries the audit table and verifies no subsequent `PO_CANCELLED` event supersedes it.
+- **Canonical BOM Hash (`bom_sha256`)**: Draft purchase orders generate a canonical SHA-256 digest over sorted `{item_id, qty, unit_paise}` using RFC-8785 JSON Canonicalization Scheme (JCS). `POST /api/console/approve` and `POST /api/console/execute` reject any altered basket with `409 BOM_MISMATCH`.
+- **Exact Ceiling Enforcement**: `POST /api/console/approve` strictly enforces `ceiling_paise == draft_total` (no tolerance window), rejecting discrepancies with `409 CEILING_MISMATCH`. The approved ceiling is enforced as a third independent limit alongside daily pool and per-call cap during execution.
+- **System-Row Hash Parity**: System-scoped events without challenge IDs (`PO_APPROVED`, `PO_CANCELLED`, `UPSELL_OFFERED`) utilize standard `note()` appending, preserving SHA-256 chain integrity and 100% `verify_chain()` validation.
+
+## D16 — In-Protocol Upsell & Merchant-Side Economics Telemetry
+
+Solved the buyer/merchant narrative tension by demonstrating that machine-to-machine commerce inherently drives merchant average order value (AOV):
+- **402 Challenge Upsell Surface**: `gateway/pricing.py` and `_mint_challenge` inject `price_options` containing single-call and volume day-pass options. The agent chooses based on unit economics (e.g. ₹4 single call vs ₹40 day pass = 10x order value lift at zero customer acquisition cost).
+- **Live In-Protocol Upsell Visualizer**: The Protocol Inspector detects multiple options on the wire and renders a `💹 UPSELL OFFERED IN-PROTOCOL` badge.
+- **Dual-Lens Spend View**: Interactive toggle on `#view-spend` switching between Buyer View (committed spend, savings, policy denials, active subscriptions) and Merchant View (revenue captured, AOV lift, upsell take-rate, zero-CAC orders).
+- **Audit-Grounded Metrics**: Zero fabricated baseline numbers. `upsell_offered`, `upsell_accepted`, `aov_single_paise`, and `aov_pass_paise` are computed directly from ledger events and transaction history.
+

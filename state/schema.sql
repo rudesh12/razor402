@@ -71,7 +71,16 @@ CREATE TABLE IF NOT EXISTS checkpoints (
   signature TEXT NOT NULL, created_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS po_drafts (
+  po_number TEXT PRIMARY KEY,
+  total_paise INTEGER NOT NULL,
+  bom_sha256 TEXT NOT NULL,
+  plan_json TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
 CREATE TRIGGER IF NOT EXISTS audit_no_update BEFORE UPDATE ON audit
   BEGIN SELECT RAISE(ABORT, 'audit is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_no_delete BEFORE DELETE ON audit
   BEGIN SELECT RAISE(ABORT, 'audit is append-only'); END;
+

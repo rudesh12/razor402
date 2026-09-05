@@ -171,6 +171,12 @@ async def intercept_provision(request: Request, adapter, call_next=None):
          {"policy_version": POLICY_VERSION, "rationale": proof.rationale,
           "amount_paise": proof.amount_paise})
 
+    from core.catalog import PRICE_BASIS_PASS
+    price_basis = proof.challenge_payload.get("extra", {}).get("priceBasis")
+    if price_basis == PRICE_BASIS_PASS:
+        note(conn, proof.challenge_id, "UPSELL_ACCEPTED", proof.agent_kid,
+             {"item_id": item_id, "amount_paise": proof.amount_paise})
+
     # CAS ISSUED → VERIFIED
     cas(conn, proof.challenge_id, "VERIFIED", actor="gateway",
         event="AUTH_VERIFIED",
@@ -344,6 +350,16 @@ def _mint_challenge(conn, keys, pubs, kid, item_id, item,
         "error": "PAYMENT_REQUIRED",
         "accepts": full_accepts,
     }
+
+    from gateway.pricing import get_price_options
+    price_opts = get_price_options(conn, kid, item_id, now_ts)
+    if price_opts:
+        response_body["price_options"] = price_opts
+        if len(price_opts) > 1:
+            _append_audit(conn, cid, "UPSELL_OFFERED", None, None, None,
+                          "gateway", {"item_id": item_id, "options_count": len(price_opts),
+                                      "single_paise": price_opts[0]["price_paise"],
+                                      "pass_paise": price_opts[1]["price_paise"]})
 
     if len(challenge_jws_list) == 1:
         response_body["challengeJws"] = challenge_jws_list[0]

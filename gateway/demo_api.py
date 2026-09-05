@@ -598,6 +598,18 @@ async def get_txn_detail(challenge_id: str):
         (challenge_id,)
     ).fetchone()
 
+    approver = None
+    appr_audit = conn.execute(
+        "SELECT actor FROM audit WHERE event='PO_STEP_EXECUTED' AND json_extract(payload, '$.challenge_id')=?",
+        (challenge_id,)
+    ).fetchone()
+    if appr_audit:
+        approver = appr_audit["actor"]
+    else:
+        last_appr = conn.execute("SELECT actor FROM audit WHERE event='PO_APPROVED' ORDER BY seq DESC LIMIT 1").fetchone()
+        if last_appr:
+            approver = last_appr["actor"]
+
     return {
         "challenge_id": row["challenge_id"],
         "item_id": row["item_id"],
@@ -609,6 +621,7 @@ async def get_txn_detail(challenge_id: str):
         "rzp_payment_id": row["payment_id"],
         "rzp_refund_id": row["refund_id"],
         "resp_sha256": row["resp_sha256"],
+        "approver": approver,
         "timeline": [dict(a) for a in audit_rows],
         "reservation": dict(res) if res else None,
     }
