@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: razor402
+    runtime: python
+    buildCommand: pip install -e .
+    startCommand: python scripts/prod.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: RZP_MODE
+        value: harness
+      - key: DB_PATH
+        value: razor402.db
+      - key: UPSTREAM_URL
+        value: http://127.0.0.1:9000
+
